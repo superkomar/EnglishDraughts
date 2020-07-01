@@ -1,0 +1,78 @@
+﻿<UserControl x:Class="EnglishDraughts.View.GameFieldView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:EnglishDraughts.View"
+             mc:Ignorable="d" 
+             d:DesignHeight="405" d:DesignWidth="405">
+
+    <UserControl.Resources>
+        <DataTemplate x:Key="DraughtCell">
+            
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <!--<Grid Width="400" Height="400">
+        <Grid.Background>
+                <DrawingBrush TileMode="Tile" Viewport="0,0,100,100" 
+                                      ViewportUnits="Absolute">
+                    <DrawingBrush.Drawing>
+                        <GeometryDrawing Brush="ForestGreen" 
+                                         Geometry="M5,5 L0,5 0,10 5,10 5,5 10,5 10,0 5,0 Z"/>
+                    </DrawingBrush.Drawing>
+                </DrawingBrush>
+            </Grid.Background>
+        <Border BorderBrush="Black" BorderThickness="5"/>
+    </Grid>-->
+
+    <!--<ItemsControl>
+        <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <Canvas Width="8" Height="8"/>
+            </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+            <DataTemplate>
+                <Grid Width="1" Height="1">
+                    <Image Width="0.8" Height="0.8" Style="{StaticResource ChessPieceStyle}" />
+                </Grid>
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+        <ItemsControl.ItemContainerStyle>
+            <Style>
+                <Setter Property="Canvas.Left" Value="{Binding Pos.X}"/>
+                <Setter Property="Canvas.Top" Value="{Binding Pos.Y}"/>
+            </Style>
+        </ItemsControl.ItemContainerStyle>
+    </ItemsControl>-->
+
+    <!--<ItemsControl>
+        <ItemsControl.ItemTemplate>
+            <ItemContainerTemplate>
+                <Rectangle Width="10" Height="10"/>
+            </ItemContainerTemplate>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>-->
+
+
+    <!--<Canvas Width="400" Height="400">
+        <Canvas.Background>
+            <DrawingBrush TileMode="Tile"
+                              Viewport="0,0,100,100" 
+                              ViewportUnits="Absolute">
+                <DrawingBrush.Drawing>
+                    <GeometryDrawing Brush="ForestGreen" 
+                                         Geometry="M5,5 L0,5 0,10 5,10 5,5 10,5 10,0 5,0 Z"/>
+                </DrawingBrush.Drawing>
+            </DrawingBrush>
+        </Canvas.Background>
+    </Canvas>-->
+
+    <Grid x:Name="myGrid">
+        <Border BorderBrush="Black" BorderThickness="5">
+            <!--<DataGrid x:Name="myDataGrid" AutoGenerateColumns="True"/>-->
+        </Border>
+    </Grid>
+
+</UserControl>

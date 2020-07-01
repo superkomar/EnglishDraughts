@@ -1,0 +1,90 @@
+﻿<UserControl x:Class="EnglishDraughts.View.GameControllsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:System="clr-namespace:System;assembly=mscorlib"
+             xmlns:local="clr-namespace:EnglishDraughts.View"
+             xmlns:enums="clr-namespace:EnglishDraughts.ViewModel.Enums"
+             mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <ObjectDataProvider x:Key="dataFromEnum" MethodName="GetValues"
+                            ObjectType="{x:Type System:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="enums:PlayerSideType"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+        <Style TargetType="{x:Type Button}">
+            <Setter Property="Width" Value="75"/>
+            <Setter Property="Margin" Value="10"/>
+        </Style>
+
+        <Style TargetType="{x:Type ToggleButton}">
+            <Setter Property="Width" Value="75"/>
+            <Setter Property="Margin" Value="10"/>
+        </Style>
+
+        <Style TargetType="{x:Type ComboBox}">
+            <Setter Property="Margin" Value="10"/>
+        </Style>
+
+        <Style TargetType="{x:Type TextBlock}">
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </UserControl.Resources>
+
+    <DockPanel>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+            <!--Firt Row-->
+            <Button Grid.Row="0" Grid.Column="0"
+                    Content="Start Game"
+                    Command="{Binding StartGameCmd.Control, Mode=OneWay}"
+                    IsEnabled="{Binding StartGameCmd.IsEnabled, Mode=OneWay}"/>
+
+            <Button Grid.Row="0" Grid.Column="1"
+                    Content="Restart Game"
+                    Command="{Binding RestartGameCmd.Control, Mode=OneWay}"
+                    IsEnabled="{Binding RestartGameCmd.IsEnabled, Mode=OneWay}"/>
+
+            <!--Second Row-->
+            <TextBlock Grid.Row="1" Grid.Column="0"
+                       Text="Robot Time (ms):"/>
+
+            <TextBox Grid.Row="1" Grid.Column="1"
+                     VerticalAlignment="Center"
+                     Text="{Binding RobotTime}"/>
+
+            <!--Third Row-->
+            <!--<TextBlock Grid.Row="2" Grid.Column="0"
+                       Text="Robot Type:"/>
+
+            <ComboBox Grid.Row="2" Grid.Column="1"
+                      ItemsSource="{Binding RobotTypes.AvailableTypes}"
+                      SelectedItem="{Binding RobotTypes.CurrentType}"/>-->
+
+            <!--Fourth Row-->
+            <TextBlock Grid.Row="3" Grid.Column="0"
+                       Text="Player Side:"/>
+
+            <ComboBox Grid.Row="3" Grid.Column="1"
+                      ItemsSource="{Binding Source={StaticResource dataFromEnum}}"
+                      SelectedItem="{Binding PlayerSide.Control}"
+                      IsEnabled="{Binding PlayerSide.IsEnabled, Mode=OneWay}"/>
+        </Grid>
+    </DockPanel>
+</UserControl>
