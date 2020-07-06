@@ -2,48 +2,49 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Linq;
 
 namespace Wpf.ViewModels.CustomTypes
 {
-    public class CustomObservableCollection<T> : ObservableCollection<T> where T : INotifyPropertyChanged
+    public class CustomObservableCollection<T> : ObservableCollection<T> 
+        where T : INotifyPropertyChanged
     {
-        private CustomObservableCollection()
-        {
-            CollectionChanged += FullObservableCollectionCollectionChanged;
-        }
+		public event PropertyChangedEventHandler ItemPropertyChanged;
 
-        public CustomObservableCollection(IEnumerable<T> pItems) : this()
-        {
-            foreach (var item in pItems)
-            {
-                Add(item);
-            }
-        }
+		protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+		{
+			switch (e.Action)
+			{
+				case NotifyCollectionChangedAction.Add: AttachItems(e.NewItems.Cast<T>()); break;
+				case NotifyCollectionChangedAction.Remove: DetachItems(e.OldItems.Cast<T>()); break;
+				case NotifyCollectionChangedAction.Replace:
+				{
+					DetachItems(e.OldItems.Cast<T>());
+					AttachItems(e.NewItems.Cast<T>());
+					break;
+				}
+			};
 
-        private void FullObservableCollectionCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            if (e.NewItems != null)
-            {
-                foreach (var item in e.NewItems)
-                {
-                    ((INotifyPropertyChanged)item).PropertyChanged += ItemPropertyChanged;
-                }
-            }
-            if (e.OldItems == null) return;
-            {
-                foreach (var item in e.OldItems)
-                {
-                    ((INotifyPropertyChanged)item).PropertyChanged -= ItemPropertyChanged;
-                }
-            }
-        }
+			base.OnCollectionChanged(e);
+		}
 
-        private void ItemPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            var args = new NotifyCollectionChangedEventArgs(
-                NotifyCollectionChangedAction.Replace, sender, sender, IndexOf((T)sender));
+		private void DetachItems(IEnumerable<T> items)
+		{
+			foreach (var item in items)
+			{
+				item.PropertyChanged -= OnItemPropertyChanged;
+			}
+		}
 
-            OnCollectionChanged(args);
-        }
-    }
+		private void AttachItems(IEnumerable<T> items)
+		{
+			foreach (var item in items)
+			{
+				item.PropertyChanged += OnItemPropertyChanged;
+			}
+		}
+
+		private void OnItemPropertyChanged(object sender, PropertyChangedEventArgs e) =>
+			ItemPropertyChanged?.Invoke(sender, e);
+	}
 }
