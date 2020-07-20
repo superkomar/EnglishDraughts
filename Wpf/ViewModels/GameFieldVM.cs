@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 
 using Wpf.Interfaces;
 using Wpf.ViewModels.CustomTypes;
@@ -11,13 +10,20 @@ namespace Wpf.ViewModels
 {
     public class GameFieldVM : NotifyPropertyChanged, IGameFieldVM
     {
-        private IList<CellHandler> _cellHandlers;
-        private IList<CellHandler> _selectedCells;
+        private readonly CustomObservableCollection<CellHandler> _cellHandlers;
+        private readonly IList<CellHandler> _selectedCells;
 
         public GameFieldVM()
         {
-            _cellHandlers = new List<CellHandler>(Dimension * Dimension);
+            _cellHandlers = new CustomObservableCollection<CellHandler>();
             _selectedCells = new List<CellHandler>();
+
+            AttacheHandlers();
+        }
+
+        private void AttacheHandlers()
+        {
+            _cellHandlers.ItemPropertyChanged += OnItemPropertyChanged;
         }
 
         public int Dimension => 8;
@@ -44,12 +50,11 @@ namespace Wpf.ViewModels
             }
 
             _cellHandlers.Add(cellHandler);
-            _cellHandlers.Last().PropertyChanged += OnCellPropertyChanged;
 
             return cellHandler;
         }
 
-        private void OnCellPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void OnItemPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (!(sender is CellHandler cellHandler)) return;
 
