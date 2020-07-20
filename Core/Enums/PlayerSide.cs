@@ -1,6 +1,6 @@
 ﻿namespace Core.Enums
 {
-    internal enum SideType
+    public enum PlayerSide
     {
         White,
         Black

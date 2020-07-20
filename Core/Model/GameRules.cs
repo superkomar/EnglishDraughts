@@ -1,37 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Core.Enums;
+using Core.Utils;
 
 namespace Core.Model
 {
-    public static class Utils
+    internal static class GameRules
     {
-        //public static RulesChercker<int> LeftTopNeighbor => new RulesChercker<int>();
-        //public static RulesChercker<int> LeftBotNeighbor => new RulesChercker<int>();
-        //public static RulesChercker<int> RightTopNeighbor => new RulesChercker<int>();
-        //public static RulesChercker<int> RightBotNeighbor => new RulesChercker<int>();
-    }
+        public static bool CheckMoveCells(GameField field, PlayerSide playerSide, int startIdx, int endIdx) =>
+            startIdx != endIdx && CheckStartCell(field, startIdx) && CheckEndCell(field, endIdx) && field[startIdx].ToPlayerSide() == playerSide;
 
-    public class RulesChercker<T>
-    {
-        private readonly IReadOnlyCollection<Func<T, bool>> _rules;
+        public static bool IsCellLevelUp(GameField field, PlayerSide playerSide, int cellIdx) =>
+            !field[cellIdx].IsKing() &&
+            ((playerSide == PlayerSide.Black && GameUtils.GetRowIdx(field, cellIdx) == field.Dimension - 1) ||
+             (playerSide == PlayerSide.White && GameUtils.GetRowIdx(field, cellIdx) == 0));
 
-        public RulesChercker(IReadOnlyCollection<Func<T, bool>> rules) => _rules = rules;
+        public static bool IsValidMoveDirection(GameField field, int cellIdx, int dirIdx) =>
+            field[cellIdx].IsKing()
+            || (field[cellIdx].ToPlayerSide() == PlayerSide.Black && cellIdx < dirIdx)
+            || (field[cellIdx].ToPlayerSide() == PlayerSide.White && cellIdx > dirIdx);
 
-        public bool CherckRules(T value, out T result)
-        {
-            result = value;
-            return _rules.All(x => x?.Invoke(value) ?? true);
-        }
-    }
+        private static bool CheckCellIdx(GameField field, int cellIdx) =>
+            cellIdx > 0 && cellIdx < field.Field.Count;
 
-    public class GameRules
-    {
+        private static bool CheckEndCell(GameField field, int cellIdx) =>
+            CheckCellIdx(field, cellIdx) && field[cellIdx] == CellState.Empty;
 
-        //public FindAvaliableStep()
-        //{
-
-        //}
+        private static bool CheckStartCell(GameField field, int cellIdx) =>
+            CheckCellIdx(field, cellIdx) && field[cellIdx] != CellState.Empty;
     }
 }

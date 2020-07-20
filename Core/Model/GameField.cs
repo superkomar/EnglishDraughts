@@ -1,31 +1,26 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 using Core.Enums;
-using Core.Interfaces;
+using Core.Utils;
 
 namespace Core.Model
 {
-    internal class GameField : IGameField
+    public readonly struct GameField
     {
-        private readonly FieldCellState[] _field;
-
-        public GameField(int dimension)
+        internal GameField(IReadOnlyList<CellState> field, GameFieldCache fieldCache, int dimension)
         {
-            RowSize = dimension / 2;
-            _field = new FieldCellState[RowSize * RowSize];
-
-            var startPiecesCount = RowSize * 3;
-            var lastCellIdx = _field.Length - 1;
-
-            for (var idx = 0; idx < startPiecesCount; idx++)
-            {
-                _field[idx] = FieldCellState.BlackMen;
-                _field[lastCellIdx - idx] = FieldCellState.WhiteMen;
-            }
+            FieldCache = fieldCache;
+            Field = field;
+            Dimension = dimension;
         }
 
-        public IReadOnlyCollection<FieldCellState> Field => _field;
+        public int Dimension { get; }
+        
+        public IReadOnlyList<CellState> Field { get; }
+        
+        internal GameFieldCache FieldCache { get; }
 
-        public int RowSize { get; }
+        public CellState this[int idx] => Field.ElementAtOrDefault(idx);
     }
 }
