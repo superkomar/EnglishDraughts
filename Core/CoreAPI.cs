@@ -49,10 +49,10 @@ namespace Core
             {
                 var cellState = field[i];
 
-                if (cellState.ToPlayerSide() != side) continue;
+                if (cellState == CellState.Empty || cellState.ToPlayerSide() != side) continue;
 
-                if (JumpMove(field, side, i, field.NeighborsHelper.GetLeftBotCell(i, 2)) is GameTurn leftBot) yield return leftBot;
-                if (JumpMove(field, side, i, field.NeighborsHelper.GetLeftTopCell(i, 2)) is GameTurn leftTop) yield return leftTop;
+                if (JumpMove(field, side, i, field.NeighborsHelper.GetLeftBotCell(i, 2))  is GameTurn leftBot)  yield return leftBot;
+                if (JumpMove(field, side, i, field.NeighborsHelper.GetLeftTopCell(i, 2))  is GameTurn leftTop)  yield return leftTop;
                 if (JumpMove(field, side, i, field.NeighborsHelper.GetRightBotCell(i, 2)) is GameTurn rightBot) yield return rightBot;
                 if (JumpMove(field, side, i, field.NeighborsHelper.GetRightTopCell(i, 2)) is GameTurn rightTop) yield return rightTop;
             }
@@ -60,7 +60,7 @@ namespace Core
 
         public static GameTurn JumpMove(GameField field, PlayerSide side, int start, int end)
         {
-            if (GameRules.CheckMovePossibility(field, side, start, end)) return null;
+            if (GameRules.IsMovePossible(field, side, start, end)) return null;
 
             var startNeighbours = field.NeighborsHelper[start];
             var endNeighbours = field.NeighborsHelper[end];
@@ -73,13 +73,13 @@ namespace Core
             else if (startNeighbours.RightBot == endNeighbours.LeftTop) middle = startNeighbours.RightBot;
 
             return middle != -1 && field[start].IsOpposite(field[middle])
-                ? new GameTurn(side, GameRules.CanLevelUp(field, side, end), new[] { start, middle, end })
+                ? new GameTurn(side, GameRules.CanLevelUp(field, end), new[] { start, middle, end })
                 : null;
         }
 
         public static GameTurn SimpleMove(GameField field, PlayerSide side, int start, int end) =>
-            GameRules.CheckMovePossibility(field, side, start, end)
-                ? new GameTurn(side, GameRules.CanLevelUp(field, side, end), new[] { start, end })
+            GameRules.IsMovePossible(field, side, start, end)
+                ? new GameTurn(side, GameRules.CanLevelUp(field, end), new[] { start, end })
                 : null;
 
         public static bool TryMakeTurn(GameField oldGameField, GameTurn gameTurn, out GameField newGameField)

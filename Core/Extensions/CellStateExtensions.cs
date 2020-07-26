@@ -18,6 +18,12 @@ namespace Core.Extensions
                 _ => state
             };
 
+        /// <summary>
+        /// Convert CellState to the PlayerSide.
+        /// Empty convert to Black.
+        /// </summary>
+        /// <param name="src"></param>
+        /// <returns></returns>
         public static PlayerSide ToPlayerSide(this CellState src) =>
             src == CellState.WhiteKing || src == CellState.WhiteMen ? PlayerSide.White : PlayerSide.Black;
     }

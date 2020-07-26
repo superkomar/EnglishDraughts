@@ -6,28 +6,29 @@ namespace Core.Utils
 {
     public static class GameRules
     {
-        public static bool CanLevelUp(GameField field, PlayerSide side, int cellIdx) =>
+        public static bool CanLevelUp(GameField field, int cellIdx) =>
             !field[cellIdx].IsKing() &&
-            ((side == PlayerSide.Black && GameUtils.GetRowIdx(field, cellIdx) == field.Dimension - 1) ||
-             (side == PlayerSide.White && GameUtils.GetRowIdx(field, cellIdx) == 0));
+            ((field[cellIdx].ToPlayerSide() == PlayerSide.Black && GameUtils.GetRowIdx(field, cellIdx) == field.Dimension - 1) ||
+             (field[cellIdx].ToPlayerSide() == PlayerSide.White && GameUtils.GetRowIdx(field, cellIdx) == 0));
 
-        public static bool CheckCellIdx(GameField field, int cellIdx) =>
-            cellIdx > 0 && cellIdx < field.Field.Count;
-
-        public static bool CheckEndCell(GameField field, int cellIdx) =>
-            CheckCellIdx(field, cellIdx) && field[cellIdx] == CellState.Empty;
-
-        public static bool CheckMovePossibility(GameField field, PlayerSide side, int startIdx, int endIdx) =>
-            startIdx != endIdx && IsMoveDirection(field, startIdx, endIdx)
-            && CheckStartCell(field, startIdx) && CheckEndCell(field, endIdx)
+        public static bool IsMovePossible(GameField field, PlayerSide side, int startIdx, int endIdx) =>
+            startIdx != endIdx
+            && IsValidTurnStart(field, startIdx) && IsValidTurnEnd(field, endIdx)
+            && IsValidMoveDirection(field, startIdx, endIdx)
             && field[startIdx].ToPlayerSide() == side;
 
-        public static bool CheckStartCell(GameField field, int cellIdx) =>
-            CheckCellIdx(field, cellIdx) && field[cellIdx] != CellState.Empty;
+        public static bool IsValidCellIdx(GameField field, int cellIdx) =>
+            cellIdx > 0 && cellIdx < field.Field.Count;
+        
+        public static bool IsValidTurnEnd(GameField field, int cellIdx) =>
+            IsValidCellIdx(field, cellIdx) && field[cellIdx] == CellState.Empty;
+        
+        public static bool IsValidTurnStart(GameField field, int cellIdx) =>
+            IsValidCellIdx(field, cellIdx) && field[cellIdx] != CellState.Empty;
 
-        public static bool IsMoveDirection(GameField field, int cellIdx, int dirIdx) =>
-            field[cellIdx].IsKing()
-            || (field[cellIdx].ToPlayerSide() == PlayerSide.Black && cellIdx < dirIdx)
-            || (field[cellIdx].ToPlayerSide() == PlayerSide.White && cellIdx > dirIdx);
+        private static bool IsValidMoveDirection(GameField field, int start, int end) =>
+            field[start].IsKing()
+            || (field[start].ToPlayerSide() == PlayerSide.Black && start < end)
+            || (field[start].ToPlayerSide() == PlayerSide.White && start > end);
     }
 }

@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 using Core.Enums;
 using Core.Helpers;
 
+[assembly: InternalsVisibleTo("NUnitTests")]
 namespace Core.Model
 {
     public readonly struct GameField

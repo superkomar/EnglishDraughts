@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace NUnitTests.Core
 {
-    public class NeighborsFinderTests
+    public class NeighborsHelperTests
     {
 
         [TestCase(0)]
@@ -110,11 +110,12 @@ namespace NUnitTests.Core
 
             var finder = new NeighborsHelper(dimention);
 
-            Assert.IsTrue(finder.IsNeighbors(8, 7));
-            Assert.IsTrue(finder.IsNeighbors(0, 0));
-            Assert.IsTrue(finder.IsNeighbors(-1, 0));
-            Assert.IsTrue(finder.IsNeighbors(0, -1));
-            Assert.IsTrue(finder.IsNeighbors(-1, -1));
+            Assert.IsFalse(finder.IsNeighbors(8, 7));
+            Assert.IsFalse(finder.IsNeighbors(0, 0));
+            Assert.IsFalse(finder.IsNeighbors(24, 8));
+            Assert.IsFalse(finder.IsNeighbors(-1, 0));
+            Assert.IsFalse(finder.IsNeighbors(0, -1));
+            Assert.IsFalse(finder.IsNeighbors(-1, -1));
 
             Assert.IsTrue(finder.IsNeighbors(35, 26));
             Assert.IsTrue(finder.IsNeighbors(35, 28));
