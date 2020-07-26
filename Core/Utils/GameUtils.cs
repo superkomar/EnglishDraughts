@@ -11,6 +11,6 @@ namespace Core.Utils
             cellIdx / field.Dimension;
 
         public static GameField GetNewField(GameField oldField, IReadOnlyList<CellState> newField) =>
-            new GameField(newField, oldField.FieldCache, oldField.Dimension);
+            new GameField(newField, oldField.NeighborsHelper, oldField.Dimension);
     }
 }

@@ -14,6 +14,8 @@ namespace Core.Model
             Turns = turns;
         }
 
+        public bool IsSimple => Turns.Count == 2;
+
         public IReadOnlyList<int> Turns { get; }
 
         public bool IsLevelUp { get; }

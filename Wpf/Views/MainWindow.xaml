@@ -3,27 +3,43 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Wpf.Views"
+        xmlns:views="clr-namespace:Wpf.Views"
         mc:Ignorable="d"
-        Title="MainWindow" Height="550" Width="800">
-    
+        Title="English Draughts" Height="538" Width="800">
+
     <Window.Resources>
-        <Style TargetType="GroupBox">
+        <Style TargetType="{x:Type GroupBox}">
             <Setter Property="Margin" Value="5"/>
+        </Style>
+
+        <Style TargetType="{x:Type TextBlock}">
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
     </Window.Resources>
 
     <DockPanel>
-        <local:GameFieldView DockPanel.Dock="Left" Width="Auto" Height="Auto"/>
 
-        <DockPanel DockPanel.Dock="Right" HorizontalAlignment="Right">
-            <GroupBox Header="Controls" DockPanel.Dock="Top">
-                <local:GameControllsView/>
+        <views:GameFieldView DockPanel.Dock="Left"/>
+
+        <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right">
+
+            <GroupBox Header="GameStatus" DockPanel.Dock="Top">
+                <TextBlock
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Text="{Binding StatusText, Mode=OneWay}"
+                    Margin="5"/>
+            </GroupBox>
+            
+            <GroupBox Header="Controls" DockPanel.Dock="Top" Height="Auto">
+                <views:GameControllsView/>
             </GroupBox>
 
-            <GroupBox Header="History" DockPanel.Dock="Bottom">
-                <local:GameHistoryView/>
-            </GroupBox>
-        </DockPanel>
+            <!--<GroupBox Header="History" DockPanel.Dock="Bottom">
+                <views:GameHistoryView/>
+            </GroupBox>-->
+            
+        </StackPanel>
     </DockPanel>
 </Window>

@@ -1,6 +1,5 @@
-﻿using System.Windows;
+﻿using System;
 using System.Windows.Controls;
-using System.Windows.Media;
 
 using Wpf.Interfaces;
 using Wpf.ViewModels;
@@ -19,43 +18,37 @@ namespace Wpf.Views
 
             DataContext = VMLocator.GameFieldVM;
 
-            GenerateField();
+            Loaded += (s, e) => AttachHandlers();
+            Unloaded += (s, e) => DetacheHandlers();
+
+            InitGameField();
         }
 
-        private void GenerateField()
+        private void AttachHandlers()
         {
-            if (!(DataContext is IGameFieldVM gameFieldVM)) return;
+            (DataContext as GameFieldVM).CreateField += CreateField;
+            (DataContext as GameFieldVM).ResetField += ResetField;
+        }
 
-            for (int i = 0; i < gameFieldVM.Dimension; i++)
-            {
-                GameField.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            }
+        private void CreateField(object sender, EventArgs e)
+        {
+            InitGameField();
+        }
 
-            for (int j = 0; j < gameFieldVM.Dimension; j++)
-            {
-                GameField.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-            }
+        private void DetacheHandlers()
+        {
+            (DataContext as GameFieldVM).CreateField -= CreateField;
+            (DataContext as GameFieldVM).ResetField -= ResetField;
+        }
+        
+        private void InitGameField()
+        {
+            GameField.GenerateNewField(DataContext as IGameFieldController);
+        }
 
-            GameField.Margin = new Thickness(0);
-            GameField.Background = Brushes.Black;
-
-            for (int i = 0; i < gameFieldVM.Dimension; i++)
-            {
-                for (int j = 0; j < gameFieldVM.Dimension; j++)
-                {
-                    var cell = new GameCell(gameFieldVM.GetCellHandler(i, j), 60, 60)
-                    {
-                        Margin = new Thickness(0),
-                        HorizontalAlignment = HorizontalAlignment.Stretch,
-                        VerticalAlignment = VerticalAlignment.Stretch
-                    };
-
-                    GameField.Children.Add(cell);
-
-                    Grid.SetColumn(cell, j);
-                    Grid.SetRow(cell, i);
-                }
-            }
+        private void ResetField(object sender, EventArgs e)
+        {
+            GameField.ResetField();
         }
     }
 }

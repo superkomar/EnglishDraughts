@@ -1,4 +1,10 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+
+using Wpf.Interfaces;
+using Wpf.ViewModels;
+using Wpf.Views.Controls;
 
 namespace Wpf
 {
@@ -10,6 +16,8 @@ namespace Wpf
         public MainWindow()
         {
             InitializeComponent();
+
+            DataContext = new MainWindowVM();
         }
     }
 }
