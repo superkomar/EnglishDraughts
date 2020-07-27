@@ -6,10 +6,10 @@ namespace Core.Utils
 {
     public static class GameRules
     {
-        public static bool CanLevelUp(GameField field, int cellIdx) =>
-            !field[cellIdx].IsKing() &&
-            ((field[cellIdx].ToPlayerSide() == PlayerSide.Black && GameFieldUtils.GetRowIdx(field, cellIdx) == field.Dimension - 1) ||
-             (field[cellIdx].ToPlayerSide() == PlayerSide.White && GameFieldUtils.GetRowIdx(field, cellIdx) == 0));
+        public static bool CanLevelUp(GameField field, CellState state, int end) =>
+            !state.IsKing() &&
+            ((state.ToPlayerSide() == PlayerSide.Black && GameFieldUtils.GetRowIdx(field, end) == field.Dimension - 1) ||
+             (state.ToPlayerSide() == PlayerSide.White && GameFieldUtils.GetRowIdx(field, end) == 0));
 
         public static bool IsMovePossible(GameField field, PlayerSide side, int startIdx, int endIdx) =>
             startIdx != endIdx

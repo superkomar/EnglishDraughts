@@ -13,7 +13,8 @@ namespace Core.Utils
     {
         public static GameField CreateGameField(int dimension)
         {
-            if (dimension < 8) throw new ArgumentException(@"Field! Dimention must be more or equal then 8");
+            //if (dimension <= 0) throw new ArgumentException(@"Field! Dimention must be more or equal then 8");
+            if (dimension <= 0) throw new ArgumentException(@"Fail! Dimention must be more then 0");
 
             return new GameField(ConstructInitialField(dimension), new NeighborsHelper(dimension), dimension);
         }
@@ -57,18 +58,18 @@ namespace Core.Utils
             else if (startNeighbours.RightBot == endNeighbours.LeftTop) middle = startNeighbours.RightBot;
 
             return middle != -1 && field[middle] != CellState.Empty && field[start].IsOpposite(field[middle])
-                ? new GameTurn(side, GameRules.CanLevelUp(field, end), new[] { start, middle, end })
+                ? new GameTurn(side, GameRules.CanLevelUp(field, field[start], end), new[] { start, middle, end })
                 : null;
         }
 
         public static GameTurn CreateSimpleMove(GameField field, PlayerSide side, int start, int end) =>
             GameRules.IsMovePossible(field, side, start, end)
-                ? new GameTurn(side, GameRules.CanLevelUp(field, end), new[] { start, end })
+                ? new GameTurn(side, GameRules.CanLevelUp(field, field[start], end), new[] { start, end })
                 : null;
 
         private static IReadOnlyList<CellState> ConstructInitialField(int dimension)
         {
-            const int rowCountWithPieces = 3;
+            int rowCountWithPieces = dimension / 2 - 1;
 
             var initField = new List<CellState>();
 

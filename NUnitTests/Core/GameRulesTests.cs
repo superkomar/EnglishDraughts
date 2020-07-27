@@ -52,22 +52,22 @@ namespace NUnitTests.Core
         [Test]
         public void Test_CanLevelUp()
         {
-            Assert.IsFalse(GameRules.CanLevelUp(_gameField, 1));
-            Assert.IsFalse(GameRules.CanLevelUp(_gameField, 3));
-            Assert.IsFalse(GameRules.CanLevelUp(_gameField,  7));
+            Assert.IsFalse(GameRules.CanLevelUp(_gameField, _gameField[1], 1));
+            Assert.IsFalse(GameRules.CanLevelUp(_gameField, _gameField[3], 3));
+            Assert.IsFalse(GameRules.CanLevelUp(_gameField, _gameField[7], 7));
             
-            Assert.IsTrue(GameRules.CanLevelUp(_gameField,  5));
+            Assert.IsTrue(GameRules.CanLevelUp(_gameField, _gameField[5],  5));
 
-            Assert.IsFalse(GameRules.CanLevelUp(_gameField, 17));
-            Assert.IsFalse(GameRules.CanLevelUp(_gameField, 19));
-            Assert.IsFalse(GameRules.CanLevelUp(_gameField, 21));
-            Assert.IsFalse(GameRules.CanLevelUp(_gameField, 23));
+            Assert.IsFalse(GameRules.CanLevelUp(_gameField, _gameField[17], 17));
+            Assert.IsFalse(GameRules.CanLevelUp(_gameField, _gameField[19], 19));
+            Assert.IsFalse(GameRules.CanLevelUp(_gameField, _gameField[21], 21));
+            Assert.IsFalse(GameRules.CanLevelUp(_gameField, _gameField[23], 23));
 
-            Assert.IsTrue(GameRules.CanLevelUp(_gameField,  56));
+            Assert.IsTrue(GameRules.CanLevelUp(_gameField, _gameField[56],  56));
             
-            Assert.IsFalse(GameRules.CanLevelUp(_gameField, 58));
-            Assert.IsFalse(GameRules.CanLevelUp(_gameField, 60));
-            Assert.IsFalse(GameRules.CanLevelUp(_gameField, 62));
+            Assert.IsFalse(GameRules.CanLevelUp(_gameField, _gameField[58], 58));
+            Assert.IsFalse(GameRules.CanLevelUp(_gameField, _gameField[60], 60));
+            Assert.IsFalse(GameRules.CanLevelUp(_gameField, _gameField[62], 62));
         }
 
         [Test]
