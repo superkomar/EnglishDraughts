@@ -27,26 +27,26 @@ namespace NUnitTests.Core
         [TestCase(2)]
         public void NeighborsFinder_Dim_2(int dimention)
         {
-            // 0(w) 1(b)
-            // 2(b) 3(w)
+            // 0(-)|1(+)
+            // 2(+)|3(-)
 
             var finder = new NeighborsHelper(dimention);
 
             // Zero row
-            Assert.AreEqual(finder[0], new CellNeighbors(-1, -1, -1, 3));
-            Assert.AreEqual(finder[1], new CellNeighbors(-1, 2, -1, -1));
+            Assert.AreEqual(finder[0], new CellNeighbors(-1, -1, -1,  3));
+            Assert.AreEqual(finder[1], new CellNeighbors(-1,  2, -1, -1));
 
             // First row
-            Assert.AreEqual(finder[2], new CellNeighbors(-1, -1, 1, -1));
-            Assert.AreEqual(finder[3], new CellNeighbors(0, -1, -1, -1));
+            Assert.AreEqual(finder[2], new CellNeighbors(-1, -1,  1, -1));
+            Assert.AreEqual(finder[3], new CellNeighbors( 0, -1, -1, -1));
         }
 
         [TestCase(3)]
         public void NeighborsFinder_Dim_3(int dimention)
         {
-            // 0(w)|1(b)|2(w)
-            // 3(b)|4(w)|5(b)
-            // 6(w)|7(b)|8(w)
+            // 0(-)|1(+)|2(-)
+            // 3(+)|4(-)|5(+)
+            // 6(-)|7(+)|8(-)
 
             var finder = new NeighborsHelper(dimention);
 
@@ -55,7 +55,7 @@ namespace NUnitTests.Core
 
             // First row
             Assert.AreEqual(finder[3], new CellNeighbors(-1, -1, 1, 7));
-            Assert.AreEqual(finder[4], new CellNeighbors(0, 6, 2, 8));
+            Assert.AreEqual(finder[4], new CellNeighbors( 0,  6, 2, 8));
 
             // Second row
             Assert.AreEqual(finder[7], new CellNeighbors(3, -1, 5, -1));
@@ -64,14 +64,14 @@ namespace NUnitTests.Core
         [TestCase(8)]
         public void NeighborsFinder_Dim_8(int dimention)
         {
-            //  0(w)| 1(b)| 2(w)| 3(b)| 4(w)| 5(b)| 6(w)| 7(b)
-            //  8(b)| 9(w)|10(b)|11(w)|12(b)|13(w)|14(b)|15(w)
-            // 16(w)|17(b)|18(w)|19(b)|20(w)|21(b)|22(w)|23(b)
-            // 24(b)|25(w)|26(b)|27(w)|28(b)|29(w)|30(b)|31(w)
-            // 32(w)|33(b)|34(w)|35(b)|36(w)|37(b)|38(w)|39(b)
-            // 40(b)|41(w)|42(b)|43(w)|44(b)|45(w)|46(b)|47(w)
-            // 48(w)|49(b)|50(w)|51(b)|52(w)|53(b)|54(w)|55(b)
-            // 56(b)|57(w)|58(b)|59(w)|60(b)|61(w)|62(b)|63(w)
+            //  0(-)| 1(+)| 2(-)| 3(+)| 4(-)| 5(+)| 6(-)| 7(+)
+            //  8(+)| 9(-)|10(+)|11(-)|12(+)|13(-)|14(+)|15(-)
+            // 16(-)|17(+)|18(-)|19(+)|20(-)|21(+)|22(-)|23(+)
+            // 24(+)|25(-)|26(+)|27(-)|28(+)|29(-)|30(+)|31(-)
+            // 32(-)|33(+)|34(-)|35(+)|36(-)|37(+)|38(-)|39(+)
+            // 40(+)|41(-)|42(+)|43(-)|44(+)|45(-)|46(+)|47(-)
+            // 48(-)|49(+)|50(-)|51(+)|52(-)|53(+)|54(-)|55(+)
+            // 56(+)|57(-)|58(+)|59(-)|60(+)|61(-)|62(+)|63(-)
 
             var finder = new NeighborsHelper(dimention);
 
@@ -99,14 +99,14 @@ namespace NUnitTests.Core
         [TestCase(8)]
         public void NeighborsFinder_IsNeighbors(int dimention)
         {
-            //  0(w)| 1(b)| 2(w)| 3(b)| 4(w)| 5(b)| 6(w)| 7(b)
-            //  8(b)| 9(w)|10(b)|11(w)|12(b)|13(w)|14(b)|15(w)
-            // 16(w)|17(b)|18(w)|19(b)|20(w)|21(b)|22(w)|23(b)
-            // 24(b)|25(w)|26(b)|27(w)|28(b)|29(w)|30(b)|31(w)
-            // 32(w)|33(b)|34(w)|35(b)|36(w)|37(b)|38(w)|39(b)
-            // 40(b)|41(w)|42(b)|43(w)|44(b)|45(w)|46(b)|47(w)
-            // 48(w)|49(b)|50(w)|51(b)|52(w)|53(b)|54(w)|55(b)
-            // 56(b)|57(w)|58(b)|59(w)|60(b)|61(w)|62(b)|63(w)
+            //  0(-)| 1(+)| 2(-)| 3(+)| 4(-)| 5(+)| 6(-)| 7(+)
+            //  8(+)| 9(-)|10(+)|11(-)|12(+)|13(-)|14(+)|15(-)
+            // 16(-)|17(+)|18(-)|19(+)|20(-)|21(+)|22(-)|23(+)
+            // 24(+)|25(-)|26(+)|27(-)|28(+)|29(-)|30(+)|31(-)
+            // 32(-)|33(+)|34(-)|35(+)|36(-)|37(+)|38(-)|39(+)
+            // 40(+)|41(-)|42(+)|43(-)|44(+)|45(-)|46(+)|47(-)
+            // 48(-)|49(+)|50(-)|51(+)|52(-)|53(+)|54(-)|55(+)
+            // 56(+)|57(-)|58(+)|59(-)|60(+)|61(-)|62(+)|63(-)
 
             var finder = new NeighborsHelper(dimention);
 
@@ -131,14 +131,14 @@ namespace NUnitTests.Core
         [TestCase(8)]
         public void NeighborsFinder_GetSmthCell(int dimention)
         {
-            //  0(w)| 1(b)| 2(w)| 3(b)| 4(w)| 5(b)| 6(w)| 7(b)
-            //  8(b)| 9(w)|10(b)|11(w)|12(b)|13(w)|14(b)|15(w)
-            // 16(w)|17(b)|18(w)|19(b)|20(w)|21(b)|22(w)|23(b)
-            // 24(b)|25(w)|26(b)|27(w)|28(b)|29(w)|30(b)|31(w)
-            // 32(w)|33(b)|34(w)|35(b)|36(w)|37(b)|38(w)|39(b)
-            // 40(b)|41(w)|42(b)|43(w)|44(b)|45(w)|46(b)|47(w)
-            // 48(w)|49(b)|50(w)|51(b)|52(w)|53(b)|54(w)|55(b)
-            // 56(b)|57(w)|58(b)|59(w)|60(b)|61(w)|62(b)|63(w)
+            //  0(-)| 1(+)| 2(-)| 3(+)| 4(-)| 5(+)| 6(-)| 7(+)
+            //  8(+)| 9(-)|10(+)|11(-)|12(+)|13(-)|14(+)|15(-)
+            // 16(-)|17(+)|18(-)|19(+)|20(-)|21(+)|22(-)|23(+)
+            // 24(+)|25(-)|26(+)|27(-)|28(+)|29(-)|30(+)|31(-)
+            // 32(-)|33(+)|34(-)|35(+)|36(-)|37(+)|38(-)|39(+)
+            // 40(+)|41(-)|42(+)|43(-)|44(+)|45(-)|46(+)|47(-)
+            // 48(-)|49(+)|50(-)|51(+)|52(-)|53(+)|54(-)|55(+)
+            // 56(+)|57(-)|58(+)|59(-)|60(+)|61(-)|62(+)|63(-)
 
             var finder = new NeighborsHelper(dimention);
 

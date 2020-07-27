@@ -44,19 +44,19 @@ namespace Core.Utils
 
         public static GameTurn CreateJumpMove(GameField field, PlayerSide side, int start, int end)
         {
-            if (GameRules.IsMovePossible(field, side, start, end)) return null;
+            if (!GameRules.IsMovePossible(field, side, start, end)) return null;
 
             var startNeighbours = field.NeighborsHelper[start];
             var endNeighbours = field.NeighborsHelper[end];
 
             var middle = -1;
 
-            if (startNeighbours.LeftTop == endNeighbours.RightBot) middle = startNeighbours.LeftTop;
+            if      (startNeighbours.LeftTop == endNeighbours.RightBot) middle = startNeighbours.LeftTop;
             else if (startNeighbours.LeftBot == endNeighbours.RightTop) middle = startNeighbours.LeftBot;
             else if (startNeighbours.RightTop == endNeighbours.LeftBot) middle = startNeighbours.RightTop;
             else if (startNeighbours.RightBot == endNeighbours.LeftTop) middle = startNeighbours.RightBot;
 
-            return middle != -1 && field[start].IsOpposite(field[middle])
+            return middle != -1 && field[middle] != CellState.Empty && field[start].IsOpposite(field[middle])
                 ? new GameTurn(side, GameRules.CanLevelUp(field, end), new[] { start, middle, end })
                 : null;
         }
