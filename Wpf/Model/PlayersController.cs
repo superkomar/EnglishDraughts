@@ -52,7 +52,7 @@ namespace Wpf.Model
         {
             History = new GameHistory();
 
-            CurrentGameField = CoreAPI.CreateGameField(Constants.FieldDimension);
+            CurrentGameField = ModelsCreator.CreateGameField(Constants.FieldDimension);
         }
 
         public void StartGame(IPlayer blackPlayer, IPlayer whitePlayer)
@@ -70,7 +70,7 @@ namespace Wpf.Model
         {
             var newTurn = player.GetTurn(CurrentGameField);
 
-            if (!CoreAPI.TryMakeTurn(CurrentGameField, newTurn, out GameField newGameField))
+            if (!ModelsCreator.TryMakeTurn(CurrentGameField, newTurn, out GameField newGameField))
             {
                 IsGameRunning = false;
                 Winner = player.Side == PlayerSide.White ? PlayerSide.Black : PlayerSide.White;

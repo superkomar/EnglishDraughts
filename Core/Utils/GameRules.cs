@@ -8,8 +8,8 @@ namespace Core.Utils
     {
         public static bool CanLevelUp(GameField field, int cellIdx) =>
             !field[cellIdx].IsKing() &&
-            ((field[cellIdx].ToPlayerSide() == PlayerSide.Black && GameUtils.GetRowIdx(field, cellIdx) == field.Dimension - 1) ||
-             (field[cellIdx].ToPlayerSide() == PlayerSide.White && GameUtils.GetRowIdx(field, cellIdx) == 0));
+            ((field[cellIdx].ToPlayerSide() == PlayerSide.Black && GameFieldUtils.GetRowIdx(field, cellIdx) == field.Dimension - 1) ||
+             (field[cellIdx].ToPlayerSide() == PlayerSide.White && GameFieldUtils.GetRowIdx(field, cellIdx) == 0));
 
         public static bool IsMovePossible(GameField field, PlayerSide side, int startIdx, int endIdx) =>
             startIdx != endIdx

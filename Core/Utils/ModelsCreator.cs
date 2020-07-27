@@ -6,11 +6,10 @@ using Core.Enums;
 using Core.Extensions;
 using Core.Helpers;
 using Core.Model;
-using Core.Utils;
 
-namespace Core
+namespace Core.Utils
 {
-    public static class CoreAPI
+    public static class ModelsCreator
     {
         public static GameField CreateGameField(int dimension)
         {
@@ -21,8 +20,8 @@ namespace Core
 
         public static GameTurn CreateGameTurn(GameField field, PlayerSide playerSide, int start, int end) =>
             field.NeighborsHelper.IsNeighbors(start, end)
-                ? SimpleMove(field, playerSide, start, end)
-                : JumpMove(field, playerSide, start, end);
+                ? CreateSimpleMove(field, playerSide, start, end)
+                : CreateJumpMove(field, playerSide, start, end);
 
         public static GameTurnCollection CreateGameTurnCollection(IReadOnlyList<GameTurn> turns)
         {
@@ -43,22 +42,7 @@ namespace Core
             return new GameTurnCollection(turns);
         }
 
-        public static IEnumerable<GameTurn> FindRequiredJumps(GameField field, PlayerSide side)
-        {
-            for (var i = 0; i < field.Field.Count; i++)
-            {
-                var cellState = field[i];
-
-                if (cellState == CellState.Empty || cellState.ToPlayerSide() != side) continue;
-
-                if (JumpMove(field, side, i, field.NeighborsHelper.GetLeftBotCell(i, 2))  is GameTurn leftBot)  yield return leftBot;
-                if (JumpMove(field, side, i, field.NeighborsHelper.GetLeftTopCell(i, 2))  is GameTurn leftTop)  yield return leftTop;
-                if (JumpMove(field, side, i, field.NeighborsHelper.GetRightBotCell(i, 2)) is GameTurn rightBot) yield return rightBot;
-                if (JumpMove(field, side, i, field.NeighborsHelper.GetRightTopCell(i, 2)) is GameTurn rightTop) yield return rightTop;
-            }
-        }
-
-        public static GameTurn JumpMove(GameField field, PlayerSide side, int start, int end)
+        public static GameTurn CreateJumpMove(GameField field, PlayerSide side, int start, int end)
         {
             if (GameRules.IsMovePossible(field, side, start, end)) return null;
 
@@ -67,7 +51,7 @@ namespace Core
 
             var middle = -1;
 
-            if      (startNeighbours.LeftTop == endNeighbours.RightBot) middle = startNeighbours.LeftTop;
+            if (startNeighbours.LeftTop == endNeighbours.RightBot) middle = startNeighbours.LeftTop;
             else if (startNeighbours.LeftBot == endNeighbours.RightTop) middle = startNeighbours.LeftBot;
             else if (startNeighbours.RightTop == endNeighbours.LeftBot) middle = startNeighbours.RightTop;
             else if (startNeighbours.RightBot == endNeighbours.LeftTop) middle = startNeighbours.RightBot;
@@ -77,52 +61,10 @@ namespace Core
                 : null;
         }
 
-        public static GameTurn SimpleMove(GameField field, PlayerSide side, int start, int end) =>
+        public static GameTurn CreateSimpleMove(GameField field, PlayerSide side, int start, int end) =>
             GameRules.IsMovePossible(field, side, start, end)
                 ? new GameTurn(side, GameRules.CanLevelUp(field, end), new[] { start, end })
                 : null;
-
-        public static bool TryMakeTurn(GameField oldGameField, GameTurn gameTurn, out GameField newGameField)
-        {
-            newGameField = oldGameField;
-
-            if (gameTurn == null ||
-                gameTurn.IsSimple && FindRequiredJumps(oldGameField, gameTurn.Side).Any())
-            {
-                return false;
-            }
-
-            var newField = new List<CellState>(oldGameField.Field);
-            var cellState = newField[gameTurn.Turns.First()];
-
-            foreach (var turn in gameTurn.Turns.Take(gameTurn.Turns.Count - 1))
-            {
-                newField[turn] = CellState.Empty;
-            }
-
-            newField[gameTurn.Turns.Last()] = gameTurn.IsLevelUp ? cellState.LevelUp() : cellState;
-
-            newGameField = GameUtils.GetNewField(oldGameField, newField);
-
-            return true;
-        }
-        
-        public static bool TryMakeTurns(GameField oldField, GameTurnCollection turns, out GameField newField)
-        {
-            newField = oldField;
-
-            for (var i = 0; i < turns.Turns.Count; i++)
-            {
-                if (!TryMakeTurn(newField, turns.Turns[i], out GameField newLocalField))
-                {
-                    return false;
-                }
-
-                newField = newLocalField;
-            }
-
-            return true;
-        }
 
         private static IReadOnlyList<CellState> ConstructInitialField(int dimension)
         {
