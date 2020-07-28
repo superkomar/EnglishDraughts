@@ -1,7 +1,5 @@
 ﻿using System.ComponentModel;
 
-using Core.Enums;
-
 using Wpf.ViewModels.Enums;
 
 namespace Wpf.Interfaces

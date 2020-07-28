@@ -2,8 +2,6 @@
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 
-using Core.Enums;
-
 using Wpf.ViewModels.Enums;
 
 namespace Wpf.Views.Controls
