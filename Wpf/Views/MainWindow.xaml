@@ -31,15 +31,11 @@
                     Text="{Binding StatusText, Mode=OneWay}"
                     Margin="5"/>
             </GroupBox>
-            
+
             <GroupBox Header="Controls" DockPanel.Dock="Top" Height="Auto">
                 <views:GameControllsView/>
             </GroupBox>
 
-            <!--<GroupBox Header="History" DockPanel.Dock="Bottom">
-                <views:GameHistoryView/>
-            </GroupBox>-->
-            
         </StackPanel>
     </DockPanel>
 </Window>

@@ -4,6 +4,7 @@ using Core;
 using Core.Enums;
 using Core.Model;
 using Core.Utils;
+using Wpf.Interfaces;
 
 namespace Wpf.Model
 {
@@ -12,13 +13,6 @@ namespace Wpf.Model
         int CalculationTime { get; }
 
         PlayerSide Side { get; }
-    }
-
-    public interface IPlayer
-    {
-        PlayerSide Side { get; }
-
-        GameTurn GetTurn(GameField gameField, IPlayerParameters launchParameters = null);
     }
 
     public sealed class GameHistory
@@ -69,12 +63,12 @@ namespace Wpf.Model
 
         private void MakeTurn(IPlayer player)
         {
-            var newTurn = player.GetTurn(CurrentGameField);
+            var newTurn = player.MakeTurn(CurrentGameField);
 
             if (!GameFieldUpdater.TryMakeTurn(CurrentGameField, newTurn, out GameField newGameField))
             {
                 IsGameRunning = false;
-                Winner = player.Side == PlayerSide.White ? PlayerSide.Black : PlayerSide.White;
+                //Winner = player.Side == PlayerSide.White ? PlayerSide.Black : PlayerSide.White;
             }
 
             History.Push(newGameField);

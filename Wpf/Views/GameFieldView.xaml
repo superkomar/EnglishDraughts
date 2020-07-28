@@ -3,14 +3,12 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:Wpf.Views"
       xmlns:controls="clr-namespace:Wpf.Views.Controls"
       mc:Ignorable="d">
 
     <Grid>
         <Border BorderBrush="DimGray" BorderThickness="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <controls:GameField x:Name="GameField"/>
-            <!--<Grid x:Name="GameField" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="3"/>-->
         </Border>
     </Grid>
 </UserControl>
