@@ -1,150 +1,213 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Linq;
+
+using Core.Enums;
+using Core.Extensions;
+using Core.Model;
+using Core.Utils;
 
 using Wpf.Interfaces;
+using Wpf.Model;
 using Wpf.ViewModels.CustomTypes;
 using Wpf.ViewModels.Enums;
 
 namespace Wpf.ViewModels
 {
-    public class GameFieldVM : NotifyPropertyChanged, IGameFieldVM
+    public interface IPlayer
+    {
+        void Init(int dimension, PlayerSide side);
+
+        GameTurn MakeTurn(GameField gameField);
+    }
+
+    public class GameFieldVM : ViewModelBase, IGameFieldVM, IPlayer
     {
         private readonly CustomObservableCollection<CellHandler> _cellHandlers;
-        private readonly IList<CellHandler> _selectedCells;
+
+        private GameField _currentField;
+        private PlayerSide _playerSide;
+        private CellHandler _selectedCells;
+
+        private IEnumerable<GameTurn> _requiredJumps;
 
         public GameFieldVM()
         {
             _cellHandlers = new CustomObservableCollection<CellHandler>();
-            _selectedCells = new List<CellHandler>();
 
-            AttacheHandlers();
+            Init(Dimension, PlayerSide.White);
         }
 
-        private void AttacheHandlers()
+        #region IGameFieldVM
+
+        public event EventHandler RedrawField;
+
+        public int Dimension { get; private set; } = Constants.FieldDimension;
+
+        public ICellHandler GetCellHandler(int posX, int posY) => GetCellHandler(posX * Dimension + posY);
+
+        public ICellHandler GetCellHandler(int cellIdx) => _cellHandlers.ElementAtOrDefault(cellIdx);
+
+        #endregion
+
+        #region IPlayer
+
+        public void Init(int dimension, PlayerSide side)
         {
-            _cellHandlers.ItemPropertyChanged += OnItemPropertyChanged;
+            _playerSide = side;
+            Dimension = dimension;
+
+            _cellHandlers.Clear();
+
+            UpdateGameField(ModelsCreator.CreateGameField(Dimension));
+
+            RaiseRadrawFieldEvent();
         }
 
-        public int Dimension => 8;
-
-        public ICellHandler GetCellHandler(int posX, int posY)
+        public GameTurn MakeTurn(GameField gameField)
         {
-            var cellIdx = posX * Dimension + posY;
-            var isCellActive = (posX + posY) % 2 != 0;
+            if (gameField.Dimension != Dimension) throw new ArgumentException("Faild!!! Incorrect game field");
 
-            var cellHandler = new CellHandler()
+            return null;
+        }
+
+        #endregion
+
+        private void RaiseRadrawFieldEvent() => RedrawField?.Invoke(this, EventArgs.Empty);
+
+        private bool TrySelectCell(CellHandler cellHandler)
+        {
+            if (cellHandler == null)
             {
-                CellState = CellState.Empty,
-                CellType = isCellActive ? CellType.Black : CellType.White,
-                IsEnabled = isCellActive
-            };
-
-            if (isCellActive)
-            {
-                if (cellIdx < 8) cellHandler.CellState = CellState.BlackKing;
-                else if (cellIdx < 24) cellHandler.CellState = CellState.BlackMen;
-
-                if (cellIdx > 55) cellHandler.CellState = CellState.WhiteKing;
-                else if (cellIdx > 39) cellHandler.CellState = CellState.WhiteMen;
+                return false;
             }
-
-            _cellHandlers.Add(cellHandler);
-
-            return cellHandler;
-        }
-
-        private void OnItemPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (!(sender is CellHandler cellHandler)) return;
 
             if (cellHandler.IsSelected)
             {
-                cellHandler.IsSelected = false;
-
-                _selectedCells.Remove(cellHandler);
-            }
-            else if (_selectedCells.Count < 2)
-            {
-                cellHandler.IsSelected = true;
-
-                _selectedCells.Add(cellHandler);
+                _selectedCells = null;
+                return true;
             }
 
-            if (_selectedCells.Count == 2)
-            {
-                InverseField();
+            var state = cellHandler.CellState;
 
-                foreach (var cell in _selectedCells)
+            if (_selectedCells == null && state != Core.Enums.CellState.Empty && state.ToPlayerSide() == _playerSide)
+            {
+                _selectedCells = cellHandler;
+                return true;
+            }
+
+            return _selectedCells != null && _selectedCells != cellHandler && TryMakeTurn(cellHandler);
+        }
+
+        private bool TryMakeTurn(CellHandler cellHandler)
+        {
+            var gameTurn = ModelsCreator.CreateGameTurn(_currentField, _playerSide, _selectedCells.CellIdx, cellHandler.CellIdx);
+
+            if (gameTurn != null 
+                && (!gameTurn.IsSimple || !_requiredJumps.Any())
+                && GameFieldUpdater.TryMakeTurn(_currentField, gameTurn, out GameField newField))
+            {
+                UpdateGameField(newField);
+
+                _selectedCells.IsSelected = false;
+
+                if (_requiredJumps.Any(x => x.Turns.First() == cellHandler.CellIdx))
                 {
-                    cell.IsSelected = false;
+                    _selectedCells = cellHandler;
+                    return true;
                 }
-
-                _selectedCells.Clear();
             }
+
+            return false;
         }
 
-        private void InverseField()
+        private void UpdateGameField(GameField gameField)
         {
-            foreach (var cell in _cellHandlers)
+            _currentField = gameField;
+
+            void updateAction(int idx, CellHandler handler)
             {
-                cell.CellState = cell.CellState switch
+                if ((_cellHandlers.Count - 1) > idx) _cellHandlers[idx].CellState = handler.CellState;
+                else _cellHandlers.Add(handler);
+            }
+
+            for (var i = 0; i < Dimension; i++)
+            {
+                for (var j = 0; j < Dimension; j++)
                 {
-                    CellState.BlackMen => CellState.WhiteMen,
-                    CellState.BlackKing => CellState.WhiteKing,
-                    CellState.WhiteMen => CellState.BlackMen,
-                    CellState.WhiteKing => CellState.BlackKing,
-                    _ => CellState.Empty,
-                };
+                    var cellIdx = i * Dimension + j;
+                    var isCellActive = (i + j) % 2 != 0;
+
+                    var cellHandler = new CellHandler(
+                        cellIdx,
+                        isCellActive ? CellType.Black : CellType.White,
+                        gameField[cellIdx],
+                        TrySelectCell);
+
+                    updateAction(cellIdx, cellHandler);
+                }
             }
+
+            _requiredJumps = GameFieldUtils.FindRequiredJumps(_currentField, _playerSide);
         }
-
-        private class CellHandler : ICellHandler
+        
+        private class CellHandler : NotifyPropertyChanged, ICellHandler
         {
-            private CellState _cellState;
-            private CellType _cellType;
+            private readonly Func<CellHandler, bool> _canSelect;
 
-            public event EventHandler UpdateCellState;
-
-            public event PropertyChangedEventHandler PropertyChanged;
-
-            public bool IsEnabled { get; set; }
-
-            public bool IsSelected { get; set; }
-
-            public CellType CellType
+            private Core.Enums.CellState _cellState;
+            private bool _isSelected;
+            
+            public CellHandler(int cellIdx, CellType cellType, Core.Enums.CellState cellState, Func<CellHandler, bool> canSelect = null)
             {
-                get => _cellType;
-                set => OnCellTypeChanged(value);
+                CellIdx = cellIdx;
+                IsSelected = false;
+                CellType = cellType;
+                CellState = cellState;
+                IsEnabled = cellType == CellType.Black;
+
+                _canSelect = canSelect ?? ((handler) => false);
             }
 
-            public CellState CellState
+            #region ICellHandler
+
+            public int CellIdx { get; }
+            
+            public bool IsEnabled { get; }
+            
+            public CellType CellType { get; }
+            
+            public Core.Enums.CellState CellState
             {
                 get => _cellState;
                 set => OnCellStateChanged(value);
             }
-
-            public void MouseUp()
+            
+            public bool IsSelected
             {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(""));
+                get => _isSelected;
+                set => OnIsSelectedChanged(value);
             }
 
-            private void RaiseUpdateCell() => UpdateCellState?.Invoke(this, EventArgs.Empty);
+            #endregion
 
-            private void OnCellStateChanged(CellState value)
+            private void OnCellStateChanged(Core.Enums.CellState value)
             {
                 if (value == _cellState) return;
 
                 _cellState = value;
-                RaiseUpdateCell();
+                OnPropertyChanged(nameof(CellState));
             }
 
-            private void OnCellTypeChanged(CellType value)
+            private void OnIsSelectedChanged(bool value)
             {
-                if (value == _cellType) return;
+                if (_isSelected == value || !_canSelect(this))
+                {
+                    return;
+                }
 
-                _cellType = value;
-                RaiseUpdateCell();
+                _isSelected = value;
+                OnPropertyChanged(nameof(IsSelected));
             }
         }
     }

@@ -1,8 +1,10 @@
-﻿namespace Wpf.Interfaces
+﻿using System.ComponentModel;
+
+namespace Wpf.Interfaces
 {
-    public interface IEnableChanger<T>
+    public interface IEnableChanger<T> : INotifyPropertyChanged
     {
-        T Control { get; set; }
+        T Property { get; set; }
 
         bool IsEnabled { get; set; }
     }

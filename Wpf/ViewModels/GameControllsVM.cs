@@ -1,64 +1,84 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Windows.Input;
+﻿using System.Windows.Input;
+using Wpf.Enums;
+
+//using Core.Enums;
 
 using Wpf.Interfaces;
 using Wpf.ViewModels.CustomTypes;
-using Wpf.ViewModels.Enums;
 
 namespace Wpf.ViewModels
 {
-    public class RobotTypes
+    public class GameControllsVM : ViewModelBase, IGameControllsVM
     {
-        public string CurrentType { get; set; }
-
-        public IList<string> AvailableTypes { get; }
-    }
-
-    public class GameControllsVM : NotifyPropertyChanged, IGameControllsVM
-    {
-        private readonly EnableChangerWrapper<PlayerSideType> _playerSide;
+        private int _robotTimeMs = (int) 1E5;
 
         public GameControllsVM()
         {
-            StartGameCmd = new EnableChangerWrapper<ICommand>(new RelayCommand(StartGameExecute), true);
-            RestartGameCmd = new EnableChangerWrapper<ICommand>(new RelayCommand(RestartGameExecute), true);
-
-            _playerSide = new EnableChangerWrapper<PlayerSideType>(PlayerSideType.Black, true);
-            _playerSide.PropertyChanged += OnPlayerSideChanged;
-        }
-
-        private void OnPlayerSideChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(EnableChangerWrapper<PlayerSideType>.Control))
-            {
-
-            }
+            StartCmd = new EnableChangerWrapper<ICommand>(new RelayCommand(StartCmdExecute), true);
+            FinishCmd = new EnableChangerWrapper<ICommand>(new RelayCommand(FinishCmdExecute), true);
+            UndoCmd = new EnableChangerWrapper<ICommand>(new RelayCommand(UndoCmdExecute), true);
+            RedoCmd = new EnableChangerWrapper<ICommand>(new RelayCommand(RedoCmdExecute), true);
+            Side = new EnableChangerWrapper<PlayerSide>(PlayerSide.White, true);
         }
 
         #region IGameControllsVM
 
-        public IEnableChanger<PlayerSideType> PlayerSide => _playerSide;
+        public int RobotTime
+        {
+            get => _robotTimeMs;
+            set => OnRobotTomeChanged(value);
+        }
 
-        public IEnableChanger<ICommand> StartGameCmd { get; }
+        public IEnableChanger<PlayerSide> Side { get; set; }
 
-        public IEnableChanger<ICommand> RestartGameCmd { get; }
+        public IEnableChanger<ICommand> FinishCmd { get; }
 
-        public string RobotTime { get; set; }
+        public IEnableChanger<ICommand> StartCmd { get; }
 
-        public RobotTypes RobotTypes => null;
+        public IEnableChanger<ICommand> UndoCmd { get; }
+
+        public IEnableChanger<ICommand> RedoCmd { get; }
 
         #endregion
 
-        private void RestartGameExecute(object obj)
+        private void OnRobotTomeChanged(int value)
         {
-            throw new NotImplementedException();
+            if (value == RobotTime || value <= 0) return;
+
+            _robotTimeMs = value;
+            OnPropertyChanged(nameof(RobotTime));
         }
 
-        private void StartGameExecute(object obj)
+        private void FinishCmdExecute(object obj)
         {
-            PlayerSide.IsEnabled = false;
+            Side.IsEnabled = true;
+            UndoCmd.IsEnabled = false;
+            RedoCmd.IsEnabled = false;
+            StartCmd.IsEnabled = false;
+            FinishCmd.IsEnabled = true;
+
+            OnPropertyChanged(nameof(FinishCmd));
+        }
+        
+        private void StartCmdExecute(object obj)
+        {
+            Side.IsEnabled = false;
+            UndoCmd.IsEnabled = true;
+            RedoCmd.IsEnabled = true;
+            StartCmd.IsEnabled = false;
+            FinishCmd.IsEnabled = true;
+
+            OnPropertyChanged(nameof(StartCmd));
+        }
+
+        private void RedoCmdExecute(object obj)
+        {
+            OnPropertyChanged(nameof(RedoCmd));
+        }
+
+        private void UndoCmdExecute(object obj)
+        {
+            OnPropertyChanged(nameof(UndoCmd));
         }
     }
 }

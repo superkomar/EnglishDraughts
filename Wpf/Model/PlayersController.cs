@@ -3,6 +3,7 @@
 using Core;
 using Core.Enums;
 using Core.Model;
+using Core.Utils;
 
 namespace Wpf.Model
 {
@@ -70,7 +71,7 @@ namespace Wpf.Model
         {
             var newTurn = player.GetTurn(CurrentGameField);
 
-            if (!ModelsCreator.TryMakeTurn(CurrentGameField, newTurn, out GameField newGameField))
+            if (!GameFieldUpdater.TryMakeTurn(CurrentGameField, newTurn, out GameField newGameField))
             {
                 IsGameRunning = false;
                 Winner = player.Side == PlayerSide.White ? PlayerSide.Black : PlayerSide.White;

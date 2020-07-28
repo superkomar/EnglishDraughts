@@ -16,7 +16,7 @@ namespace Wpf.Views.Controls
             VerticalAlignment = VerticalAlignment.Center;
         }
 
-        public void GenerateNewField(IGameFieldController fieldController)
+        public void GenerateNewField(IGameFieldVM fieldController)
         {
             if (fieldController == null) return;
 
@@ -54,9 +54,9 @@ namespace Wpf.Views.Controls
 
         public void ResetField()
         {
-            foreach (var el in Children.Cast<IDisposable>())
+            foreach (var cell in Children.Cast<IDisposable>())
             {
-                el.Dispose();
+                cell.Dispose();
             }
 
             Children.Clear();

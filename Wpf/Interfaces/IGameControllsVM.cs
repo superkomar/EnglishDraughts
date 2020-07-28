@@ -1,21 +1,23 @@
 ﻿using System.ComponentModel;
 using System.Windows.Input;
+using Wpf.Enums;
 
-using Wpf.ViewModels;
-using Wpf.ViewModels.Enums;
+//using Core.Enums;
 
 namespace Wpf.Interfaces
 {
     public interface IGameControllsVM : INotifyPropertyChanged
-    {
-        IEnableChanger<ICommand> StartGameCmd { get; }
+    { 
+        IEnableChanger<ICommand> FinishCmd { get; }
+        
+        IEnableChanger<ICommand> StartCmd { get; }
+        
+        IEnableChanger<ICommand> UndoCmd { get; }
+        
+        IEnableChanger<ICommand> RedoCmd { get; }
 
-        IEnableChanger<ICommand> RestartGameCmd { get; }
-
-        IEnableChanger<PlayerSideType> PlayerSide { get; }
-
-        string RobotTime { get; set; }
-
-        RobotTypes RobotTypes { get; }
+        IEnableChanger<PlayerSide> Side { get; set; }
+        
+        int RobotTime { get; set; }
     }
 }

@@ -19,36 +19,32 @@ namespace Wpf.Views
             DataContext = VMLocator.GameFieldVM;
 
             Loaded += (s, e) => AttachHandlers();
-            Unloaded += (s, e) => DetacheHandlers();
+            Unloaded += (s, e) => DetachHandlers();
 
             InitGameField();
         }
 
         private void AttachHandlers()
         {
-            (DataContext as GameFieldVM).CreateField += CreateField;
-            (DataContext as GameFieldVM).ResetField += ResetField;
+            (DataContext as IGameFieldVM).RedrawField += OnRedrawFieldChanged;
+            //(DataContext as GameFieldVM).ResetField += ResetField;
         }
 
-        private void CreateField(object sender, EventArgs e)
+        private void OnRedrawFieldChanged(object sender, EventArgs e)
         {
+            GameField.ResetField();
             InitGameField();
         }
 
-        private void DetacheHandlers()
+        private void DetachHandlers()
         {
-            (DataContext as GameFieldVM).CreateField -= CreateField;
-            (DataContext as GameFieldVM).ResetField -= ResetField;
+            (DataContext as IGameFieldVM).RedrawField -= OnRedrawFieldChanged;
+            //(DataContext as GameFieldVM).ResetField -= ResetField;
         }
         
         private void InitGameField()
         {
-            GameField.GenerateNewField(DataContext as IGameFieldController);
-        }
-
-        private void ResetField(object sender, EventArgs e)
-        {
-            GameField.ResetField();
+            GameField.GenerateNewField(DataContext as IGameFieldVM);
         }
     }
 }

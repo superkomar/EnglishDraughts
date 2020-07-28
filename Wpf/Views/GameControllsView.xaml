@@ -4,8 +4,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:System="clr-namespace:System;assembly=mscorlib"
-      xmlns:local="clr-namespace:Wpf.Views"
-      xmlns:enums="clr-namespace:Wpf.ViewModels.Enums"
+      xmlns:enums="clr-namespace:Wpf.Enums"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800">
 
@@ -13,27 +12,36 @@
         <ObjectDataProvider x:Key="dataFromEnum" MethodName="GetValues"
                             ObjectType="{x:Type System:Enum}">
             <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="enums:PlayerSideType"/>
+                <x:Type TypeName="enums:PlayerSide"/>
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
 
         <Style TargetType="{x:Type Button}">
-            <Setter Property="Width" Value="75"/>
-            <Setter Property="Margin" Value="10"/>
-        </Style>
-
-        <Style TargetType="{x:Type ToggleButton}">
-            <Setter Property="Width" Value="75"/>
             <Setter Property="Margin" Value="10"/>
         </Style>
 
         <Style TargetType="{x:Type ComboBox}">
             <Setter Property="Margin" Value="10"/>
+            <Setter Property="Height" Value="30"/>
         </Style>
 
         <Style TargetType="{x:Type TextBlock}">
             <Setter Property="Margin" Value="5"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style TargetType="{x:Type TextBox}">
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Width" Value="80"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style TargetType="{x:Type RowDefinition}">
+            <Setter Property="Height" Value="50"/>
+        </Style>
+
+        <Style TargetType="{x:Type ColumnDefinition}">
+            <Setter Property="Width" Value="100"/>
         </Style>
     </UserControl.Resources>
     
@@ -54,38 +62,43 @@
             <!--Firt Row-->
             <Button Grid.Row="0" Grid.Column="0"
                     Content="Start Game"
-                    Command="{Binding StartGameCmd.Control, Mode=OneWay}"
-                    IsEnabled="{Binding StartGameCmd.IsEnabled, Mode=OneWay}"/>
+                    Command="{Binding StartCmd.Property, Mode=TwoWay}"
+                    IsEnabled="{Binding StartCmd.IsEnabled, Mode=TwoWay}"/>
 
             <Button Grid.Row="0" Grid.Column="1"
                     Content="Restart Game"
-                    Command="{Binding RestartGameCmd.Control, Mode=OneWay}"
-                    IsEnabled="{Binding RestartGameCmd.IsEnabled, Mode=OneWay}"/>
+                    Command="{Binding FinishCmd.Property, Mode=TwoWay}"
+                    IsEnabled="{Binding FinishCmd.IsEnabled, Mode=TwoWay}"/>
 
             <!--Second Row-->
             <TextBlock Grid.Row="1" Grid.Column="0"
-                       Text="Robot Time (ms):"/>
-
-            <TextBox Grid.Row="1" Grid.Column="1"
-                     VerticalAlignment="Center"
-                     Text="{Binding RobotTime}"/>
-
-            <!--Third Row-->
-            <!--<TextBlock Grid.Row="2" Grid.Column="0"
-                       Text="Robot Type:"/>
-
-            <ComboBox Grid.Row="2" Grid.Column="1"
-                      ItemsSource="{Binding RobotTypes.AvailableTypes}"
-                      SelectedItem="{Binding RobotTypes.CurrentType}"/>-->
-
-            <!--Fourth Row-->
-            <TextBlock Grid.Row="3" Grid.Column="0"
                        Text="Player Side:"/>
 
-            <ComboBox Grid.Row="3" Grid.Column="1"
+            <ComboBox Grid.Row="1" Grid.Column="1"
                       ItemsSource="{Binding Source={StaticResource dataFromEnum}}"
-                      SelectedItem="{Binding PlayerSide.Control}"
-                      IsEnabled="{Binding PlayerSide.IsEnabled, Mode=OneWay}"/>
+                      SelectedItem="{Binding Side.Property}"
+                      IsEnabled="{Binding Side.IsEnabled, Mode=OneWay}"/>
+
+            <!--Fourth Row-->
+            <TextBlock Grid.Row="2" Grid.Column="0"
+                       Text="Robot Time (ms):"/>
+
+            <TextBox Grid.Row="2" Grid.Column="1"
+                     VerticalAlignment="Center"
+                     PreviewTextInput="NumberValidationTextBox"
+                     Text="{Binding RobotTime, Mode=TwoWay}"/>
+
+            <!--Firt Row-->
+            <Button Grid.Row="3" Grid.Column="0"
+                    Content="Undo"
+                    Command="{Binding UndoCmd.Property}"
+                    IsEnabled="{Binding UndoCmd.IsEnabled}"/>
+
+            <Button Grid.Row="3" Grid.Column="1"
+                    Content="Redo"
+                    Command="{Binding RedoCmd.Property}"
+                    IsEnabled="{Binding RedoCmd.IsEnabled}"/>
+            
         </Grid>
     </DockPanel>
 </UserControl>

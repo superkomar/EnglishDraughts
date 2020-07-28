@@ -2,6 +2,8 @@
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 
+using Core.Enums;
+
 using Wpf.ViewModels.Enums;
 
 namespace Wpf.Views.Controls
@@ -22,7 +24,7 @@ namespace Wpf.Views.Controls
         public static Image ConstructImage(BitmapImage bitmap) =>
             bitmap != null ? new Image { Source = bitmap } : new Image();
 
-        public static Image ConstructImage(CellState cellType) =>
+        public static Image ConstructImage(Core.Enums.CellState cellType) =>
             ConstructImage(GetBitmapByType(cellType));
 
         public static BitmapImage GetBitmapByType(CellType cellType) =>
@@ -33,20 +35,18 @@ namespace Wpf.Views.Controls
                 _ => null,
             };
 
-        public static BitmapImage GetBitmapByType(CellState cellState) =>
+        public static BitmapImage GetBitmapByType(Core.Enums.CellState cellState) =>
             cellState switch
             {
-                CellState.BlackMen => BlackMen,
-                CellState.BlackKing => BlackKing,
-                CellState.WhiteMen => WhiteMen,
-                CellState.WhiteKing => WhiteKing,
+                Core.Enums.CellState.BlackMen => BlackMen,
+                Core.Enums.CellState.BlackKing => BlackKing,
+                Core.Enums.CellState.WhiteMen => WhiteMen,
+                Core.Enums.CellState.WhiteKing => WhiteKing,
                 _ => null,
             };
 
         private static BitmapImage ConstructBitmap(Uri imageUri)
         {
-            //var tmp = Application.ResourceAssembly;
-
             var bitmap = new BitmapImage();
             bitmap.BeginInit();
             bitmap.UriSource = imageUri;

@@ -1,5 +1,6 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
+
+using Core.Enums;
 
 using Wpf.ViewModels.Enums;
 
@@ -7,16 +8,14 @@ namespace Wpf.Interfaces
 {
     public interface ICellHandler : INotifyPropertyChanged
     {
-        event EventHandler UpdateCellState;
-
-        bool IsEnabled { get; }
-
-        bool IsSelected { get; }
-
+        Core.Enums.CellState CellState { get; }
+        
         CellType CellType { get; }
 
-        CellState CellState { get; }
+        int CellIdx { get; }
+        
+        bool IsEnabled { get; }
 
-        void MouseUp();
+        bool IsSelected { get; set; }
     }
 }

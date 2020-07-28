@@ -6,19 +6,19 @@ namespace Wpf.ViewModels.CustomTypes
 {
     public class EnableChangerWrapper<T> : NotifyPropertyChanged, IEnableChanger<T>
     {
-        private T _control;
+        private T _property;
         private bool _isEnabled;
 
         public EnableChangerWrapper(T property, bool isEnable)
         {
-            Control = property;
+            Property = property;
             IsEnabled = isEnable;
         }
 
-        public T Control
+        public T Property
         {
-            get => _control;
-            set => OnControlChanged(value);
+            get => _property;
+            set => OnPropertyChanged(value);
         }
 
         public bool IsEnabled
@@ -27,12 +27,12 @@ namespace Wpf.ViewModels.CustomTypes
             set => OnIsEnabledChanged(value);
         }
 
-        private void OnControlChanged(T value)
+        private void OnPropertyChanged(T value)
         {
-            if (EqualityComparer<T>.Default.Equals(_control, value)) return;
+            if (EqualityComparer<T>.Default.Equals(_property, value)) return;
 
-            _control = value;
-            OnPropertyChanged(nameof(Control));
+            _property = value;
+            OnPropertyChanged(nameof(Property));
         }
 
         private void OnIsEnabledChanged(bool value)

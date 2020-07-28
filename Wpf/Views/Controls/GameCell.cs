@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -8,12 +9,12 @@ using Wpf.Interfaces;
 
 namespace Wpf.Views.Controls
 {
-    public class GameCell : Grid
+    public class GameCell : Grid, IDisposable
     {
         private readonly Border _border;
-        private readonly Image _shapeImage;
         private readonly ICellHandler _handler;
-
+        private readonly Image _shapeImage;
+        
         public GameCell(ICellHandler cellHandler, int width, int height)
         {
             Width = width;
@@ -39,22 +40,39 @@ namespace Wpf.Views.Controls
             AttachHandlers();
         }
 
-        private void UpdateCellContent()
+        public void Dispose()
         {
-            if (!IsEnabled) return;
-
-            _shapeImage.Source = ControlUtils.GetBitmapByType(_handler.CellState);
+            DetachHandlers();
+            Children.Clear();
         }
 
         private void AttachHandlers()
         {
             MouseUp += OnMouseUpChanged;
-            _handler.UpdateCellState += OnUpdateCellStateChanged;
+            _handler.PropertyChanged += OnHandlerPropertyChanged;
         }
 
-        private void OnUpdateCellStateChanged(object sender, EventArgs e)
+        private void DetachHandlers()
         {
-            UpdateCellContent();
+            MouseUp -= OnMouseUpChanged;
+            _handler.PropertyChanged -= OnHandlerPropertyChanged;
+        }
+
+        private void OnHandlerPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(ICellHandler.CellState))
+            {
+                UpdateCellContent();
+            }
+            else if (e.PropertyName == nameof(ICellHandler.IsSelected))
+            {
+                SelectChanged(_handler.IsSelected);
+            }
+        }
+
+        private void OnMouseUpChanged(object sender, MouseButtonEventArgs e)
+        {
+            _handler.IsSelected = !_handler.IsSelected;
         }
 
         private void SelectChanged(bool isSelect)
@@ -71,11 +89,11 @@ namespace Wpf.Views.Controls
             }
         }
 
-        private void OnMouseUpChanged(object sender, MouseButtonEventArgs e)
+        private void UpdateCellContent()
         {
-            _handler.MouseUp();
+            if (!IsEnabled) return;
 
-            SelectChanged(_handler.IsSelected);
+            _shapeImage.Source = ControlUtils.GetBitmapByType(_handler.CellState);
         }
     }
 }
