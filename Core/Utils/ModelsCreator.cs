@@ -5,6 +5,7 @@ using System.Linq;
 using Core.Enums;
 using Core.Extensions;
 using Core.Helpers;
+using Core.Interfaces;
 using Core.Model;
 
 namespace Core.Utils
@@ -13,7 +14,6 @@ namespace Core.Utils
     {
         public static GameField CreateGameField(int dimension)
         {
-            //if (dimension <= 0) throw new ArgumentException(@"Field! Dimention must be more or equal then 8");
             if (dimension <= 0) throw new ArgumentException(@"Fail! Dimention must be more then 0");
 
             return new GameField(ConstructInitialField(dimension), new NeighborsHelper(dimension), dimension);
@@ -24,23 +24,27 @@ namespace Core.Utils
                 ? CreateSimpleMove(field, playerSide, start, end)
                 : CreateJumpMove(field, playerSide, start, end);
 
-        public static GameTurnCollection CreateGameTurnCollection(IReadOnlyList<GameTurn> turns)
+        public static IGameTurn CreateGameTurn(IReadOnlyList<IGameTurn> turns)
         {
-            if (!turns.Any()) return null;
+            if (!turns.Any() || turns.First() == null) return null;
 
-            for (var i = 0; i < turns.Count - 1; i++)
+            var result = new List<int>();
+            IGameTurn lastTurn = null;
+
+            foreach (var newTurn in turns)
             {
-                var first = turns[i];
-                var second = turns[i + 1];
-
-                if (first == null || second == null || first.IsSimple || second.IsSimple
-                    || first.Turns.Last() != second.Turns.First() || first.IsLevelUp)
+                if (newTurn == null || lastTurn != null && (lastTurn == newTurn
+                    || lastTurn.Turns.Last() != newTurn.Turns.First()
+                    || lastTurn.IsLevelUp))
                 {
                     return null;
                 }
+
+                lastTurn = newTurn;
+                result.AddRange(newTurn.Turns);
             }
 
-            return new GameTurnCollection(turns);
+            return new GameTurn(turns[0].Side, turns[^1].IsLevelUp, result);
         }
 
         public static GameTurn CreateJumpMove(GameField field, PlayerSide side, int start, int end)
@@ -97,6 +101,10 @@ namespace Core.Utils
                     }
                 }
             }
+
+            initField[19] = initField[1] = CellState.Empty;
+            initField[17] = CellState.Empty;
+            initField[26] = CellState.BlackMen;
 
             return initField;
         }

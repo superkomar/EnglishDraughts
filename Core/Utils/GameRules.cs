@@ -1,4 +1,7 @@
-﻿using Core.Enums;
+﻿using System.Collections.Generic;
+using System.Linq;
+
+using Core.Enums;
 using Core.Extensions;
 using Core.Model;
 
@@ -30,5 +33,11 @@ namespace Core.Utils
             field[start].IsKing()
             || (field[start].ToPlayerSide() == PlayerSide.Black && start < end)
             || (field[start].ToPlayerSide() == PlayerSide.White && start > end);
+
+        public static bool IsPlayerWin(GameField field, PlayerSide side)
+        {
+            var opposite = side.ToOpposite();
+            return field.Field.Where(x => x.ToPlayerSide() == opposite).Any();
+        }
     }
 }

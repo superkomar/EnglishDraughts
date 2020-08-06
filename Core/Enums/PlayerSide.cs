@@ -2,6 +2,7 @@
 {
     public enum PlayerSide
     {
+        None,
         White,
         Black
     }

@@ -3,13 +3,14 @@ using System.Linq;
 
 using Core.Enums;
 using Core.Extensions;
+using Core.Interfaces;
 using Core.Model;
 
 namespace Core.Utils
 {
     public static class GameFieldUpdater
     {
-        public static bool TryMakeTurn(GameField oldGameField, GameTurn gameTurn, out GameField newGameField)
+        public static bool TryMakeTurn(GameField oldGameField, IGameTurn gameTurn, out GameField newGameField)
         {
             newGameField = oldGameField;
 
@@ -34,21 +35,21 @@ namespace Core.Utils
             return true;
         }
 
-        public static bool TryMakeTurns(GameField oldField, GameTurnCollection turns, out GameField newField)
-        {
-            newField = oldField;
+        //public static bool TryMakeTurns(GameField oldField, GameTurnCollection turns, out GameField newField)
+        //{
+        //    newField = oldField;
 
-            for (var i = 0; i < turns.Turns.Count; i++)
-            {
-                if (!TryMakeTurn(newField, turns.Turns[i], out GameField newLocalField))
-                {
-                    return false;
-                }
+        //    for (var i = 0; i < turns.Turns.Count; i++)
+        //    {
+        //        if (!TryMakeTurn(newField, turns.Turns[i], out GameField newLocalField))
+        //        {
+        //            return false;
+        //        }
 
-                newField = newLocalField;
-            }
+        //        newField = newLocalField;
+        //    }
 
-            return true;
-        }
+        //    return true;
+        //}
     }
 }
