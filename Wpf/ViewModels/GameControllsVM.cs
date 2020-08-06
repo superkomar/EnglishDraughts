@@ -1,8 +1,8 @@
 ﻿using System.Windows.Input;
-using Wpf.Enums;
 
-//using Core.Enums;
+using Core.Enums;
 
+//using Wpf.Enums;
 using Wpf.Interfaces;
 using Wpf.ViewModels.CustomTypes;
 
@@ -14,11 +14,11 @@ namespace Wpf.ViewModels
 
         public GameControllsVM()
         {
-            StartCmd = new EnableChangerWrapper<ICommand>(new RelayCommand(StartCmdExecute), true);
-            FinishCmd = new EnableChangerWrapper<ICommand>(new RelayCommand(FinishCmdExecute), true);
-            UndoCmd = new EnableChangerWrapper<ICommand>(new RelayCommand(UndoCmdExecute), true);
-            RedoCmd = new EnableChangerWrapper<ICommand>(new RelayCommand(RedoCmdExecute), true);
-            Side = new EnableChangerWrapper<PlayerSide>(PlayerSide.White, true);
+            StartCmd = new EnableChangerWrapper<ICommand>(new RelayCommand(StartCmdExecute), isEnable: true);
+            FinishCmd = new EnableChangerWrapper<ICommand>(new RelayCommand(FinishCmdExecute), isEnable: false);
+            UndoCmd = new EnableChangerWrapper<ICommand>(new RelayCommand(UndoCmdExecute), isEnable: false);
+            RedoCmd = new EnableChangerWrapper<ICommand>(new RelayCommand(RedoCmdExecute), isEnable: false);
+            Side = new EnableChangerWrapper<PlayerSide>(PlayerSide.White, isEnable: true);
         }
 
         #region IGameControllsVM
@@ -41,6 +41,16 @@ namespace Wpf.ViewModels
 
         #endregion
 
+        private void UpdateControlStates(bool isGameStarted)
+        {
+            Side.IsEnabled = !isGameStarted;
+            StartCmd.IsEnabled = !isGameStarted;
+
+            UndoCmd.IsEnabled = isGameStarted;
+            RedoCmd.IsEnabled = isGameStarted;
+            FinishCmd.IsEnabled = isGameStarted;
+        }
+
         private void OnRobotTomeChanged(int value)
         {
             if (value == RobotTime || value <= 0) return;
@@ -51,34 +61,20 @@ namespace Wpf.ViewModels
 
         private void FinishCmdExecute(object obj)
         {
-            Side.IsEnabled = true;
-            UndoCmd.IsEnabled = false;
-            RedoCmd.IsEnabled = false;
-            StartCmd.IsEnabled = false;
-            FinishCmd.IsEnabled = true;
+            UpdateControlStates(isGameStarted: false);
 
             OnPropertyChanged(nameof(FinishCmd));
         }
         
         private void StartCmdExecute(object obj)
         {
-            Side.IsEnabled = false;
-            UndoCmd.IsEnabled = true;
-            RedoCmd.IsEnabled = true;
-            StartCmd.IsEnabled = false;
-            FinishCmd.IsEnabled = true;
+            UpdateControlStates(isGameStarted: true);
 
             OnPropertyChanged(nameof(StartCmd));
         }
 
-        private void RedoCmdExecute(object obj)
-        {
-            OnPropertyChanged(nameof(RedoCmd));
-        }
+        private void RedoCmdExecute(object obj) => OnPropertyChanged(nameof(RedoCmd));
 
-        private void UndoCmdExecute(object obj)
-        {
-            OnPropertyChanged(nameof(UndoCmd));
-        }
+        private void UndoCmdExecute(object obj) => OnPropertyChanged(nameof(UndoCmd));
     }
 }

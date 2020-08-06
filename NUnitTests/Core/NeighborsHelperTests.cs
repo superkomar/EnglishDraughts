@@ -10,18 +10,12 @@ namespace NUnitTests.Core
     {
 
         [TestCase(0)]
+        [TestCase(1)]
         [TestCase(-1)]
         public void NeighborsFinderException(int dimention)
         {
             Assert.Throws<ArgumentException>(() => new NeighborsHelper(dimention));
-        }
-
-        [TestCase(1)]
-        public void NeighborsFinder_Dim_1(int dimention)
-        {
-            var finder = new NeighborsHelper(dimention);
-
-            Assert.AreEqual(finder[0], new CellNeighbors(-1, -1, -1, -1));
+            Assert.Throws<ArgumentException>(() => new NeighborsHelper(dimention));
         }
 
         [TestCase(2)]
@@ -48,17 +42,19 @@ namespace NUnitTests.Core
             // 3(+)|4(-)|5(+)
             // 6(-)|7(+)|8(-)
 
-            var finder = new NeighborsHelper(dimention);
+            Assert.Throws<ArgumentException>(() => new NeighborsHelper(dimention));
 
-            // Zero row
-            Assert.AreEqual(finder[1], new CellNeighbors(-1, 3, -1, 5));
+            //var finder = new NeighborsHelper(dimention);
 
-            // First row
-            Assert.AreEqual(finder[3], new CellNeighbors(-1, -1, 1, 7));
-            Assert.AreEqual(finder[4], new CellNeighbors( 0,  6, 2, 8));
+            //// Zero row
+            //Assert.AreEqual(finder[1], new CellNeighbors(-1, 3, -1, 5));
 
-            // Second row
-            Assert.AreEqual(finder[7], new CellNeighbors(3, -1, 5, -1));
+            //// First row
+            //Assert.AreEqual(finder[3], new CellNeighbors(-1, -1, 1, 7));
+            //Assert.AreEqual(finder[4], new CellNeighbors( 0,  6, 2, 8));
+
+            //// Second row
+            //Assert.AreEqual(finder[7], new CellNeighbors(3, -1, 5, -1));
         }
 
         [TestCase(8)]

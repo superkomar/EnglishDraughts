@@ -59,5 +59,14 @@ namespace Wpf {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Continue jumps.
+        /// </summary>
+        internal static string GameStatus_ContinueJumps {
+            get {
+                return ResourceManager.GetString("GameStatus_ContinueJumps", resourceCulture);
+            }
+        }
     }
 }

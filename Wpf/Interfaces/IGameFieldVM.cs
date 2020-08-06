@@ -9,6 +9,8 @@ namespace Wpf.Interfaces
 
         int Dimension { get; }
 
+        public bool IsActive { get; }
+
         ICellHandler GetCellHandler(int posX, int posY);
 
         ICellHandler GetCellHandler(int cellIdx);

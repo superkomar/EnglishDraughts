@@ -1,6 +1,6 @@
 ﻿namespace Wpf.ViewModels.Enums
 {
-    public enum CellType : byte
+    public enum CellType
     {
         White,
         Black

@@ -1,8 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Windows.Input;
-using Wpf.Enums;
 
-//using Core.Enums;
+using Core.Enums;
 
 namespace Wpf.Interfaces
 {

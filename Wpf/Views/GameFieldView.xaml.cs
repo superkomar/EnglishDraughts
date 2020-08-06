@@ -27,7 +27,6 @@ namespace Wpf.Views
         private void AttachHandlers()
         {
             (DataContext as IGameFieldVM).RedrawField += OnRedrawFieldChanged;
-            //(DataContext as GameFieldVM).ResetField += ResetField;
         }
 
         private void OnRedrawFieldChanged(object sender, EventArgs e)
@@ -39,7 +38,6 @@ namespace Wpf.Views
         private void DetachHandlers()
         {
             (DataContext as IGameFieldVM).RedrawField -= OnRedrawFieldChanged;
-            //(DataContext as GameFieldVM).ResetField -= ResetField;
         }
         
         private void InitGameField()

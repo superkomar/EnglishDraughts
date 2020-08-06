@@ -1,5 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Threading.Tasks;
+
+using Core.Enums;
+using Core.Interfaces;
+using Core.Model;
 
 using Wpf.Interfaces;
 using Wpf.Model;
@@ -10,57 +15,119 @@ namespace Wpf.ViewModels
     {
     }
 
-    internal class MainWindowVM : ViewModelBase, IMainWindowVM
+    public class RobotPlayer : IGamePlayer
     {
-        public readonly PlayersController _gameController;
+        public int TurnTime { get; set; }
+
+        public void EndGame(PlayerSide winner)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void StartGame(int dimension, PlayerSide side, IStatusReporter statusReporter)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<IGameTurn> MakeTurnAsync(GameField gameField, PlayerSide side)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    internal class MainWindowVM : ViewModelBase, IMainWindowVM, IStatusReporter
+    {
+        private PlayersController _gameController;
+
+        private RobotPlayer _robot = new RobotPlayer();
+        private string _statusText = "Wait start the game";
 
         public MainWindowVM()
         {
-            _gameController = new PlayersController();
+            
 
             AttachHandlers();
         }
 
-        public string StatusText => "Wait start the game";
+        #region IStatusReporter
+
+        public void Report(string playerStatus)
+        {
+            StatusText = playerStatus;
+        }
+
+        #endregion
+
+        public string StatusText
+        {
+            get => _statusText;
+            set => OnStatusTextChanged(value);
+        }
+
+        private void OnStatusTextChanged(string value)
+        {
+            if (value == _statusText)
+            {
+                return;
+            }
+
+            _statusText = value;
+            OnPropertyChanged(nameof(StatusText));
+        }
 
         private void AttachHandlers()
         {
-            VMLocator.GameFieldVM.PropertyChanged += OnFieldPropertyChanged;
-            VMLocator.GameHistoryVM.PropertyChanged += OnHistoryPropertyChanged;
+            //VMLocator.GameFieldVM.PropertyChanged += OnFieldPropertyChanged;
             VMLocator.GameControllsVM.PropertyChanged += OnControllsPropertyChanged;
         }
 
-        private void OnControllsPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void DetachHandlers()
         {
-            //if (e.PropertyName == nameof(IGameControllsVM.StartGameCmd))
-            //{
-            //    //_gameController.StartGame();
-            //}
-            //else if (e.PropertyName == nameof(IGameControllsVM.RestartGameCmd))
-            //{
-
-            //}
-            //else if (e.PropertyName == nameof(IGameControllsVM.RobotTime))
-            //{
-
-            //}
+            //VMLocator.GameFieldVM.PropertyChanged -= OnFieldPropertyChanged;
+            VMLocator.GameControllsVM.PropertyChanged -= OnControllsPropertyChanged;
         }
 
-        private void OnFieldPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private async void OnControllsPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            //_gameController.
+            switch (e.PropertyName)
+            {
+                case nameof(IGameControllsVM.StartCmd):
+                {
+                    StartGameAsync();
+                    break;
+                }
+                case nameof(IGameControllsVM.FinishCmd):
+                {
+                    _gameController?.StopGame();
+                    break;
+                }
+                case nameof(IGameControllsVM.RobotTime):
+                {
+                    _robot.TurnTime = VMLocator.GameControllsVM.RobotTime;
+                    break;
+                }
+                case nameof(IGameControllsVM.UndoCmd):
+                {
+                    // Undo
+                    break;
+                }
+                case nameof(IGameControllsVM.RedoCmd):
+                {
+                    // Redo
+                    break;
+                }
+            }
         }
-        
-        private void OnHistoryPropertyChanged(object sender, PropertyChangedEventArgs e)
+
+        private async Task StartGameAsync()
         {
-            if (e.PropertyName == nameof(IGameHistoryVM.RedoCmd))
-            {
+            _gameController = new PlayersController(
+                    Constants.FieldDimension,
+                    VMLocator.GameFieldVM as IGamePlayer,
+                    VMLocator.GameFieldVM as IGamePlayer,
+                    this);
 
-            }
-            else if (e.PropertyName == nameof(IGameHistoryVM.UndoCmd))
-            {
-
-            }
+            _gameController.StartGame();
         }
     }
 }

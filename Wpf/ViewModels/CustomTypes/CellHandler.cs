@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Core.Enums;
 
 using Wpf.Interfaces;
 using Wpf.ViewModels.Enums;
@@ -7,12 +7,12 @@ namespace Wpf.ViewModels.CustomTypes
 {
     public class CellHandler : NotifyPropertyChanged, ICellHandler
     {
-        private readonly Func<CellHandler, bool> _canSelect;
+        private readonly ISelectionController _selectionController;
 
-        private Core.Enums.CellState _cellState;
+        private CellState _cellState;
         private bool _isSelected;
 
-        public CellHandler(int cellIdx, CellType cellType, Core.Enums.CellState cellState, Func<CellHandler, bool> canSelect = null)
+        public CellHandler(int cellIdx, CellType cellType, CellState cellState, ISelectionController selectionController)
         {
             CellIdx = cellIdx;
             IsSelected = false;
@@ -20,7 +20,7 @@ namespace Wpf.ViewModels.CustomTypes
             CellState = cellState;
             IsEnabled = cellType == CellType.Black;
 
-            _canSelect = canSelect ?? ((handler) => false);
+            _selectionController = selectionController;
         }
 
         #region ICellHandler
@@ -31,7 +31,7 @@ namespace Wpf.ViewModels.CustomTypes
 
         public CellType CellType { get; }
 
-        public Core.Enums.CellState CellState
+        public CellState CellState
         {
             get => _cellState;
             set => OnCellStateChanged(value);
@@ -45,7 +45,7 @@ namespace Wpf.ViewModels.CustomTypes
 
         #endregion
 
-        private void OnCellStateChanged(Core.Enums.CellState value)
+        private void OnCellStateChanged(CellState value)
         {
             if (value == _cellState) return;
 
@@ -55,7 +55,7 @@ namespace Wpf.ViewModels.CustomTypes
 
         private void OnIsSelectedChanged(bool value)
         {
-            if (_isSelected == value || !_canSelect(this))
+            if (_isSelected == value || !_selectionController.CanSelect(this))
             {
                 return;
             }

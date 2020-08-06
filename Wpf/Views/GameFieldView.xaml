@@ -8,7 +8,7 @@
 
     <Grid>
         <Border BorderBrush="DimGray" BorderThickness="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <controls:GameField x:Name="GameField"/>
+            <controls:GameField x:Name="GameField" IsEnabled="{Binding IsActive}"/>
         </Border>
     </Grid>
 </UserControl>
