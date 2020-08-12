@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Threading.Tasks;
 
+using Core;
 using Core.Enums;
 using Core.Interfaces;
 using Core.Model;
@@ -19,12 +20,12 @@ namespace Wpf.ViewModels
     {
         public int TurnTime { get; set; }
 
-        public void EndGame(PlayerSide winner)
+        public void FinishGame(PlayerSide winner)
         {
             throw new NotImplementedException();
         }
 
-        public void StartGame(int dimension, PlayerSide side, IStatusReporter statusReporter)
+        public void InitGame(int dimension, PlayerSide side, IStatusReporter statusReporter)
         {
             throw new NotImplementedException();
         }
@@ -37,7 +38,7 @@ namespace Wpf.ViewModels
 
     internal class MainWindowVM : ViewModelBase, IMainWindowVM, IStatusReporter
     {
-        private PlayersController _gameController;
+        private GameController _gameController;
 
         private RobotPlayer _robot = new RobotPlayer();
         private string _statusText = "Wait start the game";
@@ -113,6 +114,7 @@ namespace Wpf.ViewModels
                 }
                 case nameof(IGameControllsVM.RedoCmd):
                 {
+                    _gameController.Redo();
                     // Redo
                     break;
                 }
@@ -121,7 +123,7 @@ namespace Wpf.ViewModels
 
         private async Task StartGameAsync()
         {
-            _gameController = new PlayersController(
+            _gameController = new GameController(
                     Constants.FieldDimension,
                     VMLocator.GameFieldVM as IGamePlayer,
                     VMLocator.GameFieldVM as IGamePlayer,

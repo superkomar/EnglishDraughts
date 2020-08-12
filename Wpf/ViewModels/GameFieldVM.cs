@@ -32,7 +32,7 @@ namespace Wpf.ViewModels
             _turnsController = new TurnsController();
             _selectionController = new SelectionController(_turnsController);
 
-            StartGame(Dimension, PlayerSide.White, null);
+            InitGame(Dimension, PlayerSide.White, null);
         }
 
         #region IGameFieldVM
@@ -55,7 +55,7 @@ namespace Wpf.ViewModels
 
         #region IPlayer
 
-        public void StartGame(int dimension, PlayerSide side, IStatusReporter reporter)
+        public void InitGame(int dimension, PlayerSide side, IStatusReporter reporter)
         {
             _playerSide = side;
             Dimension = dimension;
@@ -71,7 +71,7 @@ namespace Wpf.ViewModels
             OnRadrawFieldChanged();
         }
 
-        public void EndGame(PlayerSide winner)
+        public void FinishGame(PlayerSide winner)
         {
 
         }
@@ -86,7 +86,8 @@ namespace Wpf.ViewModels
             _turnsController.UpdateField(gameField, side, _statusReporter);
 
             var taskCompletionSource = new TaskCompletionSource<IGameTurn>();
-            void handler(object o, IGameTurn args)
+
+            void TakeTurnHandler(object o, IGameTurn args)
             {
                 try
                 {
@@ -99,7 +100,7 @@ namespace Wpf.ViewModels
                 }
             }
 
-            _turnsController.TakeTurn += handler;
+            _turnsController.TakeTurn += TakeTurnHandler;
 
             try
             {
@@ -108,7 +109,7 @@ namespace Wpf.ViewModels
             finally
             {
                 IsActive = false;
-                _turnsController.TakeTurn -= handler;
+                _turnsController.TakeTurn -= TakeTurnHandler;
             }
         }
 

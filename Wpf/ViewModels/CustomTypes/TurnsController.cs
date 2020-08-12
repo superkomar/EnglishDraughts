@@ -17,6 +17,8 @@ namespace Wpf.ViewModels.CustomTypes
 
         PlayerSide Side { get; }
 
+        void Clear();
+
         bool CheckTurnStartCell(int cellIdx);
 
         TurnsController.Result TryMakeTurn(int start, int end);
@@ -87,9 +89,17 @@ namespace Wpf.ViewModels.CustomTypes
 
             IsJumpsContinue = false;
 
-            _reporter?.Report($"{Side}: " + (_requiredJumps.Any() ? "Choose cell for required jump" : "Choose cell for turn"));
+            _reporter?.Report($"{Side}: " + (_requiredJumps.Any()
+                ? "Choose cell for required jump"
+                : "Choose cell for turn"));
         }
 
         private void OnTakeTurnChanged(IGameTurn turn) => TakeTurn?.Invoke(this, turn);
+
+        public void Clear()
+        {
+            IsJumpsContinue = false;
+            _turns.Clear();
+        }
     }
 }

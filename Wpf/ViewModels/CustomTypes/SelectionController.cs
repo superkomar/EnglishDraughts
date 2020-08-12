@@ -77,7 +77,13 @@ namespace Wpf.ViewModels.CustomTypes
 
         public void ClearSelection()
         {
-            
+            if (_lastSelectedCell != null)
+            {
+                _lastSelectedCell.IsSelected = false;
+                _lastSelectedCell = null;
+
+                _turnController.Clear();
+            }
         }
     }
 }
