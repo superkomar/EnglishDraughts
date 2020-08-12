@@ -4,29 +4,48 @@ using Core.Interfaces;
 
 namespace Core.Model
 {
-    internal sealed class GameHistory : IGameHistory
+    public sealed class GameHistory<T> : IGameHistory<T>
     {
-        private readonly Stack<GameField> _redoStack = new Stack<GameField>();
-        private readonly Stack<GameField> _undoStack = new Stack<GameField>();
+        private readonly List<T> _history;
 
-        public void Push(GameField gameField)
+        private int _curIndex;
+        private int _maxIndex;
+
+        public GameHistory(T initItem)
         {
-            _undoStack.Push(gameField);
-            _redoStack.Clear();
+            _maxIndex = -1;
+            _curIndex = -1;
+            _history = new List<T>();
+
+            Add(initItem);
         }
 
-        public GameField Redo() => TryMoveElement(_redoStack, _undoStack);
+        public T Current => _history[_curIndex];
 
-        public GameField Undo() => TryMoveElement(_undoStack, _redoStack);
-
-        private static GameField TryMoveElement(Stack<GameField> src, Stack<GameField> dst)
+        public void Add(T item)
         {
-            if (src.TryPop(out GameField gameField))
+            if (item == null)
             {
-                dst.Push(gameField);
+                return;
             }
 
-            return gameField;
+            _curIndex++;
+            _maxIndex = _curIndex;
+            _history.Insert(_curIndex, item);
+        }
+
+        public T Redo()
+        {
+            _curIndex = _curIndex == _maxIndex ? _curIndex : _curIndex + 1;
+
+            return _history[_curIndex];
+        }
+
+        public T Undo()
+        {
+            _curIndex = _curIndex == 0 ? _curIndex : _curIndex - 1;
+
+            return _history[_curIndex];
         }
     }
 }

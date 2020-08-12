@@ -34,10 +34,7 @@ namespace Core.Utils
             || (field[start].ToPlayerSide() == PlayerSide.Black && start < end)
             || (field[start].ToPlayerSide() == PlayerSide.White && start > end);
 
-        public static bool IsPlayerWin(GameField field, PlayerSide side)
-        {
-            var opposite = side.ToOpposite();
-            return field.Field.Where(x => x.ToPlayerSide() == opposite).Any();
-        }
+        public static bool IsPlayerWin(GameField field, PlayerSide side) =>
+            field.AreAnyPieces(side.ToOpposite());  
     }
 }

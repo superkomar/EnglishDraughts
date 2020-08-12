@@ -5,12 +5,21 @@ using Core.Model;
 
 namespace Core.Interfaces
 {
+    public interface IPlayerParameters
+    {
+        int TurnTime { get; }
+
+        PlayerType Type { get; }
+    }
+
     public interface IGamePlayer
     {
-        void StartGame(int dimension, PlayerSide side, IStatusReporter statusReporter);
+        IPlayerParameters Parameters { get; }
+
+        void InitGame(int dimension, PlayerSide side, IStatusReporter statusReporter);
 
         Task<IGameTurn> MakeTurnAsync(GameField gameField, PlayerSide side);
 
-        void EndGame(PlayerSide winner);
+        void FinishGame(PlayerSide winner);
     }
 }

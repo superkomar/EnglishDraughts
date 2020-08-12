@@ -1,13 +1,13 @@
-﻿using Core.Model;
-
-namespace Core.Interfaces
+﻿namespace Core.Interfaces
 {
-    public interface IGameHistory
+    public interface IGameHistory<T>
     {
-        public void Push(GameField gameField);
+        T Current { get; }
 
-        public GameField Undo();
+        void Add(T newItem);
 
-        public GameField Redo();
+        T Undo();
+
+        T Redo();
     }
 }
