@@ -35,6 +35,6 @@ namespace Core.Utils
             || (field[start].ToPlayerSide() == PlayerSide.White && start > end);
 
         public static bool IsPlayerWin(GameField field, PlayerSide side) =>
-            field.AreAnyPieces(side.ToOpposite());  
+            !field.AreAnyPieces(side.ToOpposite());  
     }
 }

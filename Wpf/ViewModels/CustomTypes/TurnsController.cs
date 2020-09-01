@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 using Core.Enums;
 using Core.Interfaces;
 using Core.Model;
 using Core.Utils;
-
-using Wpf.Interfaces;
 
 namespace Wpf.ViewModels.CustomTypes
 {
@@ -62,7 +61,7 @@ namespace Wpf.ViewModels.CustomTypes
             GameFieldUpdater.TryMakeTurn(_gameField, gameTurn, out GameField newField);
 
             // Not last jump
-            if (!gameTurn.IsSimple && GameFieldUtils.FindTurnsForCell(newField, gameTurn.Turns.Last(), GameFieldUtils.TurnType.Jump).Any())
+            if (!gameTurn.IsSimple && GameFieldUtils.FindTurnsForCell(newField, gameTurn.Turns.Last(), TurnType.Jump).Any())
             {
                 _reporter?.Report($"{Side}: Continue jumps");
 
@@ -78,11 +77,14 @@ namespace Wpf.ViewModels.CustomTypes
             return Result.Ok;
         }
 
-        public void UpdateField(GameField newField, PlayerSide side, IStatusReporter reporter)
+        private TaskCompletionSource<IGameTurn> _taskCompletion;
+
+        public void UpdateField(GameField newField, PlayerSide side, IStatusReporter reporter, TaskCompletionSource<IGameTurn> taskCompletion)
         {
             Side = side;
             _gameField = newField;
             _reporter = reporter;
+            _taskCompletion = taskCompletion;
 
             _requiredJumps = GameFieldUtils.FindRequiredJumps(_gameField, Side);
             _turns = new List<IGameTurn>();
@@ -94,7 +96,11 @@ namespace Wpf.ViewModels.CustomTypes
                 : "Choose cell for turn"));
         }
 
-        private void OnTakeTurnChanged(IGameTurn turn) => TakeTurn?.Invoke(this, turn);
+        private void OnTakeTurnChanged(IGameTurn turn)
+        {
+            _taskCompletion?.SetResult(turn);
+            TakeTurn?.Invoke(this, turn);
+        }
 
         public void Clear()
         {

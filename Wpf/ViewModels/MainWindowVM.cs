@@ -20,6 +20,8 @@ namespace Wpf.ViewModels
     {
         public int TurnTime { get; set; }
 
+        public IPlayerParameters Parameters => throw new NotImplementedException();
+
         public void FinishGame(PlayerSide winner)
         {
             throw new NotImplementedException();
@@ -114,7 +116,6 @@ namespace Wpf.ViewModels
                 }
                 case nameof(IGameControllsVM.RedoCmd):
                 {
-                    _gameController.Redo();
                     // Redo
                     break;
                 }

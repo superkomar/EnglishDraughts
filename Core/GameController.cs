@@ -10,9 +10,25 @@ using Core.Utils;
 
 namespace Core
 {
-    public class GameFinishEventArgs : EventArgs
+    public interface IGameController
     {
-        public PlayerSide Winner { get; set; }
+        event EventHandler<FieldUpdateEventArgs> FieldUpdated;
+
+        event EventHandler<GameFinishEventArgs> GameEnded;
+
+        GameField CurrentField { get; }
+        
+        int Dimension { get; }
+
+        bool IsGameRunning { get; }
+        
+        bool Redo(out GameField field);
+
+        void StartGame();
+
+        void StopGame();
+
+        bool Undo(out GameField field);
     }
 
     public class FieldUpdateEventArgs : EventArgs
@@ -20,43 +36,16 @@ namespace Core
         public GameField Field { get; set; }
     }
 
-    public interface IGameController
-    {
-        event EventHandler<FieldUpdateEventArgs> FieldUpdated;
-
-        event EventHandler<GameFinishEventArgs> GameEnded;
-
-        int Dimension { get; }
-
-        bool IsGameRunning { get; }
-
-        GameField CurrentField { get; }
-
-        void StartGame();
-
-        void StopGame();
-        
-        bool Redo(out GameField field);
-
-        bool Undo(out GameField field);
-    }
-
     public class GameController
     {
-        public enum PlayerType
-        {
-            Human,
-            Robot
-        }
-
-        private const int DefaultRobotCalculationTime = 10000;
-
-        private readonly IStatusReporter _reporter;
-        private readonly ModelController _modelController;
         private readonly IGamePlayer _blackPlayer;
+        private readonly ModelController _modelController;
+        private readonly IStatusReporter _reporter;
         private readonly IGamePlayer _whitePlayer;
 
         private CancellationTokenSource _cancellationSource;
+
+        private IGamePlayer _currentPlayer;
 
         public GameController(int dimension, IGamePlayer whitePlayer, IGamePlayer blackPlayer, IStatusReporter reporter)
         {
@@ -73,6 +62,8 @@ namespace Core
             Winner = PlayerSide.None;
         }
 
+        public event EventHandler<FieldUpdateEventArgs> FieldUpdated;
+
         public int Dimension => _modelController.Dimension;
 
         public GameField GameField => _modelController.Field;
@@ -80,12 +71,6 @@ namespace Core
         public bool IsGameRunning { get; private set; }
 
         public PlayerSide Winner { get; private set; }
-
-        private static async Task<T> TimerTask<T>(int timerMs)
-        {
-            await Task.Delay(timerMs);
-            return default;
-        }
 
         public async void StartGame()
         {
@@ -107,71 +92,6 @@ namespace Core
             }
 
         }
-
-        public event EventHandler<FieldUpdateEventArgs> FieldUpdated;
-
-        private void OnFieldUpdateChanged(GameField newField) =>
-            FieldUpdated?.Invoke(this, new FieldUpdateEventArgs { Field = newField });
-
-        private IGamePlayer _currentPlayer;
-
-        private Func<IGamePlayer, PlayerSide, Task<IGameTurn>> GetLaunchStartegy(PlayerType type) =>
-            type switch
-            {
-                PlayerType.Robot => MakeRobotTurn,
-                PlayerType.Human => MakeHumanTurn,
-                _ => throw new NotImplementedException()
-            };
-
-        private async Task<IGameTurn> MakeHumanTurn(IGamePlayer player, PlayerSide side)
-        {
-            IGameTurn newTurn = null;
-
-            bool repeatTurn;
-
-            void HistoryHandler(object sender, EventArgs e) => _cancellationSource?.Cancel();
-
-            do
-            {
-                repeatTurn = false;
-                _cancellationSource = CancellationTokenSource.CreateLinkedTokenSource();
-
-                try
-                {
-                    _modelController.HistoryRolling += HistoryHandler;
-                    newTurn = await Task.Run(() => player.MakeTurnAsync(GameField, side), _cancellationSource.Token);
-                }
-                catch (TaskCanceledException)
-                {
-                    repeatTurn = true;
-                }
-                catch (Exception)
-                {
-                    repeatTurn = false;
-                }
-                finally
-                {
-                    _modelController.HistoryRolling -= HistoryHandler;
-                }
-
-            } while (repeatTurn);
-
-            return newTurn;
-        }
-
-        private async Task<IGameTurn> MakeRobotTurn(IGamePlayer player, PlayerSide side)
-        {
-            var time = player.Parameters.TurnTime > 0
-                ? player.Parameters.TurnTime
-                : DefaultRobotCalculationTime;
-
-            IGameTurn newTurn = await await Task.WhenAny(
-                TimerTask<IGameTurn>(time),
-                player.MakeTurnAsync(GameField, side));
-
-            return newTurn;
-        }
-
         private async Task MakeTurn(IGamePlayer player, PlayerSide side)
         {
             if (!IsGameRunning)
@@ -179,37 +99,45 @@ namespace Core
                 return;
             }
 
-            IGameTurn newTurn = null;
+            _currentPlayer = player;
 
             _reporter?.Report($"{side} player turn");
 
-            var taskTurn = GetLaunchStartegy(player.Parameters.Type);
+            // Get turn
+            var newTurn = await TryMakeTurn(player, side);
 
-            try
-            {
-                newTurn = await taskTurn(player, side);
-            }
-            catch (Exception ex)
-            {
+            // Check turn
+            var result = TryUpdateField(newTurn, side);
 
-            }
-
-            if (TryUpdateField(newTurn, side))
-            { }
-
-            if (newTurn == null
-                || !GameFieldUpdater.TryMakeTurn(GameField, newTurn, out GameField newGameField)
-                || GameRules.IsPlayerWin(newGameField, side))
+            // Check end of game
+            if (!result || GameRules.IsPlayerWin(_modelController.Field, side))
             {
                 IsGameRunning = false;
                 Winner = side.ToOpposite();
 
-                _reporter.Report($"{Winner} player win.");
+                _reporter?.Report($"{Winner} player win.");
             }
-            else
+        }
+
+        private void OnFieldUpdateChanged(GameField newField) => FieldUpdated?.Invoke(this, new FieldUpdateEventArgs { Field = newField });
+        
+        private async Task<IGameTurn> TryMakeTurn(IGamePlayer player, PlayerSide side)
+        {
+            IGameTurn newTurn = null;
+
+            _cancellationSource?.Cancel();
+            _cancellationSource = new CancellationTokenSource();
+
+            try
             {
-                _modelController.UpdateField(newGameField);
+                newTurn = await Task.Run(() => player.MakeTurnAsync(GameField, side), _cancellationSource.Token);
             }
+            catch (Exception ex)
+            {
+                newTurn = default;
+            }
+
+            return newTurn;
         }
 
         private bool TryUpdateField(IGameTurn newTurn, PlayerSide side)
@@ -223,13 +151,12 @@ namespace Core
             _modelController.UpdateField(newGameField);
             OnFieldUpdateChanged(_modelController.Field);
 
-            if (GameRules.IsPlayerWin(newGameField, side))
-            {
-                IsGameRunning = false;
-                Winner = side.ToOpposite();
-
-                _reporter?.Report($"{Winner} player win.");
-            }
+            return true;
         }
+    }
+
+    public class GameFinishEventArgs : EventArgs
+    {
+        public PlayerSide Winner { get; set; }
     }
 }

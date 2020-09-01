@@ -9,7 +9,7 @@ namespace Core.Interfaces
     {
         int TurnTime { get; }
 
-        PlayerType Type { get; }
+        LaunchStrategies.PlayerType Type { get; }
     }
 
     public interface IGamePlayer
