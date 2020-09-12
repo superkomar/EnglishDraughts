@@ -2,6 +2,12 @@
 {
     public interface IStatusReporter
     {
-        void Report(string playerStatus);
+        string Info { get; }
+
+        string Error { get; }
+
+        void ReportInfo(string info);
+
+        void ReportError(string error);
     }
 }

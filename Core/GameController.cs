@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 using Core.Enums;
@@ -36,28 +35,31 @@ namespace Core
         public GameField Field { get; set; }
     }
 
+    public class GameFinishEventArgs : EventArgs
+    {
+        public PlayerSide Winner { get; set; }
+    }
+
     public class GameController
     {
-        private readonly IGamePlayer _blackPlayer;
+        private readonly IPlayerLauncher _blackLauncher;
         private readonly ModelController _modelController;
         private readonly IStatusReporter _reporter;
-        private readonly IGamePlayer _whitePlayer;
+        private readonly IPlayerLauncher _whiteLauncher;
 
-        private CancellationTokenSource _cancellationSource;
+        private IPlayerLauncher _curLauncher;
 
-        private IGamePlayer _currentPlayer;
-
-        public GameController(int dimension, IGamePlayer whitePlayer, IGamePlayer blackPlayer, IStatusReporter reporter)
+        public GameController(int dimension, IPlayerLauncher whitePlayerLauncher, IPlayerLauncher blackPlayerLauncher, IStatusReporter reporter)
         {
             _modelController = new ModelController(dimension);
 
             _reporter = reporter;
 
-            _blackPlayer = blackPlayer;
-            _whitePlayer = whitePlayer;
+            _blackLauncher = blackPlayerLauncher;
+            _whiteLauncher = whitePlayerLauncher;
 
-            _whitePlayer.InitGame(Dimension, PlayerSide.White, reporter);
-            _blackPlayer.InitGame(Dimension, PlayerSide.Black, reporter);
+            _whiteLauncher.InitGame(Dimension, PlayerSide.White, reporter);
+            _blackLauncher.InitGame(Dimension, PlayerSide.Black, reporter);
 
             Winner = PlayerSide.None;
         }
@@ -72,14 +74,14 @@ namespace Core
 
         public PlayerSide Winner { get; private set; }
 
-        public async void StartGame()
+        public async Task StartGame()
         {
             IsGameRunning = true;
 
             while (IsGameRunning)
             {
-                await MakeTurn(_blackPlayer, PlayerSide.Black);
-                await MakeTurn(_whitePlayer, PlayerSide.White);
+                await MakeTurn(_blackLauncher, PlayerSide.Black);
+                await MakeTurn(_whiteLauncher, PlayerSide.White);
             }
         }
 
@@ -88,26 +90,25 @@ namespace Core
             if (IsGameRunning)
             {
                 IsGameRunning = false;
-                _cancellationSource?.Cancel();
+                _curLauncher?.FinishGame();
             }
-
         }
-        private async Task MakeTurn(IGamePlayer player, PlayerSide side)
+        private async Task MakeTurn(IPlayerLauncher launcher, PlayerSide side)
         {
             if (!IsGameRunning)
             {
                 return;
             }
 
-            _currentPlayer = player;
+            _reporter?.ReportInfo($"{side} player turn");
 
-            _reporter?.Report($"{side} player turn");
+            _curLauncher = launcher;
 
             // Get turn
-            var newTurn = await TryMakeTurn(player, side);
+            var newTurn = await launcher.MakeTurnAsync(GameField, side);
 
             // Check turn
-            var result = TryUpdateField(newTurn, side);
+            var result = TryUpdateField(newTurn);
 
             // Check end of game
             if (!result || GameRules.IsPlayerWin(_modelController.Field, side))
@@ -115,32 +116,14 @@ namespace Core
                 IsGameRunning = false;
                 Winner = side.ToOpposite();
 
-                _reporter?.Report($"{Winner} player win.");
+                _reporter?.ReportInfo($"{Winner} player win.");
             }
         }
 
-        private void OnFieldUpdateChanged(GameField newField) => FieldUpdated?.Invoke(this, new FieldUpdateEventArgs { Field = newField });
-        
-        private async Task<IGameTurn> TryMakeTurn(IGamePlayer player, PlayerSide side)
-        {
-            IGameTurn newTurn = null;
+        private void OnFieldUpdateChanged(GameField newField) =>
+            FieldUpdated?.Invoke(this, new FieldUpdateEventArgs { Field = newField });
 
-            _cancellationSource?.Cancel();
-            _cancellationSource = new CancellationTokenSource();
-
-            try
-            {
-                newTurn = await Task.Run(() => player.MakeTurnAsync(GameField, side), _cancellationSource.Token);
-            }
-            catch (Exception ex)
-            {
-                newTurn = default;
-            }
-
-            return newTurn;
-        }
-
-        private bool TryUpdateField(IGameTurn newTurn, PlayerSide side)
+        private bool TryUpdateField(IGameTurn newTurn)
         {
             if (newTurn == null ||
                 !GameFieldUpdater.TryMakeTurn(GameField, newTurn, out GameField newGameField))
@@ -153,10 +136,5 @@ namespace Core
 
             return true;
         }
-    }
-
-    public class GameFinishEventArgs : EventArgs
-    {
-        public PlayerSide Winner { get; set; }
     }
 }

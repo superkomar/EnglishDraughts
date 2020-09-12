@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Threading;
 
 using Core;
@@ -9,8 +10,8 @@ using Core.Interfaces;
 using Core.Model;
 using Core.Utils;
 
+using Wpf.CustomTypes;
 using Wpf.Interfaces;
-using Wpf.Model;
 using Wpf.ViewModels.CustomTypes;
 using Wpf.ViewModels.Enums;
 
@@ -88,15 +89,19 @@ namespace Wpf.ViewModels
 
         }
 
-        private TaskCompletionSource<IGameTurn> _turnCompletionTask;
-
-        public async Task<IGameTurn> MakeTurnAsync(GameField gameField, PlayerSide side)
+        public async Task<IGameTurn> MakeTurnAsync(GameField gameField, PlayerSide side, IOneshotTaskProcessor<IGameTurn> taskProcessor)
         {
             if (gameField.Dimension != Dimension) throw new ArgumentException("Failed!!! Incorrect game field");
 
             IsActive = true;
 
-            var turn = await GetTurnTask(gameField, side);
+            UpdateGameField(gameField);
+
+            _turnsController.UpdateField(gameField, side, _statusReporter, taskProcessor);
+
+            IGameTurn turn = await taskProcessor.Get();
+
+            _selectionController.Clear();
 
             IsActive = false;
 
@@ -104,65 +109,6 @@ namespace Wpf.ViewModels
         }
 
         #endregion
-
-        private async Task<IGameTurn> GetTurnTask(GameField gameField, PlayerSide side)
-        {
-            // First methond
-            {
-                _turnCompletionTask = new TaskCompletionSource<IGameTurn>();
-
-                IGameTurn turn = null;
-
-                try
-                {
-                    var tmp = Dispatcher.CurrentDispatcher.BeginInvoke(() => UpdateGameField(gameField, true), DispatcherPriority.Render);
-                    //UpdateGameField(gameField, true);
-                    //await Task.Run(() => UpdateGameField(gameField)).ConfigureAwait(false);
-                    //Dispatcher.Invoke(() => UpdateGameField(gameField));
-
-                    _turnsController.UpdateField(gameField, side, _statusReporter, _turnCompletionTask);
-
-                    turn = await _turnCompletionTask.Task;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Some shit with TaskCompletionSource!");
-                }
-
-                return turn;
-            }
-
-            // Second method
-            {
-                //var turnCompletionTask = new TaskCompletionSource<IGameTurn>();
-
-                //UpdateGameField(gameField, true);
-
-                //void TakeTurnHandler(object o, IGameTurn args)
-                //{
-                //    try
-                //    {
-                //        //_selectionController.ClearSelection();
-                //        turnCompletionTask.SetResult(args);
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        turnCompletionTask.SetException(ex);
-                //    }
-                //}
-
-                //_turnsController.TakeTurn += TakeTurnHandler;
-
-                //try
-                //{
-                //    return await turnCompletionTask.Task;
-                //}
-                //finally
-                //{
-                //    _turnsController.TakeTurn -= TakeTurnHandler;
-                //}
-            }
-        }
 
         private void OnIsActiveChanged(bool value)
         {
@@ -174,16 +120,18 @@ namespace Wpf.ViewModels
         
         private void OnRadrawFieldChanged() => RedrawField?.Invoke(this, EventArgs.Empty);
 
-        private void UpdateGameField(GameField gameField, bool flag = false)
+        private void UpdateGameField(GameField gameField)
         {
-            var cellIdx = 0;
-            try
+            Application.Current.Dispatcher.Invoke(() =>
             {
                 _currField = gameField;
 
                 void updateAction(int idx, CellHandler handler)
                 {
-                    if ((_cellHandlers.Count - 1) > idx) _cellHandlers[idx].CellState = handler.CellState;
+                    if ((_cellHandlers.Count - 1) > idx)
+                    {
+                        _cellHandlers[idx].CellState = handler.CellState;
+                    }
                     else _cellHandlers.Add(handler);
                 }
 
@@ -191,7 +139,7 @@ namespace Wpf.ViewModels
                 {
                     for (var j = 0; j < Dimension; j++)
                     {
-                        cellIdx = i * Dimension + j;
+                        var cellIdx = i * Dimension + j;
                         var isCellActive = (i + j) % 2 != 0;
 
                         var cellHandler = new CellHandler(
@@ -200,23 +148,10 @@ namespace Wpf.ViewModels
                             gameField[cellIdx],
                             _selectionController);
 
-                        if (flag && cellIdx == 12)
-                        {
-                            cellHandler = new CellHandler(
-                                cellIdx,
-                                isCellActive ? CellType.Black : CellType.White,
-                                CellState.Empty,
-                                _selectionController);
-                        }
-
                         updateAction(cellIdx, cellHandler);
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-
-            }
+            }, DispatcherPriority.Render);
         }
     }
 }

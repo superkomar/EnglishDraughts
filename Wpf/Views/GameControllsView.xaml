@@ -28,6 +28,8 @@
         <Style TargetType="{x:Type TextBlock}">
             <Setter Property="Margin" Value="5"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
 
         <Style TargetType="{x:Type TextBox}">
@@ -61,18 +63,18 @@
 
             <!--Firt Row-->
             <Button Grid.Row="0" Grid.Column="0"
-                    Content="Start Game"
+                    Content="Start"
                     Command="{Binding StartCmd.Property, Mode=TwoWay}"
                     IsEnabled="{Binding StartCmd.IsEnabled, Mode=TwoWay}"/>
 
             <Button Grid.Row="0" Grid.Column="1"
-                    Content="Restart Game"
+                    Content="Finish"
                     Command="{Binding FinishCmd.Property, Mode=TwoWay}"
                     IsEnabled="{Binding FinishCmd.IsEnabled, Mode=TwoWay}"/>
 
             <!--Second Row-->
             <TextBlock Grid.Row="1" Grid.Column="0"
-                       Text="Player Side:"/>
+                       Text="Choose your side:"/>
 
             <ComboBox Grid.Row="1" Grid.Column="1"
                       ItemsSource="{Binding Source={StaticResource dataFromEnum}}"

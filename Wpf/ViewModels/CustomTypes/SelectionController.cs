@@ -7,7 +7,7 @@ namespace Wpf.ViewModels.CustomTypes
     {
         bool CanSelect(CellHandler cellHandler);
 
-        void ClearSelection();
+        void Clear();
     }
 
     public class SelectionController : ISelectionController
@@ -75,7 +75,7 @@ namespace Wpf.ViewModels.CustomTypes
             return false;
         }
 
-        public void ClearSelection()
+        public void Clear()
         {
             if (_lastSelectedCell != null)
             {

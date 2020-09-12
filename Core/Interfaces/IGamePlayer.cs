@@ -8,8 +8,6 @@ namespace Core.Interfaces
     public interface IPlayerParameters
     {
         int TurnTime { get; }
-
-        LaunchStrategies.PlayerType Type { get; }
     }
 
     public interface IGamePlayer
@@ -18,7 +16,7 @@ namespace Core.Interfaces
 
         void InitGame(int dimension, PlayerSide side, IStatusReporter statusReporter);
 
-        Task<IGameTurn> MakeTurnAsync(GameField gameField, PlayerSide side);
+        Task<IGameTurn> MakeTurnAsync(GameField gameField, PlayerSide side, IOneshotTaskProcessor<IGameTurn> taskProcessor);
 
         void FinishGame(PlayerSide winner);
     }

@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
+using Core;
 using Core.Enums;
 using Core.Interfaces;
 using Core.Model;
@@ -16,9 +15,9 @@ namespace Wpf.ViewModels.CustomTypes
 
         PlayerSide Side { get; }
 
-        void Clear();
-
         bool CheckTurnStartCell(int cellIdx);
+
+        void Clear();
 
         TurnsController.Result TryMakeTurn(int start, int end);
     }
@@ -28,7 +27,7 @@ namespace Wpf.ViewModels.CustomTypes
         private GameField _gameField;
         private IStatusReporter _reporter;
         private IEnumerable<GameTurn> _requiredJumps;
-
+        private ITaskSetter<IGameTurn> _sender;
         private List<IGameTurn> _turns;
 
         public enum Result
@@ -37,15 +36,18 @@ namespace Wpf.ViewModels.CustomTypes
             Fail,
             Continue
         }
-
-        public event EventHandler<IGameTurn> TakeTurn;
-
         public bool IsJumpsContinue { get; private set; }
         
         public PlayerSide Side { get; private set; }
         
         public bool CheckTurnStartCell(int cellIdx) =>
             !_requiredJumps.Any() || _requiredJumps.FirstOrDefault(x => x.Start == cellIdx) != null;
+
+        public void Clear()
+        {
+            IsJumpsContinue = false;
+            _turns.Clear();
+        }
 
         public Result TryMakeTurn(int start, int end)
         {
@@ -60,10 +62,10 @@ namespace Wpf.ViewModels.CustomTypes
 
             GameFieldUpdater.TryMakeTurn(_gameField, gameTurn, out GameField newField);
 
-            // Not last jump
+            // Not the last jump
             if (!gameTurn.IsSimple && GameFieldUtils.FindTurnsForCell(newField, gameTurn.Turns.Last(), TurnType.Jump).Any())
             {
-                _reporter?.Report($"{Side}: Continue jumps");
+                _reporter?.ReportInfo($"{Side}: Continue jumps");
 
                 IsJumpsContinue = true;
 
@@ -72,40 +74,26 @@ namespace Wpf.ViewModels.CustomTypes
                 return Result.Continue;
             }
 
-            OnTakeTurnChanged(ModelsCreator.CreateGameTurn(_turns));
+            _sender?.Set(ModelsCreator.CreateGameTurn(_turns));
 
             return Result.Ok;
         }
 
-        private TaskCompletionSource<IGameTurn> _taskCompletion;
-
-        public void UpdateField(GameField newField, PlayerSide side, IStatusReporter reporter, TaskCompletionSource<IGameTurn> taskCompletion)
+        public void UpdateField(GameField newField, PlayerSide side, IStatusReporter reporter, ITaskSetter<IGameTurn> sender)
         {
             Side = side;
             _gameField = newField;
             _reporter = reporter;
-            _taskCompletion = taskCompletion;
+            _sender = sender;
 
-            _requiredJumps = GameFieldUtils.FindRequiredJumps(_gameField, Side);
             _turns = new List<IGameTurn>();
+            _requiredJumps = GameFieldUtils.FindRequiredJumps(_gameField, Side);
 
             IsJumpsContinue = false;
 
-            _reporter?.Report($"{Side}: " + (_requiredJumps.Any()
+            _reporter?.ReportInfo($"{Side}: " + (_requiredJumps.Any()
                 ? "Choose cell for required jump"
                 : "Choose cell for turn"));
-        }
-
-        private void OnTakeTurnChanged(IGameTurn turn)
-        {
-            _taskCompletion?.SetResult(turn);
-            TakeTurn?.Invoke(this, turn);
-        }
-
-        public void Clear()
-        {
-            IsJumpsContinue = false;
-            _turns.Clear();
         }
     }
 }

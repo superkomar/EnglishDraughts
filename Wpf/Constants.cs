@@ -1,4 +1,4 @@
-﻿namespace Wpf.Model
+﻿namespace Wpf
 {
     internal static class Constants
     {

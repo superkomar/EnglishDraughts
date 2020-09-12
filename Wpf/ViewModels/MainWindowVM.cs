@@ -1,56 +1,37 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Threading.Tasks;
 
 using Core;
-using Core.Enums;
 using Core.Interfaces;
-using Core.Model;
 
+using Robot;
+
+using Wpf.CustomTypes;
 using Wpf.Interfaces;
-using Wpf.Model;
+using Wpf.ViewModels.CustomTypes;
 
 namespace Wpf.ViewModels
 {
-    internal interface IMainWindowVM : INotifyPropertyChanged
+    internal interface IMainWindowVM
     {
     }
 
-    public class RobotPlayer : IGamePlayer
-    {
-        public int TurnTime { get; set; }
-
-        public IPlayerParameters Parameters => throw new NotImplementedException();
-
-        public void FinishGame(PlayerSide winner)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void InitGame(int dimension, PlayerSide side, IStatusReporter statusReporter)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<IGameTurn> MakeTurnAsync(GameField gameField, PlayerSide side)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    internal class MainWindowVM : ViewModelBase, IMainWindowVM, IStatusReporter
+    internal class MainWindowVM : ViewModelBase, IMainWindowVM
     {
         private GameController _gameController;
 
-        private RobotPlayer _robot = new RobotPlayer();
+        private Robot.RobotPlayer _robot = new Robot.RobotPlayer();
         private string _statusText = "Wait start the game";
 
         public MainWindowVM()
         {
-            
+            Reporter = new StatusReporter();
+            Reporter.ReportInfo(_statusText);
 
             AttachHandlers();
         }
+
+        public IStatusReporter Reporter { get; }
 
         #region IStatusReporter
 
@@ -90,7 +71,7 @@ namespace Wpf.ViewModels
             VMLocator.GameControllsVM.PropertyChanged -= OnControllsPropertyChanged;
         }
 
-        private async void OnControllsPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void OnControllsPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
@@ -124,13 +105,12 @@ namespace Wpf.ViewModels
 
         private async Task StartGameAsync()
         {
-            _gameController = new GameController(
-                    Constants.FieldDimension,
-                    VMLocator.GameFieldVM as IGamePlayer,
-                    VMLocator.GameFieldVM as IGamePlayer,
-                    this);
+            _gameController = new GameController(Constants.FieldDimension,
+                    LaunchStrategies.GetLauncher(VMLocator.GameFieldVM as IGamePlayer, LaunchStrategies.PlayerType.Human),
+                    LaunchStrategies.GetLauncher(VMLocator.GameFieldVM as IGamePlayer, LaunchStrategies.PlayerType.Human),
+                    Reporter);
 
-            _gameController.StartGame();
+            await _gameController.StartGame();
         }
     }
 }
