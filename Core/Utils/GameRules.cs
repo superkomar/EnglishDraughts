@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-using Core.Enums;
+﻿using Core.Enums;
 using Core.Extensions;
-using Core.Model;
+using Core.Models;
 
 namespace Core.Utils
 {
@@ -11,14 +8,14 @@ namespace Core.Utils
     {
         public static bool CanLevelUp(GameField field, CellState state, int end) =>
             !state.IsKing() &&
-            ((state.ToPlayerSide() == PlayerSide.Black && GameFieldUtils.GetRowIdx(field, end) == field.Dimension - 1) ||
-             (state.ToPlayerSide() == PlayerSide.White && GameFieldUtils.GetRowIdx(field, end) == 0));
+            ((state.IsSameSide(PlayerSide.Black) && GameFieldUtils.GetRowIdx(field, end) == field.Dimension - 1) ||
+             (state.IsSameSide(PlayerSide.White) && GameFieldUtils.GetRowIdx(field, end) == 0));
 
         public static bool IsMovePossible(GameField field, PlayerSide side, int startIdx, int endIdx) =>
             startIdx != endIdx
             && IsValidTurnStart(field, startIdx) && IsValidTurnEnd(field, endIdx)
             && IsValidMoveDirection(field, startIdx, endIdx)
-            && field[startIdx].ToPlayerSide() == side;
+            && field[startIdx].IsSameSide(side);
 
         public static bool IsValidCellIdx(GameField field, int cellIdx) =>
             cellIdx > 0 && cellIdx < field.Field.Count;
@@ -31,8 +28,8 @@ namespace Core.Utils
 
         private static bool IsValidMoveDirection(GameField field, int start, int end) =>
             field[start].IsKing()
-            || (field[start].ToPlayerSide() == PlayerSide.Black && start < end)
-            || (field[start].ToPlayerSide() == PlayerSide.White && start > end);
+            || (field[start].IsSameSide(PlayerSide.Black) && start < end)
+            || (field[start].IsSameSide(PlayerSide.White) && start > end);
 
         public static bool IsPlayerWin(GameField field, PlayerSide side) =>
             !field.AreAnyPieces(side.ToOpposite());  

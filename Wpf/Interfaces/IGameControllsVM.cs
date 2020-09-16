@@ -5,7 +5,7 @@ using Core.Enums;
 
 namespace Wpf.Interfaces
 {
-    public interface IGameControllsVM : INotifyPropertyChanged
+    internal interface IGameControllsVM : INotifyPropertyChanged
     { 
         IEnableChanger<ICommand> FinishCmd { get; }
         

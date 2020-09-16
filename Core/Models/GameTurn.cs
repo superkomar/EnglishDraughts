@@ -4,9 +4,9 @@ using System.Linq;
 using Core.Enums;
 using Core.Interfaces;
 
-namespace Core.Model
+namespace Core.Models
 {
-    public sealed class GameTurn : IGameTurn
+    public class GameTurn : IGameTurn
     {
         internal GameTurn(PlayerSide playerSide, bool isLevelUp, IReadOnlyList<int> turns)
         {

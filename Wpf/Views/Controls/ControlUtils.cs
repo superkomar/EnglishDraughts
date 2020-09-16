@@ -2,11 +2,13 @@
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 
+using Core.Enums;
+
 using Wpf.ViewModels.Enums;
 
 namespace Wpf.Views.Controls
 {
-    public static class ControlUtils
+    internal static class ControlUtils
     {
         public static readonly BitmapImage Empty = ConstructBitmap(new Uri("pack://application:,,,/Wpf;component/Images/Empty.png"));
 
@@ -19,29 +21,32 @@ namespace Wpf.Views.Controls
         public static readonly BitmapImage WhiteMen = ConstructBitmap(new Uri("pack://application:,,,/Wpf;component/Images/WhiteMen.png"));
         public static readonly BitmapImage WhiteKing = ConstructBitmap(new Uri("pack://application:,,,/Wpf;component/Images/WhiteKing.png"));
 
-        public static Image ConstructImage(BitmapImage bitmap) =>
-            bitmap != null ? new Image { Source = bitmap } : new Image();
+        public static Image ConstructImage(CellColor cell) =>
+            ConstructImage(GetBitmapByType(cell));
 
-        public static Image ConstructImage(Core.Enums.CellState cellType) =>
-            ConstructImage(GetBitmapByType(cellType));
+        public static Image ConstructImage(CellState cellState) =>
+            ConstructImage(GetBitmapByType(cellState));
 
-        public static BitmapImage GetBitmapByType(CellType cellType) =>
-            cellType switch
+        public static BitmapImage GetBitmapByType(CellColor cell) =>
+            cell switch
             {
-                CellType.Black => BlackCell,
-                CellType.White => WhiteCell,
+                CellColor.Black => BlackCell,
+                CellColor.White => WhiteCell,
                 _ => null,
             };
 
-        public static BitmapImage GetBitmapByType(Core.Enums.CellState cellState) =>
+        public static BitmapImage GetBitmapByType(CellState cellState) =>
             cellState switch
             {
-                Core.Enums.CellState.BlackMen => BlackMen,
-                Core.Enums.CellState.BlackKing => BlackKing,
-                Core.Enums.CellState.WhiteMen => WhiteMen,
-                Core.Enums.CellState.WhiteKing => WhiteKing,
+                CellState.BlackMen  => BlackMen,
+                CellState.BlackKing => BlackKing,
+                CellState.WhiteMen  => WhiteMen,
+                CellState.WhiteKing => WhiteKing,
                 _ => null,
             };
+
+        private static Image ConstructImage(BitmapImage bitmap) =>
+            bitmap != null ? new Image { Source = bitmap } : new Image();
 
         private static BitmapImage ConstructBitmap(Uri imageUri)
         {

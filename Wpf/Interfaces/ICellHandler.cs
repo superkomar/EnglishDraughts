@@ -1,14 +1,16 @@
 ﻿using System.ComponentModel;
 
+using Core.Enums;
+
 using Wpf.ViewModels.Enums;
 
 namespace Wpf.Interfaces
 {
-    public interface ICellHandler : INotifyPropertyChanged
+    internal interface ICellHandler : INotifyPropertyChanged
     {
-        Core.Enums.CellState CellState { get; }
+        CellState CellState { get; }
         
-        CellType CellType { get; }
+        CellColor CellColor { get; }
 
         int CellIdx { get; }
         

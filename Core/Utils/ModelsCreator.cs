@@ -4,9 +4,8 @@ using System.Linq;
 
 using Core.Enums;
 using Core.Extensions;
-using Core.Helpers;
 using Core.Interfaces;
-using Core.Model;
+using Core.Models;
 
 namespace Core.Utils
 {
@@ -61,7 +60,7 @@ namespace Core.Utils
             else if (startNeighbours.RightTop == endNeighbours.LeftBot) middle = startNeighbours.RightTop;
             else if (startNeighbours.RightBot == endNeighbours.LeftTop) middle = startNeighbours.RightBot;
 
-            return middle != -1 && field[middle] != CellState.Empty && field[start].IsOpposite(field[middle])
+            return middle != -1 && field[start].IsOpposite(field[middle])
                 ? new GameTurn(side, GameRules.CanLevelUp(field, field[start], end), new[] { start, middle, end })
                 : null;
         }

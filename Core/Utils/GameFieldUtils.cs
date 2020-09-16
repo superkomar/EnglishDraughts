@@ -4,8 +4,7 @@ using System.Linq;
 using Core.Enums;
 using Core.Extensions;
 using Core.Interfaces;
-using Core.Model;
-
+using Core.Models;
 
 namespace Core.Utils
 {
@@ -17,10 +16,10 @@ namespace Core.Utils
             {
                 var cellState = field[cellIdx];
 
-                if (cellState == CellState.Empty || cellState.ToPlayerSide() != side) continue;
+                if (!cellState.IsSameSide(side)) continue;
 
-                if (GetTurn(field, side, cellIdx, field.NeighborsHelper.GetLeftTopCell(cellIdx, 2), TurnType.Jump)  is GameTurn leftTop)  yield return leftTop;
-                if (GetTurn(field, side, cellIdx, field.NeighborsHelper.GetLeftBotCell(cellIdx, 2), TurnType.Jump)  is GameTurn leftBot)  yield return leftBot;
+                if (GetTurn(field, side, cellIdx, field.NeighborsHelper.GetLeftTopCell(cellIdx,  2), TurnType.Jump) is GameTurn leftTop)  yield return leftTop;
+                if (GetTurn(field, side, cellIdx, field.NeighborsHelper.GetLeftBotCell(cellIdx,  2), TurnType.Jump) is GameTurn leftBot)  yield return leftBot;
                 if (GetTurn(field, side, cellIdx, field.NeighborsHelper.GetRightTopCell(cellIdx, 2), TurnType.Jump) is GameTurn rightTop) yield return rightTop;
                 if (GetTurn(field, side, cellIdx, field.NeighborsHelper.GetRightBotCell(cellIdx, 2), TurnType.Jump) is GameTurn rightBot) yield return rightBot;
             }
@@ -30,12 +29,10 @@ namespace Core.Utils
         {
             var cellState = field[cellIdx];
 
-            if (cellState == CellState.Empty) yield break;
-
-            var side = cellState.ToPlayerSide();
-
-            if (GetTurn(field, side, cellIdx, field.NeighborsHelper.GetLeftTopCell(cellIdx, 2),  type) is GameTurn leftTop)  yield return leftTop;
-            if (GetTurn(field, side, cellIdx, field.NeighborsHelper.GetLeftBotCell(cellIdx, 2),  type) is GameTurn leftBot)  yield return leftBot;
+            if (!cellState.TryGetPlayerSide(out PlayerSide side)) yield break;
+                 
+            if (GetTurn(field, side, cellIdx, field.NeighborsHelper.GetLeftTopCell(cellIdx,  2), type) is GameTurn leftTop)  yield return leftTop;
+            if (GetTurn(field, side, cellIdx, field.NeighborsHelper.GetLeftBotCell(cellIdx,  2), type) is GameTurn leftBot)  yield return leftBot;
             if (GetTurn(field, side, cellIdx, field.NeighborsHelper.GetRightTopCell(cellIdx, 2), type) is GameTurn rightTop) yield return rightTop;
             if (GetTurn(field, side, cellIdx, field.NeighborsHelper.GetRightBotCell(cellIdx, 2), type) is GameTurn rightBot) yield return rightBot;
         }
@@ -69,9 +66,9 @@ namespace Core.Utils
             type switch
             {
                 TurnType.Simple => ModelsCreator.CreateSimpleMove(field, side, startCellIdx, endCellIdx),
-                TurnType.Jump => ModelsCreator.CreateJumpMove(field, side, startCellIdx, endCellIdx),
-                TurnType.Both => GetTurn(field, side, startCellIdx, endCellIdx, TurnType.Simple)
-                                 ?? GetTurn(field, side, startCellIdx, endCellIdx, TurnType.Jump),
+                TurnType.Jump   => ModelsCreator.CreateJumpMove(field, side, startCellIdx, endCellIdx),
+                TurnType.Both   => GetTurn(field, side, startCellIdx, endCellIdx, TurnType.Simple)
+                                   ?? GetTurn(field, side, startCellIdx, endCellIdx, TurnType.Jump),
                 _ => throw new System.NotImplementedException()
             };
 

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-using Core;
 using Core.Enums;
 using Core.Interfaces;
 using Core.Model;
@@ -9,7 +8,7 @@ using Core.Utils;
 
 namespace Wpf.ViewModels.CustomTypes
 {
-    public interface ITurnsController
+    internal interface ITurnsController
     {
         bool IsJumpsContinue { get; }
 
@@ -19,10 +18,10 @@ namespace Wpf.ViewModels.CustomTypes
 
         void Clear();
 
-        TurnsController.Result TryMakeTurn(int start, int end);
+        TurnsConstructor.Result TryMakeTurn(int start, int end);
     }
 
-    public class TurnsController : ITurnsController
+    internal class TurnsConstructor : ITurnsController
     {
         private GameField _gameField;
         private IStatusReporter _reporter;
@@ -36,6 +35,7 @@ namespace Wpf.ViewModels.CustomTypes
             Fail,
             Continue
         }
+
         public bool IsJumpsContinue { get; private set; }
         
         public PlayerSide Side { get; private set; }
@@ -79,7 +79,7 @@ namespace Wpf.ViewModels.CustomTypes
             return Result.Ok;
         }
 
-        public void UpdateField(GameField newField, PlayerSide side, IStatusReporter reporter, ITaskSetter<IGameTurn> sender)
+        public void Restart(GameField newField, PlayerSide side, IStatusReporter reporter, ITaskSetter<IGameTurn> sender)
         {
             Side = side;
             _gameField = newField;

@@ -1,6 +1,6 @@
 ﻿namespace Wpf.Interfaces
 {
-    public interface IGameFieldController
+    internal interface IGameFieldController
     {
         int Dimension { get; }
 

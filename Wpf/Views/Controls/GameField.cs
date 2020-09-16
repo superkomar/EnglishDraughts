@@ -8,7 +8,7 @@ using Wpf.Interfaces;
 
 namespace Wpf.Views.Controls
 {
-    public class GameField : Grid
+    internal class GameField : Grid
     {
         public GameField()
         {

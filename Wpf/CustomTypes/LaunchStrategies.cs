@@ -15,8 +15,8 @@ namespace Wpf.CustomTypes
         public static IPlayerLauncher GetLauncher(IGamePlayer player, PlayerType type) =>
             type switch
             {
-                PlayerType.Robot => new RobotPlayer(player),
-                PlayerType.Human => new HumanPlayer(player),
+                PlayerType.Robot => new RobotLauncher(player),
+                PlayerType.Human => new HumanLauncher(player),
                 _ => throw new NotImplementedException()
             };
     }

@@ -3,14 +3,14 @@ using Core.Extensions;
 
 namespace Wpf.ViewModels.CustomTypes
 {
-    public interface ISelectionController
+    internal interface ISelectionController
     {
         bool CanSelect(CellHandler cellHandler);
 
         void Clear();
     }
 
-    public class SelectionController : ISelectionController
+    internal class SelectionController : ISelectionController
     {
         private readonly ITurnsController _turnController;
 
@@ -38,7 +38,7 @@ namespace Wpf.ViewModels.CustomTypes
             if (_lastSelectedCell == null)
             {
                 if (_turnController.CheckTurnStartCell(cellHandler.CellIdx) &&
-                    _turnController.Side == cellHandler.CellState.ToPlayerSide())
+                    cellHandler.CellState.IsSameSide(_turnController.Side))
                 {
                     _lastSelectedCell = cellHandler;
                     return true;
@@ -53,17 +53,21 @@ namespace Wpf.ViewModels.CustomTypes
 
                 switch (result)
                 {
-                    case TurnsController.Result.Fail:
+                    case TurnsConstructor.Result.Fail:
                     {
                         return false;
                     }
-                    case TurnsController.Result.Ok:
+                    case TurnsConstructor.Result.Ok:
                     {
-                        _lastSelectedCell.IsSelected = false;
-                        _lastSelectedCell = null;
+                        if (_lastSelectedCell != null)
+                        {
+                            _lastSelectedCell.IsSelected = false;
+                            _lastSelectedCell = null;
+                        }
+
                         return false;
                     }
-                    case TurnsController.Result.Continue:
+                    case TurnsConstructor.Result.Continue:
                     {
                         _lastSelectedCell.IsSelected = false;
                         _lastSelectedCell = cellHandler;

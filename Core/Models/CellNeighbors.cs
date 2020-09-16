@@ -1,4 +1,4 @@
-﻿namespace Core.Helpers
+﻿namespace Core.Models
 {
     public readonly struct CellNeighbors
     {
@@ -20,7 +20,5 @@
 
         public bool IsNeighbor(int cellId) =>
             cellId != -1 && (LeftBot == cellId || LeftTop == cellId || RightBot == cellId || RightTop == cellId);
-
-        public int[] ToArray() => new int[] { LeftTop, RightTop, LeftBot, RightBot };
     }
 }

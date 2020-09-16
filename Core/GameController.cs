@@ -1,138 +1,134 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using Core.Enums;
 using Core.Extensions;
+using Core.Helpers;
 using Core.Interfaces;
-using Core.Model;
+using Core.Models;
 using Core.Utils;
 
 namespace Core
 {
-    public interface IGameController
-    {
-        event EventHandler<FieldUpdateEventArgs> FieldUpdated;
-
-        event EventHandler<GameFinishEventArgs> GameEnded;
-
-        GameField CurrentField { get; }
-        
-        int Dimension { get; }
-
-        bool IsGameRunning { get; }
-        
-        bool Redo(out GameField field);
-
-        void StartGame();
-
-        void StopGame();
-
-        bool Undo(out GameField field);
-    }
-
-    public class FieldUpdateEventArgs : EventArgs
-    {
-        public GameField Field { get; set; }
-    }
-
-    public class GameFinishEventArgs : EventArgs
-    {
-        public PlayerSide Winner { get; set; }
-    }
-
     public class GameController
     {
-        private readonly IPlayerLauncher _blackLauncher;
         private readonly ModelController _modelController;
-        private readonly IStatusReporter _reporter;
-        private readonly IPlayerLauncher _whiteLauncher;
+        private readonly PlayerStateMachine _playersControl;
 
-        private IPlayerLauncher _curLauncher;
+        private bool _isGameRunning;
+        private bool _isHistoryRolling;
 
-        public GameController(int dimension, IPlayerLauncher whitePlayerLauncher, IPlayerLauncher blackPlayerLauncher, IStatusReporter reporter)
+        public GameController(int dimension, PlayerBase blackPlayer, PlayerBase whitePlayer)
         {
+            if (whitePlayer == null || blackPlayer == null) throw new ArgumentNullException();
+
             _modelController = new ModelController(dimension);
 
-            _reporter = reporter;
+            _playersControl = new PlayerStateMachine(blackPlayer, whitePlayer);
 
-            _blackLauncher = blackPlayerLauncher;
-            _whiteLauncher = whitePlayerLauncher;
-
-            _whiteLauncher.InitGame(Dimension, PlayerSide.White, reporter);
-            _blackLauncher.InitGame(Dimension, PlayerSide.Black, reporter);
-
-            Winner = PlayerSide.None;
+            _isGameRunning = _isHistoryRolling = false;
         }
 
-        public event EventHandler<FieldUpdateEventArgs> FieldUpdated;
+        #region IGameController
 
-        public int Dimension => _modelController.Dimension;
-
-        public GameField GameField => _modelController.Field;
-
-        public bool IsGameRunning { get; private set; }
-
-        public PlayerSide Winner { get; private set; }
-
-        public async Task StartGame()
+        public void Undo(int deep)
         {
-            IsGameRunning = true;
+            _modelController.Undo(deep);
+            HistoryRolling();
+        }
 
-            while (IsGameRunning)
+        public void Redo(int deep)
+        {
+            _modelController.Redo(deep);
+            HistoryRolling();
+        }       
+
+        public GameState? FinalGameState { get; private set; }
+
+        public async IAsyncEnumerable<GameState> StartGameAsync()
+        {
+            if (FinalGameState != null)
             {
-                await MakeTurn(_blackLauncher, PlayerSide.Black);
-                await MakeTurn(_whiteLauncher, PlayerSide.White);
+                yield return FinalGameState.Value;
+                yield break;
+            }
+
+            yield return new GameState(_modelController.Field, GameState.StateType.Start, _playersControl.CurPlayer.Side);
+
+            _isGameRunning = true;
+
+            while (_isGameRunning)
+            {
+                yield return await MakeTurnAsync();
             }
         }
 
         public void StopGame()
         {
-            if (IsGameRunning)
-            {
-                IsGameRunning = false;
-                _curLauncher?.FinishGame();
-            }
+            _isGameRunning = false;
+
+            var winner = _playersControl.CurPlayer.Side.ToOpposite();
+
+            FinalGameState = new GameState(_modelController.Field, GameState.StateType.Finish, winner);
+
+            _playersControl.BlackPlayer.StopMakeTurn();
+            _playersControl.WhitePlayer.StopMakeTurn();
         }
-        private async Task MakeTurn(IPlayerLauncher launcher, PlayerSide side)
+
+        #endregion
+
+        private void HistoryRolling()
         {
-            if (!IsGameRunning)
+            _isHistoryRolling = true;
+            _playersControl.CurPlayer.Player.StopMakeTurn();
+            _playersControl.ChangeStateForOneGet(PlayerStateMachine.MachineState.Repeat);
+        }
+
+        private async Task<GameState> MakeTurnAsync()
+        {
+            if (!_isGameRunning)
             {
-                return;
+                StopGame();
+                return FinalGameState.Value;
             }
 
-            _reporter?.ReportInfo($"{side} player turn");
-
-            _curLauncher = launcher;
+            var (Player, Side) = _playersControl.GetNextPlayer();
 
             // Get turn
-            var newTurn = await launcher.MakeTurnAsync(GameField, side);
+            var newTurn = await Task.Run(() => Player.MakeTurn(_modelController.Field));
 
-            // Check turn
-            var result = TryUpdateField(newTurn);
-
-            // Check end of game
-            if (!result || GameRules.IsPlayerWin(_modelController.Field, side))
+            // Check if returned value the reason of history rolling
+            if (!_isHistoryRolling)
             {
-                IsGameRunning = false;
-                Winner = side.ToOpposite();
+                // Check turn
+                var success = TryUpdateField(newTurn);
 
-                _reporter?.ReportInfo($"{Winner} player win.");
+                // Check end of game
+                if (!success || GameRules.IsPlayerWin(_modelController.Field, Side))
+                {
+                    _isGameRunning = false;
+                    var winner = success ? Side : Side.ToOpposite();
+
+                    FinalGameState = new GameState(_modelController.Field, GameState.StateType.Finish, Side);
+
+                    return FinalGameState.Value;
+                }
             }
-        }
 
-        private void OnFieldUpdateChanged(GameField newField) =>
-            FieldUpdated?.Invoke(this, new FieldUpdateEventArgs { Field = newField });
+            _isHistoryRolling = false;
+
+            return new GameState(_modelController.Field, GameState.StateType.Turn, Side);
+        }
 
         private bool TryUpdateField(IGameTurn newTurn)
         {
             if (newTurn == null ||
-                !GameFieldUpdater.TryMakeTurn(GameField, newTurn, out GameField newGameField))
+                !GameFieldUtils.TryMakeTurn(_modelController.Field, newTurn, out GameField newGameField))
             {
                 return false;
             }
 
             _modelController.UpdateField(newGameField);
-            OnFieldUpdateChanged(_modelController.Field);
 
             return true;
         }

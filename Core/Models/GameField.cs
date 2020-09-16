@@ -4,10 +4,9 @@ using System.Runtime.CompilerServices;
 
 using Core.Enums;
 using Core.Extensions;
-using Core.Helpers;
 
 [assembly: InternalsVisibleTo("NUnitTests")]
-namespace Core.Model
+namespace Core.Models
 {
     public readonly struct GameField
     {
@@ -20,8 +19,8 @@ namespace Core.Model
             Dimension = dimension;
             NeighborsHelper = neighborsHelper;
 
-            _areAnyBlackPieces = field.Any(x => x.ToPlayerSide() == PlayerSide.Black);
-            _areAnyWhitePieces = field.Any(x => x.ToPlayerSide() == PlayerSide.White);
+            _areAnyBlackPieces = field.Any(x => x.IsSameSide(PlayerSide.Black));
+            _areAnyWhitePieces = field.Any(x => x.IsSameSide(PlayerSide.White));
         }
 
         public int Dimension { get; }

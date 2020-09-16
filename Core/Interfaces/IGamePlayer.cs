@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 
 using Core.Enums;
-using Core.Model;
+using Core.Models;
 
 namespace Core.Interfaces
 {
@@ -14,10 +14,10 @@ namespace Core.Interfaces
     {
         IPlayerParameters Parameters { get; }
 
-        void InitGame(int dimension, PlayerSide side, IStatusReporter statusReporter);
+        void InitGame(GameField gameField, PlayerSide side, IStatusReporter statusReporter);
 
-        Task<IGameTurn> MakeTurnAsync(GameField gameField, PlayerSide side, IOneshotTaskProcessor<IGameTurn> taskProcessor);
+        Task<IGameTurn> MakeTurn(GameField gameField, ISingleUseResultProcessor<IGameTurn> taskProcessor);
 
-        void FinishGame(PlayerSide winner);
+        void FinishGame(GameField gameField, PlayerSide winner);
     }
 }

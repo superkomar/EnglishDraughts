@@ -2,9 +2,9 @@
 
 using Core.Interfaces;
 
-namespace Core.Model
+namespace Core.Helpers
 {
-    public sealed class GameHistory<T> : IGameHistory<T>
+    internal sealed class GameHistory<T>
     {
         private readonly List<T> _history;
 

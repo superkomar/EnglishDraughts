@@ -20,7 +20,7 @@ namespace Wpf.ViewModels
     {
         private GameController _gameController;
 
-        private Robot.RobotPlayer _robot = new Robot.RobotPlayer();
+        private RobotPlayer _robot = new RobotPlayer();
         private string _statusText = "Wait start the game";
 
         public MainWindowVM()
@@ -110,7 +110,14 @@ namespace Wpf.ViewModels
                     LaunchStrategies.GetLauncher(VMLocator.GameFieldVM as IGamePlayer, LaunchStrategies.PlayerType.Human),
                     Reporter);
 
-            await _gameController.StartGame();
+            await foreach(var state in _gameController.StartGame())
+            {
+                VMLocator.GameFieldVM.UpdateGameField(state.Field);
+
+
+                if (state.State == GameController.GameState.StateType.Turn &&
+                    state.Side == Core.Enums.PlayerSide.)
+            }
         }
     }
 }

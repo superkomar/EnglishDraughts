@@ -9,7 +9,7 @@ using Wpf.Interfaces;
 
 namespace Wpf.Views.Controls
 {
-    public class GameCell : Grid, IDisposable
+    internal class GameCell : Grid, IDisposable
     {
         private readonly Border _border;
         private readonly ICellHandler _handler;
@@ -23,7 +23,7 @@ namespace Wpf.Views.Controls
             _handler = cellHandler;
             IsEnabled = _handler?.IsEnabled ?? false;
 
-            Children.Add(ControlUtils.ConstructImage(ControlUtils.GetBitmapByType(_handler.CellType)));
+            Children.Add(ControlUtils.ConstructImage(_handler.CellColor));
 
             _shapeImage = ControlUtils.ConstructImage(_handler.CellState);
             _shapeImage.Width = width * 0.6;

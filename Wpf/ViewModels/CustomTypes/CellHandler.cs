@@ -5,20 +5,20 @@ using Wpf.ViewModels.Enums;
 
 namespace Wpf.ViewModels.CustomTypes
 {
-    public class CellHandler : NotifyPropertyChanged, ICellHandler
+    internal class CellHandler : NotifyPropertyChanged, ICellHandler
     {
         private readonly ISelectionController _selectionController;
 
         private CellState _cellState;
         private bool _isSelected;
 
-        public CellHandler(int cellIdx, CellType cellType, CellState cellState, ISelectionController selectionController)
+        public CellHandler(int cellIdx, CellColor cellType, CellState cellState, ISelectionController selectionController)
         {
             CellIdx = cellIdx;
             IsSelected = false;
-            CellType = cellType;
+            CellColor = cellType;
             CellState = cellState;
-            IsEnabled = cellType == CellType.Black;
+            IsEnabled = cellType == CellColor.Black;
 
             _selectionController = selectionController;
         }
@@ -29,7 +29,7 @@ namespace Wpf.ViewModels.CustomTypes
 
         public bool IsEnabled { get; }
 
-        public CellType CellType { get; }
+        public CellColor CellColor { get; }
 
         public CellState CellState
         {
@@ -50,7 +50,7 @@ namespace Wpf.ViewModels.CustomTypes
             if (value == _cellState) return;
 
             _cellState = value;
-            OnPropertyChanged(nameof(CellState));
+            OnPropertyChanged(nameof(Core.Enums.CellState));
         }
 
         private void OnIsSelectedChanged(bool value)

@@ -2,13 +2,12 @@
 
 using Core.Enums;
 
-//using Wpf.Enums;
 using Wpf.Interfaces;
 using Wpf.ViewModels.CustomTypes;
 
 namespace Wpf.ViewModels
 {
-    public class GameControllsVM : ViewModelBase, IGameControllsVM
+    internal class GameControllsVM : ViewModelBase, IGameControllsVM
     {
         private int _robotTimeMs = (int) 1E5;
 

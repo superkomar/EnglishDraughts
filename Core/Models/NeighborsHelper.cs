@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Core.Helpers
+namespace Core.Models
 {
     public class NeighborsHelper
     {
@@ -9,7 +9,7 @@ namespace Core.Helpers
         
         public NeighborsHelper(int dimension)
         {
-            if (dimension <= 0)     throw new ArgumentException(@"Dimension should be more than zero");
+            if (dimension <= 0) throw new ArgumentException(@"Dimension should be more than zero");
             //if (dimension % 2 != 0) throw new ArgumentException(@"Dimention must be multiple of two");
 
             _dimension = dimension;
