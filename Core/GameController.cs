@@ -88,7 +88,7 @@ namespace Core
         {
             if (!_isGameRunning)
             {
-                StopGame();
+                if (FinalGameState == null) StopGame();
                 return FinalGameState.Value;
             }
 
@@ -96,6 +96,9 @@ namespace Core
 
             // Get turn
             var newTurn = await Task.Run(() => Player.MakeTurn(_modelController.Field));
+
+            // Check if game stoped
+            if (FinalGameState != null) return FinalGameState.Value;
 
             // Check if returned value the reason of history rolling
             if (!_isHistoryRolling)

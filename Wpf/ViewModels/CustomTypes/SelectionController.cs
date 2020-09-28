@@ -12,21 +12,20 @@ namespace Wpf.ViewModels.CustomTypes
 
     internal class SelectionController : ISelectionController
     {
-        private readonly ITurnsController _turnController;
+        private readonly ITurnsConstructor _turnController;
 
         private CellHandler _lastSelectedCell;
 
-        public SelectionController(ITurnsController turnsController)
+        public SelectionController(ITurnsConstructor turnsController)
         {
             _turnController = turnsController;
         }
 
+        public bool IsSelectionAvaliable { get; set; }
+
         public bool CanSelect(CellHandler cellHandler)
         {
-            if (cellHandler == null)
-            {
-                return false;
-            }
+            if (cellHandler == null) return false;
 
             // Deselect cell
             if (_lastSelectedCell == cellHandler)
@@ -34,6 +33,8 @@ namespace Wpf.ViewModels.CustomTypes
                 _lastSelectedCell = null;
                 return true;
             }
+
+            if (!IsSelectionAvaliable) return false;
 
             if (_lastSelectedCell == null)
             {

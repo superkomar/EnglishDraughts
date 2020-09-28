@@ -1,40 +1,43 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-using Core;
 using Core.Enums;
 using Core.Interfaces;
-using Core.Model;
+using Core.Models;
 
 namespace Robot
 {
-    public class RobotPlayer : IGamePlayer
+    public class RobotPlayer : PlayerBase
     {
+        private const int DefaultRobotCalculationTime = 10000;
+
         public int TurnTime { get; set; }
 
         public IPlayerParameters Parameters => throw new NotImplementedException();
 
-        public void FinishGame(PlayerSide winner)
+        protected override void DoFinishGame(GameField gameField, PlayerSide winner)
         {
             throw new NotImplementedException();
         }
 
-        public void InitGame(int dimension, PlayerSide side, IStatusReporter statusReporter)
+        protected override Task<IGameTurn> DoMakeTurn(GameField newField)
         {
-            throw new NotImplementedException();
+            return default;
+
+            var time = TurnTime > 0 ? TurnTime : DefaultRobotCalculationTime;
+
+            //return await await Task.WhenAny(
+            //    Player.MakeTurnAsync(gameField, ResultProcessor),
+            //    TimerTask<IGameTurn>(time));
         }
 
-        public async Task<IGameTurn> MakeTurnAsync(GameField gameField, PlayerSide side)
+        private static async Task<T> TimerTask<T>(int timerMs)
         {
-            throw new NotImplementedException();
+            await Task.Delay(timerMs);
+            return default;
         }
 
-        public Task<IGameTurn> MakeTurnAsync(GameField gameField, PlayerSide side, TaskCompletionSource<IGameTurn> tcs)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IGameTurn> MakeTurnAsync(GameField gameField, PlayerSide side, IOneshotTaskProcessor<IGameTurn> taskProcessor)
+        protected override void DoStartGame(GameField gameField, PlayerSide side)
         {
             throw new NotImplementedException();
         }

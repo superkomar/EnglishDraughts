@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 
-using Core.Model;
+using Core.Models;
 
 namespace Wpf.Interfaces
 {
@@ -10,8 +10,6 @@ namespace Wpf.Interfaces
         event EventHandler RedrawField;
 
         int Dimension { get; }
-
-        public bool IsActive { get; }
 
         ICellHandler GetCellHandler(int posX, int posY);
 

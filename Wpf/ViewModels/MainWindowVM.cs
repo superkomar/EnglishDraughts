@@ -2,11 +2,12 @@
 using System.Threading.Tasks;
 
 using Core;
+using Core.Enums;
 using Core.Interfaces;
+using Core.Models;
 
 using Robot;
 
-using Wpf.CustomTypes;
 using Wpf.Interfaces;
 using Wpf.ViewModels.CustomTypes;
 
@@ -32,15 +33,6 @@ namespace Wpf.ViewModels
         }
 
         public IStatusReporter Reporter { get; }
-
-        #region IStatusReporter
-
-        public void Report(string playerStatus)
-        {
-            StatusText = playerStatus;
-        }
-
-        #endregion
 
         public string StatusText
         {
@@ -92,12 +84,12 @@ namespace Wpf.ViewModels
                 }
                 case nameof(IGameControllsVM.UndoCmd):
                 {
-                    // Undo
+                    _gameController?.Undo(deep: 2);
                     break;
                 }
                 case nameof(IGameControllsVM.RedoCmd):
                 {
-                    // Redo
+                    _gameController?.Redo(deep: 2);
                     break;
                 }
             }
@@ -105,18 +97,32 @@ namespace Wpf.ViewModels
 
         private async Task StartGameAsync()
         {
-            _gameController = new GameController(Constants.FieldDimension,
-                    LaunchStrategies.GetLauncher(VMLocator.GameFieldVM as IGamePlayer, LaunchStrategies.PlayerType.Human),
-                    LaunchStrategies.GetLauncher(VMLocator.GameFieldVM as IGamePlayer, LaunchStrategies.PlayerType.Human),
-                    Reporter);
+            var black = new WpfPlayer(VMLocator.GameFieldVM as IWpfTurnWaiter, Reporter);
+            var white = new WpfPlayer(VMLocator.GameFieldVM as IWpfTurnWaiter, Reporter);
 
-            await foreach(var state in _gameController.StartGame())
+            _gameController = new GameController(Constants.FieldDimension, black, white);
+
+            await foreach(var state in _gameController.StartGameAsync())
             {
                 VMLocator.GameFieldVM.UpdateGameField(state.Field);
 
-
-                if (state.State == GameController.GameState.StateType.Turn &&
-                    state.Side == Core.Enums.PlayerSide.)
+                switch (state.State)
+                {
+                    case GameState.StateType.Start:
+                    {
+                        black.StartGame(state.Field, PlayerSide.Black);
+                        white.StartGame(state.Field, PlayerSide.White);
+                        break;
+                    }
+                    case GameState.StateType.Finish:
+                    {
+                        black.FinishGame(state.Field, state.Side);
+                        white.FinishGame(state.Field, state.Side);
+                        return;
+                    }
+                    case GameState.StateType.Turn:
+                        break;
+                }
             }
         }
     }

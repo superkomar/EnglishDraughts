@@ -9,8 +9,8 @@ namespace Core.Models
     public abstract class PlayerBase
     {
         private SingleUseTaskProcessor<IGameTurn> _resultProcessor;
-        
-        protected ISingleUseResultProcessor<IGameTurn> ResultProcessor { get; }
+
+        protected ISingleUseResultProcessor<IGameTurn> ResultProcessor => _resultProcessor;
         
         public void FinishGame(GameField gameField, PlayerSide winner)
         {

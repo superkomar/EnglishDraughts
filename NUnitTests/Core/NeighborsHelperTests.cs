@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Core.Helpers;
+using Core.Models;
 
 using NUnit.Framework;
 

@@ -3,29 +3,27 @@ using System.Linq;
 
 using Core.Enums;
 using Core.Interfaces;
-using Core.Model;
+using Core.Models;
+using Core.Utils;
 
-using Wpf.CustomTypes;
 using Wpf.Interfaces;
 using Wpf.ViewModels.CustomTypes;
 using Wpf.ViewModels.Enums;
 
 namespace Wpf.ViewModels
 {
-    interface IInterface1
+    interface IWpfTurnWaiter
     {
-        bool IsActive { get; set; }
+        void Start(GameField newField, PlayerSide side, IStatusReporter reporter, IResultSetter<IGameTurn> sender);
 
-        void Update(GameField newField, PlayerSide side, IStatusReporter reporter, ITaskSetter<IGameTurn> sender);
+        void Stop();
     }
 
-    internal class GameFieldVM : ViewModelBase, IGameFieldVM, IInterface1
+    internal class GameFieldVM : ViewModelBase, IGameFieldVM, IWpfTurnWaiter
     {
         private readonly CustomObservableCollection<CellHandler> _cellHandlers; // ???
         private readonly SelectionController _selectionController;
         private readonly TurnsConstructor _turnsController;
-
-        private bool _isActive;
 
         public GameFieldVM()
         {
@@ -34,14 +32,7 @@ namespace Wpf.ViewModels
             _turnsController = new TurnsConstructor();
             _selectionController = new SelectionController(_turnsController);
 
-            Parameters = new PlayerParameters();
-        }
-
-        private class PlayerParameters : IPlayerParameters
-        {
-            public int TurnTime => -1;
-
-            public LaunchStrategies.PlayerType Type => LaunchStrategies.PlayerType.Human;
+            UpdateGameField(ModelsCreator.CreateGameField(Dimension));
         }
 
         #region IGameFieldVM
@@ -50,37 +41,27 @@ namespace Wpf.ViewModels
 
         public int Dimension { get; private set; } = Constants.FieldDimension;
 
-        public bool IsActive
-        {
-            get => _isActive;
-            set => OnIsActiveChanged(value);
-        }
-
-        public IPlayerParameters Parameters { get; private set; }
-
         public ICellHandler GetCellHandler(int posX, int posY) => GetCellHandler(posX * Dimension + posY);
 
         public ICellHandler GetCellHandler(int cellIdx) => _cellHandlers.ElementAtOrDefault(cellIdx);
 
         #endregion
 
-        #region IInterface1
+        #region IWpfTurnWaiter
 
-        public void Update(GameField newField, PlayerSide side, IStatusReporter reporter, ITaskSetter<IGameTurn> resultSetter) =>
-            _turnsController.Restart(newField, side, reporter, resultSetter);
+        public void Start(GameField newField, PlayerSide side, IStatusReporter reporter, IResultSetter<IGameTurn> resultSetter)
+        {
+            _selectionController.IsSelectionAvaliable = true;
+            _turnsController.UpdateState(newField, side, reporter, resultSetter);
+        }
+
+        public void Stop() => _selectionController.IsSelectionAvaliable = false;
 
         #endregion
 
-        private void OnIsActiveChanged(bool value)
-        {
-            if (value == IsActive) return;
-
-            _isActive = value;
-            OnPropertyChanged(nameof(IsActive));
-        }
-
         public void UpdateGameField(GameField gameField)
         {
+
             _selectionController.Clear();
 
             void updateAction(int idx, CellHandler handler)

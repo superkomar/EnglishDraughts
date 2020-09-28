@@ -3,51 +3,51 @@ using System.Threading.Tasks;
 
 using Core.Enums;
 using Core.Interfaces;
-using Core.Model;
+using Core.Models;
 
 namespace Wpf.ViewModels.CustomTypes
 {
-    internal class WpfPlayer : IGamePlayer
+    internal class WpfPlayer : PlayerBase
     {
-        private readonly IInterface1 _updater;
-        
-        private IStatusReporter _reporter;
+        private readonly IWpfTurnWaiter _turnWaiter;
+        private readonly IStatusReporter _reporter;
+
+        private int _dimension;
         private PlayerSide _side;
 
-        public WpfPlayer(IInterface1 updater)
+        public WpfPlayer(IWpfTurnWaiter turnWaiter, IStatusReporter reporter)
         {
-            _updater = updater;
+            _reporter = reporter;
+            _turnWaiter = turnWaiter;
         }
 
         public IPlayerParameters Parameters => throw new NotImplementedException();
 
-        public void FinishGame(PlayerSide winner)
+        protected override void DoFinishGame(GameField gameField, PlayerSide winner)
         {
-            throw new NotImplementedException();
+            _reporter?.ReportInfo($"Winner is {winner}");
         }
 
-        public void InitGame(int dimension, PlayerSide side, IStatusReporter reporter)
+        protected override Task<IGameTurn> DoMakeTurn(GameField gameField)
         {
-            _dimension = dimension;
-            _reporter = reporter;
+            if (gameField.Dimension != _dimension)
+            {
+                throw new ArgumentException("Failed!!! Incorrect game field");
+            }
+
+            _turnWaiter.Start(gameField, _side, _reporter, ResultProcessor);
+
+            return ResultProcessor.WaitAsync().ContinueWith(result =>
+            {
+                _turnWaiter.Stop();
+                return result.Result;
+            });
+        }
+
+        protected override void DoStartGame(GameField gameField, PlayerSide side)
+        {
+            _dimension = gameField.Dimension;
             _side = side;
-        }
-
-        private int _dimension;
-
-        public async Task<IGameTurn> MakeTurnAsync(GameField gameField, IOneshotTaskProcessor<IGameTurn> taskProcessor)
-        {
-            if (gameField.Dimension != _dimension) throw new ArgumentException("Failed!!! Incorrect game field");
-
-            _updater.IsActive = true;
-
-            _updater.Update(gameField, _side, _reporter, taskProcessor);
-
-            IGameTurn turn = await taskProcessor.Get();
-
-            _updater.IsActive = false;
-
-            return turn;
         }
     }
 }

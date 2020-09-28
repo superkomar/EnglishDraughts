@@ -3,12 +3,12 @@ using System.Linq;
 
 using Core.Enums;
 using Core.Interfaces;
-using Core.Model;
+using Core.Models;
 using Core.Utils;
 
 namespace Wpf.ViewModels.CustomTypes
 {
-    internal interface ITurnsController
+    internal interface ITurnsConstructor
     {
         bool IsJumpsContinue { get; }
 
@@ -21,12 +21,12 @@ namespace Wpf.ViewModels.CustomTypes
         TurnsConstructor.Result TryMakeTurn(int start, int end);
     }
 
-    internal class TurnsConstructor : ITurnsController
+    internal class TurnsConstructor : ITurnsConstructor
     {
         private GameField _gameField;
         private IStatusReporter _reporter;
         private IEnumerable<GameTurn> _requiredJumps;
-        private ITaskSetter<IGameTurn> _sender;
+        private IResultSetter<IGameTurn> _sender;
         private List<IGameTurn> _turns;
 
         public enum Result
@@ -60,7 +60,7 @@ namespace Wpf.ViewModels.CustomTypes
 
             _turns.Add(gameTurn);
 
-            GameFieldUpdater.TryMakeTurn(_gameField, gameTurn, out GameField newField);
+            GameFieldUtils.TryMakeTurn(_gameField, gameTurn, out GameField newField);
 
             // Not the last jump
             if (!gameTurn.IsSimple && GameFieldUtils.FindTurnsForCell(newField, gameTurn.Turns.Last(), TurnType.Jump).Any())
@@ -74,12 +74,12 @@ namespace Wpf.ViewModels.CustomTypes
                 return Result.Continue;
             }
 
-            _sender?.Set(ModelsCreator.CreateGameTurn(_turns));
+            _sender?.SetResult(ModelsCreator.CreateGameTurn(_turns));
 
             return Result.Ok;
         }
 
-        public void Restart(GameField newField, PlayerSide side, IStatusReporter reporter, ITaskSetter<IGameTurn> sender)
+        public void UpdateState(GameField newField, PlayerSide side, IStatusReporter reporter, IResultSetter<IGameTurn> sender)
         {
             Side = side;
             _gameField = newField;
