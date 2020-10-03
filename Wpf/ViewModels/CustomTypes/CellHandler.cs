@@ -15,19 +15,18 @@ namespace Wpf.ViewModels.CustomTypes
         public CellHandler(int cellIdx, CellColor cellType, CellState cellState, ISelectionController selectionController)
         {
             CellIdx = cellIdx;
-            IsSelected = false;
             CellColor = cellType;
             CellState = cellState;
             IsEnabled = cellType == CellColor.Black;
+
+            IsSelected = false;
 
             _selectionController = selectionController;
         }
 
         #region ICellHandler
-
+        
         public int CellIdx { get; }
-
-        public bool IsEnabled { get; }
 
         public CellColor CellColor { get; }
 
@@ -37,6 +36,8 @@ namespace Wpf.ViewModels.CustomTypes
             set => OnCellStateChanged(value);
         }
 
+        public bool IsEnabled { get; }
+        
         public bool IsSelected
         {
             get => _isSelected;

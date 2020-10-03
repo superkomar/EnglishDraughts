@@ -16,7 +16,7 @@ namespace Wpf.Views.Controls
             VerticalAlignment = VerticalAlignment.Center;
         }
 
-        public void GenerateNewField(IGameFieldVM fieldController)
+        public void GenerateNewField(ICellHandlersController fieldController)
         {
             if (fieldController == null) return;
 

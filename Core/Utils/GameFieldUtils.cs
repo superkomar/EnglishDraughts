@@ -62,8 +62,13 @@ namespace Core.Utils
             return true;
         }
 
+        internal static GameField GetNewField(GameField oldField, IReadOnlyList<CellState> newField) =>
+            new GameField(newField, oldField.NeighborsHelper, oldField.Dimension);
+
+        internal static int GetRowIdx(GameField field, int cellIdx) => cellIdx / field.Dimension;
+
         private static GameTurn GetTurn(GameField field, PlayerSide side, int startCellIdx, int endCellIdx, TurnType type = TurnType.Both) =>
-            type switch
+                    type switch
             {
                 TurnType.Simple => ModelsCreator.CreateSimpleMove(field, side, startCellIdx, endCellIdx),
                 TurnType.Jump   => ModelsCreator.CreateJumpMove(field, side, startCellIdx, endCellIdx),
@@ -71,10 +76,5 @@ namespace Core.Utils
                                    ?? GetTurn(field, side, startCellIdx, endCellIdx, TurnType.Jump),
                 _ => throw new System.NotImplementedException()
             };
-
-        internal static GameField GetNewField(GameField oldField, IReadOnlyList<CellState> newField) =>
-            new GameField(newField, oldField.NeighborsHelper, oldField.Dimension);
-
-        internal static int GetRowIdx(GameField field, int cellIdx) => cellIdx / field.Dimension;
     }
 }

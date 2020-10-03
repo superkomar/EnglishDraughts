@@ -4,8 +4,12 @@ namespace Wpf.ViewModels
 {
     internal static class VMLocator
     {
-        public static IGameFieldVM GameFieldVM { get; } = new GameFieldVM();
+        public static ICellHandlersController CellHandlersController => GameFieldVM;
 
-        public static IGameControllsVM GameControllsVM { get; } = new GameControllsVM();
+        public static IGameControllsVM IGameControllsVM => GameControllsVM;
+
+        public static GameControllsVM GameControllsVM { get; } = new GameControllsVM();
+
+        public static GameFieldVM GameFieldVM { get; } = new GameFieldVM();
     }
 }

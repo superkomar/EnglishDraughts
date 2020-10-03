@@ -7,38 +7,63 @@ using Wpf.ViewModels.CustomTypes;
 
 namespace Wpf.ViewModels
 {
-    internal class GameControllsVM : ViewModelBase, IGameControllsVM
+    internal class GameControllsVM : NotifyPropertyChanged, IGameControllsVM, IWpfControlsActivator
     {
-        private int _robotTimeMs = (int) 1E5;
-
         public GameControllsVM()
         {
-            StartCmd = new EnableChangerWrapper<ICommand>(new RelayCommand(StartCmdExecute), isEnable: true);
-            FinishCmd = new EnableChangerWrapper<ICommand>(new RelayCommand(FinishCmdExecute), isEnable: false);
-            UndoCmd = new EnableChangerWrapper<ICommand>(new RelayCommand(UndoCmdExecute), isEnable: false);
-            RedoCmd = new EnableChangerWrapper<ICommand>(new RelayCommand(RedoCmdExecute), isEnable: false);
-            Side = new EnableChangerWrapper<PlayerSide>(PlayerSide.White, isEnable: true);
+            StartCmd = new ValueWithEnableToggle<ICommand>(new RelayCommand(StartCmdExecute), isEnable: true);
+            FinishCmd = new ValueWithEnableToggle<ICommand>(new RelayCommand(FinishCmdExecute), isEnable: false);
+
+            UndoCmd = new ValueWithEnableToggle<ICommand>(new RelayCommand(UndoCmdExecute), isEnable: false);
+            RedoCmd = new ValueWithEnableToggle<ICommand>(new RelayCommand(RedoCmdExecute), isEnable: false);
+            
+            Side = new ValueWithEnableToggle<PlayerSide>(PlayerSide.White, isEnable: true);
+            RobotTime = new ValueWithEnableToggle<int>(Constants.DefaultRobotTimeMs, isEnable: false);
         }
 
         #region IGameControllsVM
 
-        public int RobotTime
-        {
-            get => _robotTimeMs;
-            set => OnRobotTomeChanged(value);
-        }
+        public ValueWithEnableToggle<ICommand> FinishCmd { get; }
+        
+        public ValueWithEnableToggle<ICommand> RedoCmd { get; }
+        
+        public ValueWithEnableToggle<int> RobotTime { get; set; }
 
-        public IEnableChanger<PlayerSide> Side { get; set; }
+        public ValueWithEnableToggle<PlayerSide> Side { get; set; }
+        
+        public ValueWithEnableToggle<ICommand> StartCmd { get; }
 
-        public IEnableChanger<ICommand> FinishCmd { get; }
+        public ValueWithEnableToggle<ICommand> UndoCmd { get; }
+        
+        #endregion
 
-        public IEnableChanger<ICommand> StartCmd { get; }
+        #region IWpfControlsActivator
 
-        public IEnableChanger<ICommand> UndoCmd { get; }
+        public void StartTurn() =>
+            UndoCmd.IsEnabled = RedoCmd.IsEnabled = RobotTime.IsEnabled = true;
 
-        public IEnableChanger<ICommand> RedoCmd { get; }
+        public void StopTurn() =>
+            UndoCmd.IsEnabled = RedoCmd.IsEnabled = RobotTime.IsEnabled = false;
 
         #endregion
+
+        private void FinishCmdExecute(object obj)
+        {
+            UpdateControlStates(isGameStarted: false);
+
+            OnPropertyChanged(nameof(FinishCmd));
+        }
+
+        private void RedoCmdExecute(object obj) => OnPropertyChanged(nameof(RedoCmd));
+
+        private void StartCmdExecute(object obj)
+        {
+            UpdateControlStates(isGameStarted: true);
+
+            OnPropertyChanged(nameof(StartCmd));
+        }
+
+        private void UndoCmdExecute(object obj) => OnPropertyChanged(nameof(UndoCmd));
 
         private void UpdateControlStates(bool isGameStarted)
         {
@@ -49,31 +74,5 @@ namespace Wpf.ViewModels
             RedoCmd.IsEnabled = isGameStarted;
             FinishCmd.IsEnabled = isGameStarted;
         }
-
-        private void OnRobotTomeChanged(int value)
-        {
-            if (value == RobotTime || value <= 0) return;
-
-            _robotTimeMs = value;
-            OnPropertyChanged(nameof(RobotTime));
-        }
-
-        private void FinishCmdExecute(object obj)
-        {
-            UpdateControlStates(isGameStarted: false);
-
-            OnPropertyChanged(nameof(FinishCmd));
-        }
-        
-        private void StartCmdExecute(object obj)
-        {
-            UpdateControlStates(isGameStarted: true);
-
-            OnPropertyChanged(nameof(StartCmd));
-        }
-
-        private void RedoCmdExecute(object obj) => OnPropertyChanged(nameof(RedoCmd));
-
-        private void UndoCmdExecute(object obj) => OnPropertyChanged(nameof(UndoCmd));
     }
 }

@@ -64,12 +64,12 @@
             <!--Firt Row-->
             <Button Grid.Row="0" Grid.Column="0"
                     Content="Start"
-                    Command="{Binding StartCmd.Property, Mode=TwoWay}"
+                    Command="{Binding StartCmd.Value, Mode=TwoWay}"
                     IsEnabled="{Binding StartCmd.IsEnabled, Mode=TwoWay}"/>
 
             <Button Grid.Row="0" Grid.Column="1"
                     Content="Finish"
-                    Command="{Binding FinishCmd.Property, Mode=TwoWay}"
+                    Command="{Binding FinishCmd.Value, Mode=TwoWay}"
                     IsEnabled="{Binding FinishCmd.IsEnabled, Mode=TwoWay}"/>
 
             <!--Second Row-->
@@ -78,7 +78,7 @@
 
             <ComboBox Grid.Row="1" Grid.Column="1"
                       ItemsSource="{Binding Source={StaticResource dataFromEnum}}"
-                      SelectedItem="{Binding Side.Property}"
+                      SelectedItem="{Binding Side.Value}"
                       IsEnabled="{Binding Side.IsEnabled, Mode=OneWay}"/>
 
             <!--Fourth Row-->
@@ -88,17 +88,18 @@
             <TextBox Grid.Row="2" Grid.Column="1"
                      VerticalAlignment="Center"
                      PreviewTextInput="NumberValidationTextBox"
-                     Text="{Binding RobotTime, Mode=TwoWay}"/>
+                     Text="{Binding RobotTime.Value, Mode=TwoWay}"
+                     IsEnabled="{Binding RobotTime.IsEnabled, Mode=OneWay}"/>
 
             <!--Firt Row-->
             <Button Grid.Row="3" Grid.Column="0"
                     Content="Undo"
-                    Command="{Binding UndoCmd.Property}"
+                    Command="{Binding UndoCmd.Value}"
                     IsEnabled="{Binding UndoCmd.IsEnabled}"/>
 
             <Button Grid.Row="3" Grid.Column="1"
                     Content="Redo"
-                    Command="{Binding RedoCmd.Property}"
+                    Command="{Binding RedoCmd.Value}"
                     IsEnabled="{Binding RedoCmd.IsEnabled}"/>
             
         </Grid>

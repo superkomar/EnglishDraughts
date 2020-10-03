@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 
 using Core.Enums;
-using Core.Helpers;
-using Core.Model;
+using Core.Models;
 using Core.Utils;
 
 using NUnit.Framework;

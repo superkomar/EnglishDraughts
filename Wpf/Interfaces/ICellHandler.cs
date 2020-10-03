@@ -8,11 +8,11 @@ namespace Wpf.Interfaces
 {
     internal interface ICellHandler : INotifyPropertyChanged
     {
-        CellState CellState { get; }
+        int CellIdx { get; }
         
         CellColor CellColor { get; }
 
-        int CellIdx { get; }
+        CellState CellState { get; }
         
         bool IsEnabled { get; }
 

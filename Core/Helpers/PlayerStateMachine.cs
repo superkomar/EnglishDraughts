@@ -1,14 +1,12 @@
 ﻿using Core.Enums;
-using Core.Models;
+using Core.Interfaces;
 
 namespace Core.Helpers
 {
     internal class PlayerStateMachine
     {
-        private const PlayerSide FirstPlayer = PlayerSide.Black;
-
-        private readonly (PlayerBase Player, PlayerSide Side) _blackPlayer;
-        private readonly (PlayerBase Player, PlayerSide Side) _whitePlayer;
+        private readonly (IGamePlayer Player, PlayerSide Side) _blackPlayer;
+        private readonly (IGamePlayer Player, PlayerSide Side) _whitePlayer;
 
         private MachineState _machineState;
 
@@ -19,7 +17,7 @@ namespace Core.Helpers
             Start
         }
 
-        public PlayerStateMachine(PlayerBase blackPlayer, PlayerBase whitePlayer)
+        public PlayerStateMachine(IGamePlayer blackPlayer, IGamePlayer whitePlayer)
         {
             _blackPlayer = (blackPlayer, PlayerSide.Black);
             _whitePlayer = (whitePlayer, PlayerSide.White);
@@ -27,12 +25,12 @@ namespace Core.Helpers
             _machineState = MachineState.Start;
         }
 
-        public PlayerBase BlackPlayer => GetBySide(PlayerSide.Black).Player;
+        public IGamePlayer BlackPlayer => GetBySide(PlayerSide.Black).Player;
 
-        public PlayerBase WhitePlayer => GetBySide(PlayerSide.White).Player;
-
-        public (PlayerBase Player, PlayerSide Side) CurPlayer { get; private set; }
-
+        public (IGamePlayer Player, PlayerSide Side) CurPlayer { get; private set; }
+        
+        public IGamePlayer WhitePlayer => GetBySide(PlayerSide.White).Player;
+        
         /// <summary>
         /// Change state to a new one for a single call GetNextPlayer() method.
         /// After that reset to the default value.
@@ -43,7 +41,7 @@ namespace Core.Helpers
             _machineState = state;
         }
 
-        public (PlayerBase Player, PlayerSide Side) GetNextPlayer()
+        public (IGamePlayer Player, PlayerSide Side) GetNextPlayer()
         {
             switch (_machineState)
             {
@@ -54,7 +52,7 @@ namespace Core.Helpers
                 }
                 case MachineState.Start:
                 {
-                    CurPlayer = GetBySide(FirstPlayer);
+                    CurPlayer = GetBySide(Constants.FirstPlayer);
                     break;
                 }
             }
@@ -64,7 +62,7 @@ namespace Core.Helpers
             return CurPlayer;
         }
 
-        private (PlayerBase Player, PlayerSide Side) GetBySide(PlayerSide side) =>
+        private (IGamePlayer Player, PlayerSide Side) GetBySide(PlayerSide side) =>
             side switch
             {
                 PlayerSide.Black => _blackPlayer,

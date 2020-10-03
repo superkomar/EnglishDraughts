@@ -6,14 +6,14 @@ namespace Core.Interfaces
 {
     public interface IGameTurn
     {
-        bool IsSimple { get; }
-
         bool IsLevelUp { get; }
         
-        int Start { get; }
-
+        bool IsSimple { get; }
+        
         PlayerSide Side { get; }
-
+        
+        int Start { get; }
+        
         IReadOnlyList<int> Turns { get; }
     }
 }

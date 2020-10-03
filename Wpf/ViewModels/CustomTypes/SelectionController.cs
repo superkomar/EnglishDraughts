@@ -1,20 +1,15 @@
 ﻿using Core.Enums;
 using Core.Extensions;
 
+using Wpf.Interfaces;
+
 namespace Wpf.ViewModels.CustomTypes
 {
-    internal interface ISelectionController
-    {
-        bool CanSelect(CellHandler cellHandler);
-
-        void Clear();
-    }
-
     internal class SelectionController : ISelectionController
     {
         private readonly ITurnsConstructor _turnController;
 
-        private CellHandler _lastSelectedCell;
+        private ICellHandler _lastSelectedCell;
 
         public SelectionController(ITurnsConstructor turnsController)
         {
@@ -23,7 +18,9 @@ namespace Wpf.ViewModels.CustomTypes
 
         public bool IsSelectionAvaliable { get; set; }
 
-        public bool CanSelect(CellHandler cellHandler)
+        #region ISelectionController
+
+        public bool CanSelect(ICellHandler cellHandler)
         {
             if (cellHandler == null) return false;
 
@@ -90,5 +87,7 @@ namespace Wpf.ViewModels.CustomTypes
                 _turnController.Clear();
             }
         }
+
+        #endregion
     }
 }

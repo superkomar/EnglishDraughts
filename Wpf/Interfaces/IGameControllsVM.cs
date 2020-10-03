@@ -3,20 +3,22 @@ using System.Windows.Input;
 
 using Core.Enums;
 
+using Wpf.ViewModels.CustomTypes;
+
 namespace Wpf.Interfaces
 {
     internal interface IGameControllsVM : INotifyPropertyChanged
-    { 
-        IEnableChanger<ICommand> FinishCmd { get; }
-        
-        IEnableChanger<ICommand> StartCmd { get; }
-        
-        IEnableChanger<ICommand> UndoCmd { get; }
-        
-        IEnableChanger<ICommand> RedoCmd { get; }
+    {
+        ValueWithEnableToggle<ICommand> FinishCmd { get; }
 
-        IEnableChanger<PlayerSide> Side { get; set; }
+        ValueWithEnableToggle<ICommand> StartCmd { get; }
+
+        ValueWithEnableToggle<ICommand> UndoCmd { get; }
+
+        ValueWithEnableToggle<ICommand> RedoCmd { get; }
+
+        ValueWithEnableToggle<PlayerSide> Side { get; set; }
         
-        int RobotTime { get; set; }
+        ValueWithEnableToggle<int> RobotTime { get; set; }
     }
 }

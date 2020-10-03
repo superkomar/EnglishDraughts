@@ -2,6 +2,6 @@
 {
     internal static class Constants
     {
-        public static readonly int FieldDimension = 8;
+        public static readonly int DefaultRobotTimeMs = 1000;
     }
 }

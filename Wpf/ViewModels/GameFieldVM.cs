@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using Core.Enums;
@@ -12,34 +13,27 @@ using Wpf.ViewModels.Enums;
 
 namespace Wpf.ViewModels
 {
-    interface IWpfTurnWaiter
+    internal class GameFieldVM : NotifyPropertyChanged, ICellHandlersController, IWpfFieldActivator
     {
-        void Start(GameField newField, PlayerSide side, IStatusReporter reporter, IResultSetter<IGameTurn> sender);
-
-        void Stop();
-    }
-
-    internal class GameFieldVM : ViewModelBase, IGameFieldVM, IWpfTurnWaiter
-    {
-        private readonly CustomObservableCollection<CellHandler> _cellHandlers; // ???
+        private readonly List<CellHandler> _cellHandlers;
         private readonly SelectionController _selectionController;
         private readonly TurnsConstructor _turnsController;
 
         public GameFieldVM()
         {
-            _cellHandlers = new CustomObservableCollection<CellHandler>();
+            _cellHandlers = new List<CellHandler>();
 
             _turnsController = new TurnsConstructor();
             _selectionController = new SelectionController(_turnsController);
 
-            UpdateGameField(ModelsCreator.CreateGameField(Dimension));
+            InitGameField(ModelsCreator.CreateGameField(Dimension));
         }
 
-        #region IGameFieldVM
+        #region ICellHandlersController
 
         public event EventHandler RedrawField;
 
-        public int Dimension { get; private set; } = Constants.FieldDimension;
+        public int Dimension { get; private set; } = Core.Constants.FieldDimension;
 
         public ICellHandler GetCellHandler(int posX, int posY) => GetCellHandler(posX * Dimension + posY);
 
@@ -47,9 +41,9 @@ namespace Wpf.ViewModels
 
         #endregion
 
-        #region IWpfTurnWaiter
+        #region IWpfFieldActivator
 
-        public void Start(GameField newField, PlayerSide side, IStatusReporter reporter, IResultSetter<IGameTurn> resultSetter)
+        public void Start(GameField newField, PlayerSide side, IStatusReporter reporter, IResultSender<IGameTurn> resultSetter)
         {
             _selectionController.IsSelectionAvaliable = true;
             _turnsController.UpdateState(newField, side, reporter, resultSetter);
@@ -59,19 +53,22 @@ namespace Wpf.ViewModels
 
         #endregion
 
-        public void UpdateGameField(GameField gameField)
+        public void InitGameField(GameField gameField)
         {
+            _cellHandlers.Clear();
 
+            UpdateGameField(gameField, isCreateNew: true);
+
+            RaiseReadrawField();
+        }
+
+        public void UpdateGameField(GameField gameField) => UpdateGameField(gameField, isCreateNew: false);
+
+        private void RaiseReadrawField() => RedrawField?.Invoke(this, EventArgs.Empty);
+
+        private void UpdateGameField(GameField gameField, bool isCreateNew)
+        {
             _selectionController.Clear();
-
-            void updateAction(int idx, CellHandler handler)
-            {
-                if ((_cellHandlers.Count - 1) > idx)
-                {
-                    _cellHandlers[idx].CellState = handler.CellState;
-                }
-                else _cellHandlers.Add(handler);
-            }
 
             for (var i = 0; i < Dimension; i++)
             {
@@ -80,13 +77,18 @@ namespace Wpf.ViewModels
                     var cellIdx = i * Dimension + j;
                     var isCellActive = (i + j) % 2 != 0;
 
-                    var cellHandler = new CellHandler(
-                        cellIdx,
-                        isCellActive ? CellColor.Black : CellColor.White,
-                        gameField[cellIdx],
-                        _selectionController);
-
-                    updateAction(cellIdx, cellHandler);
+                    if (isCreateNew)
+                    {
+                        _cellHandlers.Add(new CellHandler(
+                            cellIdx: cellIdx,
+                            cellType: isCellActive ? CellColor.Black : CellColor.White,
+                            cellState: gameField[cellIdx],
+                            selectionController: _selectionController));
+                    }
+                    else
+                    {
+                        _cellHandlers[cellIdx].CellState = gameField[cellIdx];
+                    }
                 }
             }
         }

@@ -6,27 +6,16 @@ using Core.Interfaces;
 using Core.Models;
 using Core.Utils;
 
+using Wpf.Interfaces;
+
 namespace Wpf.ViewModels.CustomTypes
 {
-    internal interface ITurnsConstructor
-    {
-        bool IsJumpsContinue { get; }
-
-        PlayerSide Side { get; }
-
-        bool CheckTurnStartCell(int cellIdx);
-
-        void Clear();
-
-        TurnsConstructor.Result TryMakeTurn(int start, int end);
-    }
-
     internal class TurnsConstructor : ITurnsConstructor
     {
         private GameField _gameField;
         private IStatusReporter _reporter;
         private IEnumerable<GameTurn> _requiredJumps;
-        private IResultSetter<IGameTurn> _sender;
+        private IResultSender<IGameTurn> _sender;
         private List<IGameTurn> _turns;
 
         public enum Result
@@ -35,6 +24,8 @@ namespace Wpf.ViewModels.CustomTypes
             Fail,
             Continue
         }
+
+        #region ITurnsConstructor
 
         public bool IsJumpsContinue { get; private set; }
         
@@ -74,12 +65,14 @@ namespace Wpf.ViewModels.CustomTypes
                 return Result.Continue;
             }
 
-            _sender?.SetResult(ModelsCreator.CreateGameTurn(_turns));
+            _sender?.Send(ModelsCreator.CreateGameTurn(_turns));
 
             return Result.Ok;
         }
 
-        public void UpdateState(GameField newField, PlayerSide side, IStatusReporter reporter, IResultSetter<IGameTurn> sender)
+        #endregion
+
+        public void UpdateState(GameField newField, PlayerSide side, IStatusReporter reporter, IResultSender<IGameTurn> sender)
         {
             Side = side;
             _gameField = newField;

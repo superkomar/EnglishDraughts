@@ -2,12 +2,12 @@
 {
     public interface IStatusReporter
     {
-        string Info { get; }
-
         string Error { get; }
+        
+        string Info { get; }
+        
+        void ReportError(string error);
 
         void ReportInfo(string info);
-
-        void ReportError(string error);
     }
 }

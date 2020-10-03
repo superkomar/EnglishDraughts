@@ -13,43 +13,27 @@ using Wpf.ViewModels.CustomTypes;
 
 namespace Wpf.ViewModels
 {
-    internal interface IMainWindowVM
+    internal class MainWindowVM : NotifyPropertyChanged
     {
-    }
+        private const string StartStatusText = "Wait start the game";
 
-    internal class MainWindowVM : ViewModelBase, IMainWindowVM
-    {
         private GameController _gameController;
 
-        private RobotPlayer _robot = new RobotPlayer();
-        private string _statusText = "Wait start the game";
+        private readonly WpfPlayer _wpfPlayer;
+        private readonly RobotLauncher _robotLauncher;
 
         public MainWindowVM()
         {
             Reporter = new StatusReporter();
-            Reporter.ReportInfo(_statusText);
+            Reporter.ReportInfo(StartStatusText);
+
+            _wpfPlayer = new WpfPlayer(VMLocator.GameFieldVM, VMLocator.GameControllsVM, Reporter);
+            _robotLauncher = new RobotLauncher(VMLocator.GameControllsVM.RobotTime.Value);
 
             AttachHandlers();
         }
 
         public IStatusReporter Reporter { get; }
-
-        public string StatusText
-        {
-            get => _statusText;
-            set => OnStatusTextChanged(value);
-        }
-
-        private void OnStatusTextChanged(string value)
-        {
-            if (value == _statusText)
-            {
-                return;
-            }
-
-            _statusText = value;
-            OnPropertyChanged(nameof(StatusText));
-        }
 
         private void AttachHandlers()
         {
@@ -63,13 +47,13 @@ namespace Wpf.ViewModels
             VMLocator.GameControllsVM.PropertyChanged -= OnControllsPropertyChanged;
         }
 
-        private void OnControllsPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private async void OnControllsPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
                 case nameof(IGameControllsVM.StartCmd):
                 {
-                    StartGameAsync();
+                    await StartGameAsync();
                     break;
                 }
                 case nameof(IGameControllsVM.FinishCmd):
@@ -79,7 +63,7 @@ namespace Wpf.ViewModels
                 }
                 case nameof(IGameControllsVM.RobotTime):
                 {
-                    _robot.TurnTime = VMLocator.GameControllsVM.RobotTime;
+                    _robotLauncher.TurnTime = VMLocator.GameControllsVM.RobotTime.Value;
                     break;
                 }
                 case nameof(IGameControllsVM.UndoCmd):
@@ -95,33 +79,49 @@ namespace Wpf.ViewModels
             }
         }
 
+        private (IGamePlayer Black, IGamePlayer White) GetPlayers() =>
+            VMLocator.GameControllsVM.Side.Value switch
+            {
+                PlayerSide.White => (_robotLauncher, _wpfPlayer),
+                PlayerSide.Black => (_wpfPlayer, _robotLauncher),
+                _ => throw new System.NotImplementedException(),
+            };
+
         private async Task StartGameAsync()
         {
-            var black = new WpfPlayer(VMLocator.GameFieldVM as IWpfTurnWaiter, Reporter);
-            var white = new WpfPlayer(VMLocator.GameFieldVM as IWpfTurnWaiter, Reporter);
+            var (Black, White) = GetPlayers();
 
-            _gameController = new GameController(Constants.FieldDimension, black, white);
+            var black = new WpfPlayer(VMLocator.GameFieldVM, VMLocator.GameControllsVM, Reporter);
+            var white = new WpfPlayer(VMLocator.GameFieldVM, VMLocator.GameControllsVM, Reporter);
 
-            await foreach(var state in _gameController.StartGameAsync())
+            _gameController = new GameController(Core.Constants.FieldDimension, black, white);
+
+            await foreach (var state in _gameController.StartGameAsync())
             {
-                VMLocator.GameFieldVM.UpdateGameField(state.Field);
-
                 switch (state.State)
                 {
                     case GameState.StateType.Start:
                     {
-                        black.StartGame(state.Field, PlayerSide.Black);
-                        white.StartGame(state.Field, PlayerSide.White);
+                        VMLocator.GameFieldVM.InitGameField(state.Field);
+
+                        black.InitGame(PlayerSide.Black);
+                        white.InitGame(PlayerSide.White);
                         break;
                     }
                     case GameState.StateType.Finish:
                     {
-                        black.FinishGame(state.Field, state.Side);
-                        white.FinishGame(state.Field, state.Side);
+                        VMLocator.GameFieldVM.UpdateGameField(state.Field);
+
+                        black.FinishGame(state.Side);
+                        white.FinishGame(state.Side);
                         return;
                     }
                     case GameState.StateType.Turn:
+                    default:
+                    {
+                        VMLocator.GameFieldVM.UpdateGameField(state.Field);
                         break;
+                    }
                 }
             }
         }

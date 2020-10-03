@@ -18,7 +18,7 @@ namespace Core
         private bool _isGameRunning;
         private bool _isHistoryRolling;
 
-        public GameController(int dimension, PlayerBase blackPlayer, PlayerBase whitePlayer)
+        public GameController(int dimension, IGamePlayer blackPlayer, IGamePlayer whitePlayer)
         {
             if (whitePlayer == null || blackPlayer == null) throw new ArgumentNullException();
 
@@ -31,19 +31,13 @@ namespace Core
 
         #region IGameController
 
-        public void Undo(int deep)
-        {
-            _modelController.Undo(deep);
-            HistoryRolling();
-        }
+        public GameState? FinalGameState { get; private set; }
 
         public void Redo(int deep)
         {
             _modelController.Redo(deep);
             HistoryRolling();
-        }       
-
-        public GameState? FinalGameState { get; private set; }
+        }
 
         public async IAsyncEnumerable<GameState> StartGameAsync()
         {
@@ -71,8 +65,14 @@ namespace Core
 
             FinalGameState = new GameState(_modelController.Field, GameState.StateType.Finish, winner);
 
-            _playersControl.BlackPlayer.StopMakeTurn();
-            _playersControl.WhitePlayer.StopMakeTurn();
+            _playersControl.BlackPlayer.StopTurn();
+            _playersControl.WhitePlayer.StopTurn();
+        }
+
+        public void Undo(int deep)
+        {
+            _modelController.Undo(deep);
+            HistoryRolling();
         }
 
         #endregion
@@ -80,7 +80,7 @@ namespace Core
         private void HistoryRolling()
         {
             _isHistoryRolling = true;
-            _playersControl.CurPlayer.Player.StopMakeTurn();
+            _playersControl.CurPlayer.Player.StopTurn();
             _playersControl.ChangeStateForOneGet(PlayerStateMachine.MachineState.Repeat);
         }
 

@@ -1,11 +1,8 @@
 ﻿using System;
-using System.ComponentModel;
-
-using Core.Models;
 
 namespace Wpf.Interfaces
 {
-    internal interface IGameFieldVM : INotifyPropertyChanged
+    internal interface ICellHandlersController
     {
         event EventHandler RedrawField;
 
@@ -14,7 +11,5 @@ namespace Wpf.Interfaces
         ICellHandler GetCellHandler(int posX, int posY);
 
         ICellHandler GetCellHandler(int cellIdx);
-
-        void UpdateGameField(GameField gameField);
     }
 }

@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 
-using Core.Interfaces;
-
 namespace Core.Helpers
 {
     internal sealed class GameHistory<T>

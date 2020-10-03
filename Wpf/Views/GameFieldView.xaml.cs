@@ -12,11 +12,14 @@ namespace Wpf.Views
     /// </summary>
     public partial class GameFieldView : UserControl
     {
+        private readonly ICellHandlersController _cellHandlersController;
+
         public GameFieldView()
         {
             InitializeComponent();
 
-            DataContext = VMLocator.GameFieldVM;
+            _cellHandlersController = VMLocator.CellHandlersController;
+            DataContext = _cellHandlersController;
 
             Loaded += (s, e) => AttachHandlers();
             Unloaded += (s, e) => DetachHandlers();
@@ -26,7 +29,7 @@ namespace Wpf.Views
 
         private void AttachHandlers()
         {
-            (DataContext as IGameFieldVM).RedrawField += OnRedrawFieldChanged;
+            _cellHandlersController.RedrawField += OnRedrawFieldChanged;
         }
 
         private void OnRedrawFieldChanged(object sender, EventArgs e)
@@ -37,12 +40,12 @@ namespace Wpf.Views
 
         private void DetachHandlers()
         {
-            (DataContext as IGameFieldVM).RedrawField -= OnRedrawFieldChanged;
+            _cellHandlersController.RedrawField -= OnRedrawFieldChanged;
         }
         
         private void InitGameField()
         {
-            GameField.GenerateNewField(DataContext as IGameFieldVM);
+            GameField.GenerateNewField(_cellHandlersController);
         }
     }
 }

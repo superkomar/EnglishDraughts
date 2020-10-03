@@ -1,53 +1,56 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using Core.Enums;
 using Core.Interfaces;
 using Core.Models;
 
+using Wpf.Interfaces;
+
 namespace Wpf.ViewModels.CustomTypes
 {
-    internal class WpfPlayer : PlayerBase
+    internal class WpfPlayer : IGamePlayer
     {
-        private readonly IWpfTurnWaiter _turnWaiter;
+        private readonly IWpfControlsActivator _controlsActivator;
+        private readonly IWpfFieldActivator _fieldActivator;
         private readonly IStatusReporter _reporter;
 
-        private int _dimension;
+        private SingleUseResultMailbox<IGameTurn> _resultMailbox;
         private PlayerSide _side;
-
-        public WpfPlayer(IWpfTurnWaiter turnWaiter, IStatusReporter reporter)
+        
+        public WpfPlayer(IWpfFieldActivator fieldActivator, IWpfControlsActivator controlsActivator, IStatusReporter reporter)
         {
             _reporter = reporter;
-            _turnWaiter = turnWaiter;
+            _fieldActivator = fieldActivator;
+            _controlsActivator = controlsActivator;
         }
 
-        public IPlayerParameters Parameters => throw new NotImplementedException();
-
-        protected override void DoFinishGame(GameField gameField, PlayerSide winner)
+        public void FinishGame(PlayerSide winner)
         {
+            _resultMailbox?.Send(null);
             _reporter?.ReportInfo($"Winner is {winner}");
         }
 
-        protected override Task<IGameTurn> DoMakeTurn(GameField gameField)
+        public void InitGame(PlayerSide side)
         {
-            if (gameField.Dimension != _dimension)
-            {
-                throw new ArgumentException("Failed!!! Incorrect game field");
-            }
+            _side = side;
+        }
 
-            _turnWaiter.Start(gameField, _side, _reporter, ResultProcessor);
+        public Task<IGameTurn> MakeTurn(GameField gameField)
+        {
 
-            return ResultProcessor.WaitAsync().ContinueWith(result =>
+            _resultMailbox = new SingleUseResultMailbox<IGameTurn>();
+
+            _fieldActivator.Start(gameField, _side, _reporter, _resultMailbox);
+            _controlsActivator.StartTurn();
+
+            return _resultMailbox.ReceiveAsync().ContinueWith(result =>
             {
-                _turnWaiter.Stop();
+                _fieldActivator.Stop();
+                _controlsActivator.StopTurn();
                 return result.Result;
             });
         }
-
-        protected override void DoStartGame(GameField gameField, PlayerSide side)
-        {
-            _dimension = gameField.Dimension;
-            _side = side;
-        }
+        
+        public void StopTurn() => _resultMailbox?.Cancel();
     }
 }
