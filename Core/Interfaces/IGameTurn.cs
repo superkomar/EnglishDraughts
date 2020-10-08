@@ -14,6 +14,6 @@ namespace Core.Interfaces
         
         int Start { get; }
         
-        IReadOnlyList<int> Turns { get; }
+        IReadOnlyList<int> Steps { get; }
     }
 }

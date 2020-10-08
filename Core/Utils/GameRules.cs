@@ -21,7 +21,7 @@ namespace Core.Utils
             !field.AreAnyPieces(side.ToOpposite());
 
         public static bool IsValidCellIdx(GameField field, int cellIdx) =>
-                    cellIdx > 0 && cellIdx < field.Field.Count;
+            cellIdx > 0 && cellIdx < field.Field.Count;
         
         public static bool IsValidTurnEnd(GameField field, int cellIdx) =>
             IsValidCellIdx(field, cellIdx) && field[cellIdx] == CellState.Empty;

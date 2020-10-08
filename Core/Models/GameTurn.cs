@@ -13,17 +13,17 @@ namespace Core.Models
             Side = playerSide;
             IsLevelUp = isLevelUp;
 
-            Turns = turns;
+            Steps = turns;
         }
 
-        public bool IsSimple => Turns.Count == 2;
+        public bool IsSimple => Steps.Count == 2;
 
-        public IReadOnlyList<int> Turns { get; }
+        public IReadOnlyList<int> Steps { get; }
 
         public bool IsLevelUp { get; }
 
         public PlayerSide Side { get; }
 
-        public int Start => Turns.First();
+        public int Start => Steps.First();
     }
 }

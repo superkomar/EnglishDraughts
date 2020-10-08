@@ -33,14 +33,14 @@ namespace Core.Utils
             foreach (var newTurn in turns)
             {
                 if (newTurn == null || lastTurn != null && (lastTurn == newTurn
-                    || lastTurn.Turns.Last() != newTurn.Turns.First()
+                    || lastTurn.Steps.Last() != newTurn.Steps.First()
                     || lastTurn.IsLevelUp))
                 {
                     return null;
                 }
 
                 lastTurn = newTurn;
-                result.AddRange(newTurn.Turns);
+                result.AddRange(newTurn.Steps);
             }
 
             return new GameTurn(turns[0].Side, turns[^1].IsLevelUp, result);
@@ -101,9 +101,9 @@ namespace Core.Utils
                 }
             }
 
-            initField[19] = initField[1] = CellState.Empty;
-            initField[17] = CellState.Empty;
-            initField[26] = CellState.BlackMen;
+            //initField[19] = initField[1] = CellState.Empty;
+            //initField[17] = CellState.Empty;
+            //initField[26] = CellState.BlackMen;
 
             return initField;
         }

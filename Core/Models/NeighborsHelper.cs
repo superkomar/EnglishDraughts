@@ -6,7 +6,15 @@ namespace Core.Models
     {
         private readonly int _cellCount;
         private readonly int _dimension;
-        
+
+        internal enum DirectionType
+        {
+            LeftTop,
+            LeftBot,
+            RightTop,
+            RightBot
+        }
+
         public NeighborsHelper(int dimension)
         {
             if (dimension <= 0) throw new ArgumentException(@"Dimension should be more than zero");
@@ -34,12 +42,7 @@ namespace Core.Models
 
         public bool IsNeighbors(int firstId, int secondId) => this[firstId].IsNeighbor(secondId);
 
-        private int CheckCellIdx(int curRow, int idxForCheck) =>
-            idxForCheck >= 0 && idxForCheck < _cellCount && Math.Abs(curRow - (idxForCheck / _dimension)) == 1
-            ? idxForCheck
-            : -1;
-
-        private int GetCellByDirection(int startIdx, int deep, DirectionType direction)
+        internal int GetCellByDirection(int startIdx, int deep, DirectionType direction)
         {
             var endIdx = startIdx;
 
@@ -49,8 +52,8 @@ namespace Core.Models
             {
                 switch (direction)
                 {
-                    case DirectionType.LeftBot:  endIdx = this[endIdx].LeftBot;  break;
-                    case DirectionType.LeftTop:  endIdx = this[endIdx].LeftTop;  break;
+                    case DirectionType.LeftBot: endIdx = this[endIdx].LeftBot; break;
+                    case DirectionType.LeftTop: endIdx = this[endIdx].LeftTop; break;
                     case DirectionType.RightBot: endIdx = this[endIdx].RightBot; break;
                     case DirectionType.RightTop: endIdx = this[endIdx].RightTop; break;
                 }
@@ -59,12 +62,9 @@ namespace Core.Models
             return endIdx;
         }
 
-        private enum DirectionType
-        {
-            LeftTop,
-            LeftBot,
-            RightTop,
-            RightBot
-        }
+        private int CheckCellIdx(int curRow, int idxForCheck) =>
+            idxForCheck >= 0 && idxForCheck < _cellCount && Math.Abs(curRow - (idxForCheck / _dimension)) == 1
+            ? idxForCheck
+            : -1;
     }
 }

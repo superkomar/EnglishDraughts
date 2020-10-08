@@ -23,6 +23,16 @@ namespace Core.Models
             _areAnyWhitePieces = field.Any(x => x.IsSameSide(PlayerSide.White));
         }
 
+        internal GameField(IReadOnlyList<CellState> field, GameField other)
+        {
+            Field = field;
+            Dimension = other.Dimension;
+            NeighborsHelper = other.NeighborsHelper;
+
+            _areAnyBlackPieces = field.Any(x => x.IsSameSide(PlayerSide.Black));
+            _areAnyWhitePieces = field.Any(x => x.IsSameSide(PlayerSide.White));
+        }
+
         public int Dimension { get; }
         
         public IReadOnlyList<CellState> Field { get; }
