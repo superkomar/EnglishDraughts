@@ -10,25 +10,6 @@ using Robot.Interfaces;
 
 namespace Robot
 {
-    internal class ExecutionTimer
-    {
-        private readonly Func<IGameTurn> _resultGetter;
-
-        public ExecutionTimer(int timerMs, Func<IGameTurn> resultGetter)
-        {
-            TimeMs = timerMs;
-
-            _resultGetter = resultGetter ?? (() => default);
-        }
-
-        public int TimeMs { get; }
-
-        public Task<IGameTurn> GetTimerTask()
-        {
-            return Task.Delay(TimeMs).ContinueWith(_ => _resultGetter());
-        }
-    }
-
     public class RobotLauncher : IGamePlayer
     {
         private readonly IRobotPlayer _robot;
@@ -57,16 +38,27 @@ namespace Robot
 
         public async Task<IGameTurn> MakeTurn(GameField gameField)
         {
-            var cts = new CancellationTokenSource(TurnTime);
+            using var cts = new CancellationTokenSource(TurnTime);
 
             var timerTask = Task.Delay(TurnTime).ContinueWith(_ => _robot.GetTunr());
 
-            return await await Task.WhenAny(timerTask, _robot.MakeTurnAsync(gameField, cts.Token));
+            IGameTurn result;
+
+            try
+            {
+                result = await await Task.WhenAny(timerTask, _robot.MakeTurnAsync(gameField, cts.Token));
+            }
+            catch(Exception)
+            {
+                result = default;
+            }
+
+            return result;
         }
 
         public void StopTurn()
         {
-            throw new NotImplementedException();
+            
         }
     }
 }

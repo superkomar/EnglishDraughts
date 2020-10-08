@@ -1,0 +1,58 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+using Core.Enums;
+using Core.Extensions;
+using Core.Models;
+
+using Robot.Utils;
+
+namespace Robot.Models
+{
+    internal readonly struct FieldWrapper
+    {
+        public FieldWrapper(GameField gameField)
+        {
+            Origin = gameField;
+
+            var blackPieces = new List<int>();
+            var whitePieces = new List<int>();
+
+            void Processor(int cellIdx, bool isCellActive)
+            {
+                if(isCellActive)
+                {
+                    if      (gameField[cellIdx].IsSameSide(PlayerSide.Black)) blackPieces.Add(cellIdx);
+                    else if (gameField[cellIdx].IsSameSide(PlayerSide.White)) whitePieces.Add(cellIdx);
+                }
+            };
+
+            FieldUtils.AllFieldProcessor(Origin, Processor);
+
+            BlackPices = blackPieces;
+            WhitePices = whitePieces;
+        }
+
+        public CellState this[int idx] => Origin.Field.ElementAtOrDefault(idx);
+
+        public int Dimension => Origin.Dimension;
+
+        public GameField Origin { get; }
+
+        public IReadOnlyList<CellState> Field => Origin.Field;
+
+        public IReadOnlyList<int> BlackPices { get; }
+
+        public IReadOnlyList<int> WhitePices { get; }
+
+        public IReadOnlyList<int> PiecesBySide(PlayerSide side) =>
+            side == PlayerSide.Black ? BlackPices: WhitePices;
+
+        public int PiecesCount(PlayerSide side) => PiecesBySide(side).Count;
+
+        public static implicit operator GameField(FieldWrapper fieldWrapper) => fieldWrapper.Origin;
+        
+        public static explicit operator FieldWrapper(GameField field) => new FieldWrapper(field);
+    }
+}
