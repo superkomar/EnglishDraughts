@@ -181,7 +181,7 @@ namespace NUnitTests.Core
             Assert.AreEqual(first.Side, second.Side);
             Assert.AreEqual(first.IsSimple, second.IsSimple);
             Assert.AreEqual(first.IsLevelUp, second.IsLevelUp);
-            Assert.AreEqual(first.Turns, second.Turns);
+            Assert.AreEqual(first.Steps, second.Steps);
         }
     }
 }
