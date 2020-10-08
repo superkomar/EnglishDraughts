@@ -54,9 +54,9 @@ namespace Wpf.ViewModels.CustomTypes
             GameFieldUtils.TryMakeTurn(_gameField, gameTurn, out GameField newField);
 
             // Not the last jump
-            if (!gameTurn.IsSimple && GameFieldUtils.FindTurnsForCell(newField, gameTurn.Turns.Last(), TurnType.Jump).Any())
+            if (!gameTurn.IsSimple && GameFieldUtils.FindTurnsForCell(newField, gameTurn.Steps.Last(), TurnType.Jump).Any())
             {
-                _reporter?.ReportInfo($"{Side}: Continue jumps");
+                _reporter?.ReportInfo($"{Side}: Keep jumping");
 
                 IsJumpsContinue = true;
 
@@ -85,8 +85,8 @@ namespace Wpf.ViewModels.CustomTypes
             IsJumpsContinue = false;
 
             _reporter?.ReportInfo($"{Side}: " + (_requiredJumps.Any()
-                ? "Choose cell for required jump"
-                : "Choose cell for turn"));
+                ? "Choose the cell for the required jump"
+                : "Choose the cell for the turn"));
         }
     }
 }

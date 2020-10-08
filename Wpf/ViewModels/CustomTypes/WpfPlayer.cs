@@ -37,7 +37,6 @@ namespace Wpf.ViewModels.CustomTypes
 
         public Task<IGameTurn> MakeTurn(GameField gameField)
         {
-
             _resultMailbox = new SingleUseResultMailbox<IGameTurn>();
 
             _fieldActivator.Start(gameField, _side, _reporter, _resultMailbox);

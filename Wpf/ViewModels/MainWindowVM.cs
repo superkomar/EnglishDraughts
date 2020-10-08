@@ -15,7 +15,7 @@ namespace Wpf.ViewModels
 {
     internal class MainWindowVM : NotifyPropertyChanged
     {
-        private const string StartStatusText = "Wait start the game";
+        private const string StartStatusText = "Wait for the game to start";
 
         private GameController _gameController;
 
@@ -91,10 +91,13 @@ namespace Wpf.ViewModels
         {
             var (Black, White) = GetPlayers();
 
-            var black = new WpfPlayer(VMLocator.GameFieldVM, VMLocator.GameControllsVM, Reporter);
-            var white = new WpfPlayer(VMLocator.GameFieldVM, VMLocator.GameControllsVM, Reporter);
+            //var Black = new WpfPlayer(VMLocator.GameFieldVM, VMLocator.GameControllsVM, Reporter);
+            //var White = new WpfPlayer(VMLocator.GameFieldVM, VMLocator.GameControllsVM, Reporter);
 
-            _gameController = new GameController(Core.Constants.FieldDimension, black, white);
+            _gameController = new GameController(
+                Core.Constants.FieldDimension,
+                blackPlayer: Black,
+                whitePlayer: White);
 
             await foreach (var state in _gameController.StartGameAsync())
             {
@@ -104,16 +107,16 @@ namespace Wpf.ViewModels
                     {
                         VMLocator.GameFieldVM.InitGameField(state.Field);
 
-                        black.InitGame(PlayerSide.Black);
-                        white.InitGame(PlayerSide.White);
+                        Black.InitGame(PlayerSide.Black);
+                        White.InitGame(PlayerSide.White);
                         break;
                     }
                     case GameState.StateType.Finish:
                     {
                         VMLocator.GameFieldVM.UpdateGameField(state.Field);
 
-                        black.FinishGame(state.Side);
-                        white.FinishGame(state.Side);
+                        Black.FinishGame(state.Side);
+                        White.FinishGame(state.Side);
                         return;
                     }
                     case GameState.StateType.Turn:
