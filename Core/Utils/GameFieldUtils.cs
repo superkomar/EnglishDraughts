@@ -12,31 +12,25 @@ namespace Core.Utils
 
     public static class GameFieldUtils
     {
-        public static IEnumerable<GameTurn> FindRequiredJumps(GameField field, PlayerSide side)
+        public static IEnumerable<IGameTurn> FindRequiredJumps(GameField field, PlayerSide side) =>
+            field.Field.SelectMany((cell, idx) => cell.IsSameSide(side)
+                ? FindTurnsForCell(field, idx, TurnType.Jump)
+                : Enumerable.Empty<IGameTurn>());
+
+        public static IEnumerable<IGameTurn> FindTurnsForCell(GameField field, int cellIdx, TurnType type) =>
+            field[cellIdx].TryGetPlayerSide(out PlayerSide side)
+                ? GetTurns(field, side, cellIdx, type)
+                : Enumerable.Empty<IGameTurn>();
+
+        public static IEnumerable<IGameTurn> FindTurnsForCell(GameField field, int cellIdx)
         {
-            for (var cellIdx = 0; cellIdx < field.Field.Count; cellIdx++)
-            {
-                var cellState = field[cellIdx];
+            if (!field[cellIdx].TryGetPlayerSide(out PlayerSide side)) return Enumerable.Empty<IGameTurn>();
 
-                if (!cellState.IsSameSide(side)) continue;
+            var jumps = GetTurns(field, side, cellIdx, TurnType.Jump);
 
-                if (GetTurn(field, side, cellIdx, Direction.LeftTop,  TurnType.Jump) is GameTurn leftTop)  yield return leftTop;
-                if (GetTurn(field, side, cellIdx, Direction.LeftBot,  TurnType.Jump) is GameTurn leftBot)  yield return leftBot;
-                if (GetTurn(field, side, cellIdx, Direction.RightTop, TurnType.Jump) is GameTurn rightTop) yield return rightTop;
-                if (GetTurn(field, side, cellIdx, Direction.RightBot, TurnType.Jump) is GameTurn rightBot) yield return rightBot;
-            }
-        }
-
-        public static IEnumerable<GameTurn> FindTurnsForCell(GameField field, int cellIdx, TurnType type)
-        {
-            var cellState = field[cellIdx];
-
-            if (!cellState.TryGetPlayerSide(out PlayerSide side)) yield break;
-                 
-            if (GetTurn(field, side, cellIdx, Direction.LeftTop,  type) is GameTurn leftTop)  yield return leftTop;
-            if (GetTurn(field, side, cellIdx, Direction.LeftBot,  type) is GameTurn leftBot)  yield return leftBot;
-            if (GetTurn(field, side, cellIdx, Direction.RightTop, type) is GameTurn rightTop) yield return rightTop;
-            if (GetTurn(field, side, cellIdx, Direction.RightBot, type) is GameTurn rightBot) yield return rightBot;
+            return !jumps.Any()
+                ? GetTurns(field, side, cellIdx, TurnType.Simple)
+                : jumps;
         }
 
         public static bool TryMakeTurn(GameField oldGameField, IGameTurn gameTurn, out GameField newGameField)
@@ -66,7 +60,15 @@ namespace Core.Utils
 
         internal static int GetRowIdx(GameField field, int cellIdx) => cellIdx / field.Dimension;
 
-        private static GameTurn GetTurn(GameField field, PlayerSide side, int startCellIdx, Direction direction, TurnType type = TurnType.Both)
+        private static IEnumerable<IGameTurn> GetTurns(GameField field, PlayerSide side, int cellIdx, TurnType turnType)
+        {
+            if (CreateTurn(field, side, cellIdx, Direction.LeftTop,  turnType) is IGameTurn leftTop)  yield return leftTop;
+            if (CreateTurn(field, side, cellIdx, Direction.LeftBot,  turnType) is IGameTurn leftBot)  yield return leftBot;
+            if (CreateTurn(field, side, cellIdx, Direction.RightTop, turnType) is IGameTurn rightTop) yield return rightTop;
+            if (CreateTurn(field, side, cellIdx, Direction.RightBot, turnType) is IGameTurn rightBot) yield return rightBot;
+        }
+
+        private static IGameTurn CreateTurn(GameField field, PlayerSide side, int startCellIdx, Direction direction, TurnType type)
         {
             int GetEndCellIdx(int deep) => field.NeighborsHelper.GetCellByDirection(startCellIdx, deep, direction);
 
@@ -74,8 +76,6 @@ namespace Core.Utils
             {
                 TurnType.Simple => ModelsCreator.CreateSimpleMove(field, side, startCellIdx, GetEndCellIdx(1)),
                 TurnType.Jump   => ModelsCreator.CreateJumpMove(field, side, startCellIdx, GetEndCellIdx(2)),
-                TurnType.Both   => GetTurn(field, side, startCellIdx, direction, TurnType.Simple)
-                                ?? GetTurn(field, side, startCellIdx, direction, TurnType.Jump),
                 _ => default,
             };
         }

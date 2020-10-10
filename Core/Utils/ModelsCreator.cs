@@ -23,7 +23,7 @@ namespace Core.Utils
                 ? CreateSimpleMove(field, playerSide, start, end)
                 : CreateJumpMove(field, playerSide, start, end);
 
-        public static IGameTurn CreateGameTurn(IReadOnlyList<IGameTurn> turns)
+        public static IGameTurn CreateGameTurn(IReadOnlyCollection<IGameTurn> turns)
         {
             if (!turns.Any() || turns.First() == null) return null;
 
@@ -43,7 +43,7 @@ namespace Core.Utils
                 result.AddRange(newTurn.Steps);
             }
 
-            return new GameTurn(turns[0].Side, turns[^1].IsLevelUp, result);
+            return new GameTurn(turns.First().Side, turns.Last().IsLevelUp, result);
         }
 
         public static GameTurn CreateJumpMove(GameField field, PlayerSide side, int start, int end)
@@ -53,12 +53,7 @@ namespace Core.Utils
             var startNeighbours = field.NeighborsHelper[start];
             var endNeighbours = field.NeighborsHelper[end];
 
-            var middle = -1;
-
-            if      (startNeighbours.LeftTop == endNeighbours.RightBot) middle = startNeighbours.LeftTop;
-            else if (startNeighbours.LeftBot == endNeighbours.RightTop) middle = startNeighbours.LeftBot;
-            else if (startNeighbours.RightTop == endNeighbours.LeftBot) middle = startNeighbours.RightTop;
-            else if (startNeighbours.RightBot == endNeighbours.LeftTop) middle = startNeighbours.RightBot;
+            var middle = startNeighbours.GetIntersection(endNeighbours);
 
             return middle != -1 && field[start].IsOpposite(field[middle])
                 ? new GameTurn(side, GameRules.CanLevelUp(field, field[start], end), new[] { start, middle, end })
@@ -100,10 +95,6 @@ namespace Core.Utils
                     }
                 }
             }
-
-            //initField[19] = initField[1] = CellState.Empty;
-            //initField[17] = CellState.Empty;
-            //initField[26] = CellState.BlackMen;
 
             return initField;
         }

@@ -59,14 +59,17 @@ namespace Core
 
         public void StopGame()
         {
-            _isGameRunning = false;
+            if (_isHistoryRolling || FinalGameState == null)
+            {
+                _isGameRunning = false;
 
-            var winner = _playersControl.CurPlayer.Side.ToOpposite();
+                var winner = _playersControl.CurPlayer.Side.ToOpposite();
 
-            FinalGameState = new GameState(_modelController.Field, GameState.StateType.Finish, winner);
+                FinalGameState = new GameState(_modelController.Field, GameState.StateType.Finish, winner);
 
-            _playersControl.BlackPlayer.StopTurn();
-            _playersControl.WhitePlayer.StopTurn();
+                _playersControl.BlackPlayer.StopTurn();
+                _playersControl.WhitePlayer.StopTurn();
+            }
         }
 
         public void Undo(int deep)
@@ -112,7 +115,7 @@ namespace Core
                     _isGameRunning = false;
                     var winner = success ? Side : Side.ToOpposite();
 
-                    FinalGameState = new GameState(_modelController.Field, GameState.StateType.Finish, Side);
+                    FinalGameState = new GameState(_modelController.Field, GameState.StateType.Finish, winner);
 
                     return FinalGameState.Value;
                 }

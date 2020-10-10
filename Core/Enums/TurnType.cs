@@ -3,7 +3,6 @@
     public enum TurnType
     {
         Simple,
-        Jump,
-        Both
+        Jump
     }
 }
