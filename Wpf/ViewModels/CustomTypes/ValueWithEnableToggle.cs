@@ -4,13 +4,17 @@ namespace Wpf.ViewModels.CustomTypes
 {
     public class ValueWithEnableToggle<T> : NotifyPropertyChanged
     {
+        private readonly string _additionalName;
+
         private bool _isEnabled;
         private T _property;
         
-        public ValueWithEnableToggle(T property, bool isEnable)
+        public ValueWithEnableToggle(T property, bool isEnable, string additionalName = "")
         {
             Value = property;
             IsEnabled = isEnable;
+
+            _additionalName = additionalName;
         }
 
         public bool IsEnabled
@@ -39,6 +43,7 @@ namespace Wpf.ViewModels.CustomTypes
 
             _property = value;
             OnPropertyChanged(nameof(Value));
+            OnPropertyChanged(_additionalName);
         }
     }
 }

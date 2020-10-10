@@ -24,7 +24,7 @@ namespace Wpf.ViewModels.CustomTypes
 
             try
             {
-                result = await _taskCompletionSource.Task.ConfigureAwait(false);
+                result = await _taskCompletionSource.Task;
             }
             catch (Exception)
             { }

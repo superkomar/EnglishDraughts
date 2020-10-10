@@ -88,7 +88,7 @@
             <TextBox Grid.Row="2" Grid.Column="1"
                      VerticalAlignment="Center"
                      PreviewTextInput="NumberValidationTextBox"
-                     Text="{Binding RobotTime.Value, Mode=TwoWay}"
+                     Text="{Binding RobotTime.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                      IsEnabled="{Binding RobotTime.IsEnabled, Mode=OneWay}"/>
 
             <!--Firt Row-->

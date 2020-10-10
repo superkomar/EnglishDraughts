@@ -14,7 +14,7 @@ namespace Wpf.ViewModels.CustomTypes
     {
         private GameField _gameField;
         private IStatusReporter _reporter;
-        private IEnumerable<GameTurn> _requiredJumps;
+        private IEnumerable<IGameTurn> _requiredJumps;
         private IResultSender<IGameTurn> _sender;
         private List<IGameTurn> _turns;
 
@@ -54,7 +54,8 @@ namespace Wpf.ViewModels.CustomTypes
             GameFieldUtils.TryMakeTurn(_gameField, gameTurn, out GameField newField);
 
             // Not the last jump
-            if (!gameTurn.IsSimple && GameFieldUtils.FindTurnsForCell(newField, gameTurn.Steps.Last(), TurnType.Jump).Any())
+            if (!gameTurn.IsSimple && !gameTurn.IsLevelUp &&
+                GameFieldUtils.FindTurnsForCell(newField, gameTurn.Steps.Last(), TurnType.Jump).Any())
             {
                 _reporter?.ReportInfo($"{Side}: Keep jumping");
 

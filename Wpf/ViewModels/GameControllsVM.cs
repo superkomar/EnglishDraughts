@@ -9,6 +9,14 @@ namespace Wpf.ViewModels
 {
     internal class GameControllsVM : NotifyPropertyChanged, IGameControllsVM, IWpfControlsActivator
     {
+        public enum StateType
+        {
+            GameStart,
+            GameFinish,
+            WpfTurnStart,
+            WpfTurnStop
+        }
+
         public GameControllsVM()
         {
             StartCmd = new ValueWithEnableToggle<ICommand>(new RelayCommand(StartCmdExecute), isEnable: true);
@@ -16,40 +24,49 @@ namespace Wpf.ViewModels
 
             UndoCmd = new ValueWithEnableToggle<ICommand>(new RelayCommand(UndoCmdExecute), isEnable: false);
             RedoCmd = new ValueWithEnableToggle<ICommand>(new RelayCommand(RedoCmdExecute), isEnable: false);
-            
+
             Side = new ValueWithEnableToggle<PlayerSide>(PlayerSide.White, isEnable: true);
-            RobotTime = new ValueWithEnableToggle<int>(Constants.DefaultRobotTimeMs, isEnable: false);
+            RobotTime = new ValueWithEnableToggle<int>(Constants.DefaultRobotTimeMs, isEnable: false, nameof(RobotTime));
         }
 
         #region IGameControllsVM
 
-        public ValueWithEnableToggle<ICommand> FinishCmd { get; }
-        
-        public ValueWithEnableToggle<ICommand> RedoCmd { get; }
-        
         public ValueWithEnableToggle<int> RobotTime { get; set; }
 
         public ValueWithEnableToggle<PlayerSide> Side { get; set; }
         
         public ValueWithEnableToggle<ICommand> StartCmd { get; }
 
+        public ValueWithEnableToggle<ICommand> FinishCmd { get; }
+
         public ValueWithEnableToggle<ICommand> UndoCmd { get; }
-        
+
+        public ValueWithEnableToggle<ICommand> RedoCmd { get; }
+
         #endregion
 
         #region IWpfControlsActivator
 
-        public void StartTurn() =>
-            UndoCmd.IsEnabled = RedoCmd.IsEnabled = RobotTime.IsEnabled = true;
+        public void StartTurn() => UpdateState(StateType.WpfTurnStart);
 
-        public void StopTurn() =>
-            UndoCmd.IsEnabled = RedoCmd.IsEnabled = RobotTime.IsEnabled = false;
+        public void StopTurn() => UpdateState(StateType.WpfTurnStop);
 
         #endregion
+        
+        public void UpdateState(StateType state)
+        {
+            switch (state)
+            {
+                case StateType.GameStart: UpdateControlStates(isGameStarted: true); break;
+                case StateType.GameFinish: UpdateControlStates(isGameStarted: false); break;
+                case StateType.WpfTurnStart: WpfTurnStart(isTurnStarting: true); break;
+                case StateType.WpfTurnStop: WpfTurnStart(isTurnStarting: false); break;
+            }
+        }
 
         private void FinishCmdExecute(object obj)
         {
-            UpdateControlStates(isGameStarted: false);
+            UpdateState(StateType.GameFinish);
 
             OnPropertyChanged(nameof(FinishCmd));
         }
@@ -58,7 +75,7 @@ namespace Wpf.ViewModels
 
         private void StartCmdExecute(object obj)
         {
-            UpdateControlStates(isGameStarted: true);
+            UpdateState(StateType.GameStart);
 
             OnPropertyChanged(nameof(StartCmd));
         }
@@ -73,6 +90,11 @@ namespace Wpf.ViewModels
             UndoCmd.IsEnabled = isGameStarted;
             RedoCmd.IsEnabled = isGameStarted;
             FinishCmd.IsEnabled = isGameStarted;
+        }
+
+        private void WpfTurnStart(bool isTurnStarting)
+        {
+            UndoCmd.IsEnabled = RedoCmd.IsEnabled = RobotTime.IsEnabled = isTurnStarting;
         }
     }
 }

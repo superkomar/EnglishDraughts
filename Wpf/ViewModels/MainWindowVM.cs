@@ -17,11 +17,9 @@ namespace Wpf.ViewModels
     {
         private const string StartStatusText = "Wait for the game to start";
 
-        private GameController _gameController;
-
-        private readonly WpfPlayer _wpfPlayer;
         private readonly RobotLauncher _robotLauncher;
-
+        private readonly WpfPlayer _wpfPlayer;
+        private GameController _gameController;
         public MainWindowVM()
         {
             Reporter = new StatusReporter();
@@ -37,15 +35,17 @@ namespace Wpf.ViewModels
 
         private void AttachHandlers()
         {
-            //VMLocator.GameFieldVM.PropertyChanged += OnFieldPropertyChanged;
             VMLocator.GameControllsVM.PropertyChanged += OnControllsPropertyChanged;
+            VMLocator.GameControllsVM.RobotTime.PropertyChanged += OnControllsPropertyChanged;
         }
 
-        private void DetachHandlers()
-        {
-            //VMLocator.GameFieldVM.PropertyChanged -= OnFieldPropertyChanged;
-            VMLocator.GameControllsVM.PropertyChanged -= OnControllsPropertyChanged;
-        }
+        private (IGamePlayer Black, IGamePlayer White) GetPlayers() =>
+            VMLocator.GameControllsVM.Side.Value switch
+            {
+                PlayerSide.White => (_robotLauncher, _wpfPlayer),
+                PlayerSide.Black => (_wpfPlayer, _robotLauncher),
+                _ => throw new System.NotImplementedException(),
+            };
 
         private async void OnControllsPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
@@ -79,20 +79,9 @@ namespace Wpf.ViewModels
             }
         }
 
-        private (IGamePlayer Black, IGamePlayer White) GetPlayers() =>
-            VMLocator.GameControllsVM.Side.Value switch
-            {
-                PlayerSide.White => (_robotLauncher, _wpfPlayer),
-                PlayerSide.Black => (_wpfPlayer, _robotLauncher),
-                _ => throw new System.NotImplementedException(),
-            };
-
         private async Task StartGameAsync()
         {
             var (Black, White) = GetPlayers();
-
-            //var Black = new WpfPlayer(VMLocator.GameFieldVM, VMLocator.GameControllsVM, Reporter);
-            //var White = new WpfPlayer(VMLocator.GameFieldVM, VMLocator.GameControllsVM, Reporter);
 
             _gameController = new GameController(
                 Core.Constants.FieldDimension,
@@ -117,7 +106,7 @@ namespace Wpf.ViewModels
 
                         Black.FinishGame(state.Side);
                         White.FinishGame(state.Side);
-                        return;
+                        break;
                     }
                     case GameState.StateType.Turn:
                     default:
@@ -127,6 +116,8 @@ namespace Wpf.ViewModels
                     }
                 }
             }
+
+            VMLocator.GameControllsVM.UpdateState(GameControllsVM.StateType.GameFinish);
         }
     }
 }
