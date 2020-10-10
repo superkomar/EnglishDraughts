@@ -3,6 +3,7 @@ using System.Linq;
 
 using Core.Enums;
 using Core.Extensions;
+using Core.Interfaces;
 using Core.Models;
 using Core.Utils;
 
@@ -14,7 +15,8 @@ namespace NUnitTests.Core
     {
         private const int Dimension = 8;
 
-        private GameField _gameField;
+        private GameField _customField;
+        private GameField _defaultField;
 
         [OneTimeSetUp]
         public void GenerateField()
@@ -28,33 +30,35 @@ namespace NUnitTests.Core
             // 48(-)|49(+)|50(-)|51(+)|52(-)|53(+)|54(-)|55(+)
             // 56(+)|57(-)|58(+)|59(-)|60(+)|61(-)|62(+)|63(-)
 
-            var field = new List<CellState>();
+            var cells = new List<CellState>();
             for (var i = 0; i < Dimension; i++)
             {
                 for (var j = 0; j < Dimension; j++)
                 {
-                    field.Add(CellState.Empty);
+                    cells.Add(CellState.Empty);
                 }
             }
 
-            field[1] = field[17] = field[49] = field[56] = CellState.BlackMen;
-            field[3] = field[19] = field[51] = field[58] = CellState.BlackKing;
-            field[5] = field[21] = field[53] = field[60] = CellState.WhiteMen;
-            field[7] = field[23] = field[55] = field[62] = CellState.WhiteKing;
+            cells[1] = cells[17] = cells[49] = cells[56] = CellState.BlackMen;
+            cells[3] = cells[19] = cells[51] = cells[58] = CellState.BlackKing;
+            cells[5] = cells[21] = cells[53] = cells[60] = CellState.WhiteMen;
+            cells[7] = cells[23] = cells[55] = cells[62] = CellState.WhiteKing;
 
-            field[24] = CellState.WhiteKing;
-            field[26] = CellState.WhiteMen;
-            field[28] = CellState.BlackKing;
-            field[30] = CellState.BlackMen;
+            cells[24] = CellState.WhiteKing;
+            cells[26] = CellState.WhiteMen;
+            cells[28] = CellState.BlackKing;
+            cells[30] = CellState.BlackMen;
 
-            _gameField = new GameField(field, new NeighborsHelper(Dimension), Dimension);
+            _customField = new GameField(cells, new NeighborsHelper(Dimension), Dimension);
+            
+            _defaultField = ModelsCreator.CreateGameField(8);
         }
 
         [Test]
         public void GameFieldUtils_FindRequiredJumps()
         {
-            var jumpsBlack = GameFieldUtils.FindRequiredJumps(_gameField, PlayerSide.Black).ToArray();
-            var jumpsWhite = GameFieldUtils.FindRequiredJumps(_gameField, PlayerSide.White).ToArray();
+            var jumpsBlack = GameFieldUtils.FindRequiredJumps(_customField, PlayerSide.Black).ToArray();
+            var jumpsWhite = GameFieldUtils.FindRequiredJumps(_customField, PlayerSide.White).ToArray();
 
             Assert.AreEqual(jumpsBlack.Length, 3);
             Assert.AreEqual(jumpsWhite.Length, 5);
@@ -71,34 +75,15 @@ namespace NUnitTests.Core
         }
 
         [Test]
-        public void FindTurnsForCell_Test()
+        public void FindTurnsForCell_Test_DefaultField()
         {
-            var field = ModelsCreator.CreateGameField(8);
-
-            var blackTurns = new List<GameTurn>(GameFieldUtils.FindRequiredJumps(field, PlayerSide.Black).ToArray());
-            var whiteTurns = new List<GameTurn>(GameFieldUtils.FindRequiredJumps(field, PlayerSide.White).ToArray());
+            var blackTurns = new List<IGameTurn>(GameFieldUtils.FindRequiredJumps(_defaultField, PlayerSide.Black).ToArray());
+            var whiteTurns = new List<IGameTurn>(GameFieldUtils.FindRequiredJumps(_defaultField, PlayerSide.White).ToArray());
 
             Assert.AreEqual(blackTurns.Count, 0);
             Assert.AreEqual(whiteTurns.Count, 0);
 
-            for (var i = 0; i < field.Dimension; i++)
-            {
-                for (var j = 0; j < field.Dimension; j++)
-                {
-                    var cellIdx = i * field.Dimension + j;
-
-                    if (field[cellIdx] == CellState.Empty) continue;
-
-                    if (field[cellIdx].IsSameSide(PlayerSide.Black))
-                    {
-                        blackTurns.AddRange(GameFieldUtils.FindTurnsForCell(field, cellIdx, TurnType.Both));
-                    }
-                    else
-                    {
-                        whiteTurns.AddRange(GameFieldUtils.FindTurnsForCell(field, cellIdx, TurnType.Both));
-                    }
-                }
-            }
+            GetTuns(_defaultField, out blackTurns, out whiteTurns);
 
             // Black turns
             Assert.AreEqual(blackTurns.Count, 7);
@@ -119,6 +104,71 @@ namespace NUnitTests.Core
             Assert.AreEqual(whiteTurns[4].Steps, new int[] { 44, 37 });
             Assert.AreEqual(whiteTurns[5].Steps, new int[] { 46, 37 });
             Assert.AreEqual(whiteTurns[6].Steps, new int[] { 46, 39 });
+        }
+
+        [Test]
+        public void FindTurnsForCell_Test_CustomField()
+        {
+            GetTuns(_customField,
+                out List<IGameTurn> blackTurns,
+                out List<IGameTurn> whiteTurns);
+
+            // Black turns
+            Assert.AreEqual(blackTurns.Count, 3);
+            Assert.AreEqual(blackTurns[0].Steps, new int[] { 17, 26, 35 });
+            Assert.AreEqual(blackTurns[1].Steps, new int[] { 19, 26, 33 });
+            Assert.AreEqual(blackTurns[2].Steps, new int[] { 28, 21, 14 });
+
+            // White turns
+            Assert.AreEqual(whiteTurns.Count, 5);
+            Assert.AreEqual(whiteTurns[0].Steps, new int[] { 23, 30, 37 });
+            Assert.AreEqual(whiteTurns[1].Steps, new int[] { 24, 17, 10 });
+            Assert.AreEqual(whiteTurns[2].Steps, new int[] { 26, 17,  8 });
+            Assert.AreEqual(whiteTurns[3].Steps, new int[] { 26, 19, 12 });
+            Assert.AreEqual(whiteTurns[4].Steps, new int[] { 60, 51, 42 });
+        }
+
+
+        private void GetTuns(GameField field, out List<IGameTurn> blackTurns, out List<IGameTurn> whiteTurns)
+        {
+            var blackSimple = new List<IGameTurn>();
+            var blackJumps  = new List<IGameTurn>();
+
+            var whiteSimple = new List<IGameTurn>();
+            var whiteJumps  = new List<IGameTurn>();
+
+            static void Processor(IEnumerable<IGameTurn> turns, IList<IGameTurn> jumps, IList<IGameTurn> simples)
+            {
+                foreach (var turn in turns)
+                {
+                    if (turn.IsSimple) simples.Add(turn);
+                    else jumps.Add(turn);
+                }
+            }
+
+            for (var i = 0; i < field.Dimension; i++)
+            {
+                for (var j = 0; j < field.Dimension; j++)
+                {
+                    var cellIdx = i * field.Dimension + j;
+
+                    if (field[cellIdx] == CellState.Empty) continue;
+
+                    var cellTurns = GameFieldUtils.FindTurnsForCell(field, cellIdx);
+
+                    if (field[cellIdx].IsSameSide(PlayerSide.Black))
+                    {
+                        Processor(cellTurns, blackJumps, blackSimple);
+                    }
+                    else
+                    {
+                        Processor(cellTurns, whiteJumps, whiteSimple);
+                    }
+                }
+            }
+
+            blackTurns = blackJumps.Any() ? blackJumps : blackSimple;
+            whiteTurns = whiteJumps.Any() ? whiteJumps : whiteSimple;
         }
     }
 }
