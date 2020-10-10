@@ -38,18 +38,29 @@ namespace Robot
 
         public async Task<IGameTurn> MakeTurn(GameField gameField)
         {
-            using var cts = new CancellationTokenSource(TurnTime);
-
-            var timerTask = Task.Delay(TurnTime).ContinueWith(_ => _robot.GetTunr());
+            using var cts = new CancellationTokenSource();
 
             IGameTurn result;
 
+            Console.WriteLine("============================");
+            Console.WriteLine($"Robot Time: {TurnTime}");
+
             try
             {
-                result = await await Task.WhenAny(timerTask, _robot.MakeTurnAsync(gameField, cts.Token));
+                var timerTask = Task.Run(async () => {
+                    await Task.Delay(TurnTime);
+                    cts.Cancel();
+                    Console.WriteLine("cts canceled");
+                    return _robot.GetTunr();
+                });
+
+                result = await await Task.WhenAny(
+                    _robot.MakeTurnAsync(gameField, cts.Token),
+                    timerTask);
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                Console.WriteLine(ex);
                 result = default;
             }
 

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 using Core.Enums;
 using Core.Interfaces;
@@ -23,15 +22,24 @@ namespace Robot.Models
 
         public bool IsLevelUp => _turn.IsLevelUp;
 
-        public bool IsSimple => _turn.IsLevelUp;
+        public bool IsSimple => _turn.IsSimple;
 
         public PlayerSide Side => _turn.Side;
 
         public int Start => _turn.Start;
 
+        public override string ToString()
+        {
+            var steps = IsSimple
+                ? $"{_turn.Steps[0]} - {_turn.Steps[1]}"
+                : $"{_turn.Steps[0]} - {_turn.Steps[1]} - {_turn.Steps[2]}";
+
+            return $"{steps}; pr: {Priority:0.###};";
+        }
+
         public IReadOnlyList<int> Steps => _turn.Steps;
 
-        public void ClarifyPriority(double newValue, int level, PlayerSide side)
+        public void ClarifyPriority(double newValue, int level, bool isOpposite)
         {
             lock (_locker)
             {
@@ -40,33 +48,10 @@ namespace Robot.Models
                     Priority = newValue;
                 }
 
-                if (side == Side) Priority += newValue * level;
-                else Priority -= newValue * level;
+                Priority += newValue * level * (isOpposite ? -1 : 1);
             }
         }
 
         public static explicit operator PriorityTurn(GameTurn turn) => new PriorityTurn(turn);
-    }
-
-    internal class PriorityTurnCollection : List<PriorityTurn>
-    {
-        public PriorityTurnCollection(List<GameTurn> turns)
-            : base(turns.Select(x => new PriorityTurn(x)))
-        { }
-
-        public IGameTurn GetBestTurn()
-        {
-            var result = this.First();
-
-            foreach (var turn in this.Skip(1))
-            {
-                if (result.Priority < turn.Priority)
-                {
-                    result = turn;
-                }
-            }
-
-            return result;
-        }
     }
 }

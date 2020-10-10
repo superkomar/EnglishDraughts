@@ -6,6 +6,7 @@ using Core.Enums;
 using Core.Extensions;
 using Core.Models;
 
+using Robot.Extensions;
 using Robot.Utils;
 
 namespace Robot.Models
@@ -28,7 +29,7 @@ namespace Robot.Models
                 }
             };
 
-            FieldUtils.AllFieldProcessor(Origin, Processor);
+            Origin.ProcessAllCells(Processor);
 
             BlackPices = blackPieces;
             WhitePices = whitePieces;

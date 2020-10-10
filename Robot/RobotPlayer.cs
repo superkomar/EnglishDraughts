@@ -21,24 +21,24 @@ namespace Robot
 
     internal readonly struct EstimationParameters
     {
-        public EstimationParameters(PriorityTurn generanTurn, int level, CancellationToken token)
+        public EstimationParameters(PriorityTurn generanTurn, int depth, CancellationToken token)
         {
-            GeneranTurn = generanTurn;
-            Level = level;
+            GeneralTurn = generanTurn;
+            Depth = depth;
             Token = token;
         }
 
         public EstimationParameters(EstimationParameters other, int level)
         {
-            Level = level;
+            Depth = level;
 
-            GeneranTurn = other.GeneranTurn;
+            GeneralTurn = other.GeneralTurn;
             Token = other.Token;
         }
 
-        public PriorityTurn GeneranTurn { get; }
+        public PriorityTurn GeneralTurn { get; }
 
-        public int Level { get; }
+        public int Depth { get; }
 
         public CancellationToken Token { get; }
     }
@@ -46,67 +46,82 @@ namespace Robot
     public class RobotPlayer : IRobotPlayer
     {
         private PlayerSide _playerSide;
-
+        private List<PriorityTurn> _priorityTurns;
+        
         public int TurnTime { get; set; }
 
-        public IGameTurn GetTunr() => _priorityTurnCollection?.GetBestTurn() ?? default;
+        public IGameTurn GetTunr()
+        {
+            if (_priorityTurns == null || !_priorityTurns.Any())
+            {
+                return default;
+            }
+
+            var result = _priorityTurns.First();
+
+            foreach (var turn in _priorityTurns.Skip(1))
+            {
+                if (result.Priority < turn.Priority)
+                {
+                    result = turn;
+                }
+            }
+
+            Console.WriteLine(string.Format("== GetTurn == {0}", result.ToString()));
+
+            return result;
+        }
 
         public void Init(PlayerSide side)
         {
             _playerSide = side;
         }
 
-        private PriorityTurnCollection _priorityTurnCollection;
-
-        public Task<IGameTurn> MakeTurnAsync(CoreField gameField, CancellationToken token)
+        public async Task<IGameTurn> MakeTurnAsync(CoreField gameField, CancellationToken token)
         {
             var robotField = new RobotField(gameField);
-            var turns = GetTurns(robotField, _playerSide);
+            var turns = robotField.GetTurnsBySide(_playerSide);
 
-            _priorityTurnCollection = new PriorityTurnCollection(turns);
+            _priorityTurns = new List<PriorityTurn>(turns.Select(x => new PriorityTurn(x)));
 
-            var tasks = new List<Task>(turns.Count);
+            var tasks = new List<Task>();
 
-            foreach (var turn in _priorityTurnCollection)
+            foreach (var turn in _priorityTurns)
             {
-                var parameters = new EstimationParameters(turn, 1, token);
+                var localTurn = turn;
+                var parameters = new EstimationParameters(localTurn, 1, token);
                 tasks.Add(Task.Run(() => EstimateTurn(robotField, turn, parameters), token));
+                //tasks.Add(EstimateTurn(robotField, localTurn, parameters));
             }
-            
-            return Task.WhenAll(tasks).ContinueWith(_ => GetTunr());
+
+            await Task.WhenAll(tasks);
+                
+            return GetTunr();
         }
 
         private static Task EstimateTurn(RobotField field, IGameTurn turn, EstimationParameters parameters)
         {
+            Console.WriteLine(string.Format(
+                "turn: {0} depth: {1}",
+                parameters.GeneralTurn.ToString(),
+                parameters.Depth));
+
             // Check the turn is correct
             if (!GameFieldUtils.TryMakeTurn(field.Origin, turn, out CoreField newCoreField))
             {
-                parameters.GeneranTurn.ClarifyPriority(double.NegativeInfinity, parameters.Level, turn.Side);
-                throw new ArgumentException("Invalid turn");
+                parameters.GeneralTurn.ClarifyPriority(double.NegativeInfinity, parameters.Depth, false);
+                throw new ArgumentException($"Invalid turn: {turn}");
             }
 
-            var newField = (RobotField)newCoreField;
+            var newField = (RobotField) newCoreField;
 
-            parameters.GeneranTurn.ClarifyPriority(
-                Metrics.CompareByMetrics(field, newField, turn.Side),
-                parameters.Level,
-                turn.Side);
+            parameters.GeneralTurn.ClarifyPriority(
+                MetricsProcessor.CompareByMetrics(field, newField, turn.Side),
+                parameters.Depth,
+                parameters.GeneralTurn.Side == turn.Side);
 
-            EstimationParameters newParameters;
-
-            var newTurns = !turn.IsSimple
-                ? GameFieldUtils.FindTurnsForCell(field, turn.Steps.Last(), TurnType.Jump)
-                : new List<GameTurn>();
-
-            if (newTurns.Any()) // Check if it's continuous jump
-            {
-                newParameters = new EstimationParameters(parameters, parameters.Level);
-            }
-            else // Find turns for the opposite side
-            {
-                newParameters = new EstimationParameters(parameters, parameters.Level + 1);
-                newTurns = GetTurns(newField, turn.Side.ToOpposite());
-            }
+            var newParameters = new EstimationParameters(parameters, parameters.Depth + 1);
+            var newTurns = newField.GetTurnsBySide(turn.Side.ToOpposite());
 
             if (parameters.Token.IsCancellationRequested)
             {
@@ -116,31 +131,11 @@ namespace Robot
             var tasks = new List<Task>();
             foreach (var newTurn in newTurns)
             {
-                tasks.Add(Task.Run(() => EstimateTurn(newField, newTurn, newParameters), parameters.Token));
+                //tasks.Add(Task.Run(() => EstimateTurn(newField, newTurn, newParameters), parameters.Token));
+                tasks.Add(EstimateTurn(newField, newTurn, newParameters));
             }
 
             return Task.WhenAll(tasks);
-        }
-
-        private static List<GameTurn> GetTurns(RobotField gameField, PlayerSide side)
-        {
-            var simpleMoves = new List<GameTurn>();
-            var requiredJumps = new List<GameTurn>();
-
-            void Processor(int cellIdx)
-            {
-                var cellTurns = GameFieldUtils.FindTurnsForCell(gameField, cellIdx, TurnType.Both);
-
-                foreach (var turn in cellTurns)
-                {
-                    if (turn.IsSimple) simpleMoves.Add(turn);
-                    else requiredJumps.Add(turn);
-                }
-            }
-
-            gameField.ProcessorCellBySide(side, Processor);
-
-            return requiredJumps.Any() ? requiredJumps : simpleMoves;
         }
     }
 }

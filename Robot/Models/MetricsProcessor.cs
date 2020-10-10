@@ -75,7 +75,7 @@ namespace Robot.Models
         }
     }
 
-    internal static class Metrics
+    internal static class MetricsProcessor
     {
         private static readonly List<ICompareByMetric> _metrics =
             new List<ICompareByMetric> {
