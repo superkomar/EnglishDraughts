@@ -5,6 +5,8 @@ namespace Core.Helpers
 {
     internal class PlayerStateMachine
     {
+        private readonly PlayerSide FirstPlayer = PlayerSide.Black;
+
         private readonly (IGamePlayer Player, PlayerSide Side) _blackPlayer;
         private readonly (IGamePlayer Player, PlayerSide Side) _whitePlayer;
 
@@ -52,7 +54,7 @@ namespace Core.Helpers
                 }
                 case MachineState.Start:
                 {
-                    CurPlayer = GetBySide(Constants.FirstPlayer);
+                    CurPlayer = GetBySide(FirstPlayer);
                     break;
                 }
             }
