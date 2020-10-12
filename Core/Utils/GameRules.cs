@@ -19,15 +19,12 @@ namespace Core.Utils
 
         public static bool IsPlayerWin(GameField field, PlayerSide side) =>
             !field.AreAnyPieces(side.ToOpposite());
-
-        public static bool IsValidCellIdx(GameField field, int cellIdx) =>
-            cellIdx > 0 && cellIdx < field.Field.Count;
         
         public static bool IsValidTurnEnd(GameField field, int cellIdx) =>
-            IsValidCellIdx(field, cellIdx) && field[cellIdx] == CellState.Empty;
+            field.IsValidCellIdx(cellIdx) && field[cellIdx] == CellState.Empty;
         
         public static bool IsValidTurnStart(GameField field, int cellIdx) =>
-            IsValidCellIdx(field, cellIdx) && field[cellIdx] != CellState.Empty;
+            field.IsValidCellIdx(cellIdx) && field[cellIdx] != CellState.Empty;
 
         private static bool IsValidMoveDirection(GameField field, int start, int end) =>
             field[start].IsKing()

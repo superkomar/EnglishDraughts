@@ -13,29 +13,34 @@ namespace Core.Models
         private readonly bool _areAnyBlackPieces;
         private readonly bool _areAnyWhitePieces;
 
-        internal GameField(IReadOnlyList<CellState> field, NeighborsHelper neighborsHelper, int dimension)
+        private readonly FieldCellCollection _cellCollection;
+
+        internal GameField(IReadOnlyList<CellState> cells, NeighborsHelper neighborsHelper, int dimension)
         {
-            Field = field;
-            Dimension = dimension;
+            _cellCollection = new FieldCellCollection(cells, dimension);
+
             NeighborsHelper = neighborsHelper;
 
-            _areAnyBlackPieces = field.Any(x => x.IsSameSide(PlayerSide.Black));
-            _areAnyWhitePieces = field.Any(x => x.IsSameSide(PlayerSide.White));
+            _areAnyBlackPieces = _cellCollection.Any(x => x.IsSameSide(PlayerSide.Black));
+            _areAnyWhitePieces = _cellCollection.Any(x => x.IsSameSide(PlayerSide.White));
+
         }
 
-        internal GameField(IReadOnlyList<CellState> field, GameField other)
+        internal GameField(IReadOnlyList<CellState> cells, GameField other)
         {
-            Field = field;
-            Dimension = other.Dimension;
+            _cellCollection = new FieldCellCollection(cells, other.Dimension);
+
             NeighborsHelper = other.NeighborsHelper;
 
-            _areAnyBlackPieces = field.Any(x => x.IsSameSide(PlayerSide.Black));
-            _areAnyWhitePieces = field.Any(x => x.IsSameSide(PlayerSide.White));
+            _areAnyBlackPieces = _cellCollection.Any(x => x.IsSameSide(PlayerSide.Black));
+            _areAnyWhitePieces = _cellCollection.Any(x => x.IsSameSide(PlayerSide.White));
         }
 
-        public int Dimension { get; }
+        public int CellsCount => _cellCollection.Count;
         
-        public IReadOnlyList<CellState> Field { get; }
+        public int Dimension => _cellCollection.Dimension;
+
+        public IReadOnlyList<CellState> Field => _cellCollection;
         
         public NeighborsHelper NeighborsHelper { get; }
 
@@ -43,5 +48,7 @@ namespace Core.Models
 
         public bool AreAnyPieces(PlayerSide side) =>
             side == PlayerSide.Black ? _areAnyBlackPieces : _areAnyWhitePieces;
+
+        public bool IsValidCellIdx(int cellIdx) => cellIdx > 0 && cellIdx < CellsCount;
     }
 }
