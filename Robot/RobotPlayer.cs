@@ -19,30 +19,6 @@ namespace Robot
     using CoreField = Core.Models.GameField;
     using RobotField = Robot.Models.FieldWrapper;
 
-    internal readonly struct EstimationParameters
-    {
-        public EstimationParameters(PriorityTurn generanTurn, int depth, CancellationToken token)
-        {
-            GeneralTurn = generanTurn;
-            Depth = depth;
-            Token = token;
-        }
-
-        public EstimationParameters(EstimationParameters other, int level)
-        {
-            Depth = level;
-
-            GeneralTurn = other.GeneralTurn;
-            Token = other.Token;
-        }
-
-        public PriorityTurn GeneralTurn { get; }
-
-        public int Depth { get; }
-
-        public CancellationToken Token { get; }
-    }
-
     public class RobotPlayer : IRobotPlayer
     {
         private PlayerSide _playerSide;
@@ -136,6 +112,30 @@ namespace Robot
             }
 
             return Task.WhenAll(tasks);
+        }
+
+        private readonly struct EstimationParameters
+        {
+            public EstimationParameters(PriorityTurn generanTurn, int depth, CancellationToken token)
+            {
+                GeneralTurn = generanTurn;
+                Depth = depth;
+                Token = token;
+            }
+
+            public EstimationParameters(EstimationParameters other, int level)
+            {
+                Depth = level;
+
+                GeneralTurn = other.GeneralTurn;
+                Token = other.Token;
+            }
+
+            public int Depth { get; }
+            
+            public PriorityTurn GeneralTurn { get; }
+            
+            public CancellationToken Token { get; }
         }
     }
 }

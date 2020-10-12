@@ -35,7 +35,7 @@ namespace Robot.Models
             WhitePices = whitePieces;
         }
 
-        public CellState this[int idx] => Origin.Field.ElementAtOrDefault(idx);
+        public CellState this[int idx] => Origin[idx];
 
         public int Dimension => Origin.Dimension;
 
