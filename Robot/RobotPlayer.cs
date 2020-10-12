@@ -41,6 +41,8 @@ namespace Robot
                 {
                     result = turn;
                 }
+
+                Console.WriteLine(string.Format("turn: {0}", turn.ToString()));
             }
 
             Console.WriteLine(string.Format("== GetTurn == {0}", result.ToString()));
@@ -66,21 +68,18 @@ namespace Robot
             {
                 var localTurn = turn;
                 var parameters = new EstimationParameters(localTurn, 1, token);
-                tasks.Add(Task.Run(() => EstimateTurn(robotField, turn, parameters), token));
+                tasks.Add(Task.Run(() => EstimateTurn(robotField, turn, parameters)));
                 //tasks.Add(EstimateTurn(robotField, localTurn, parameters));
             }
 
-            await Task.WhenAll(tasks);
+            await Task.WhenAll(tasks).ConfigureAwait(continueOnCapturedContext: false);
                 
             return GetTunr();
         }
 
         private static Task EstimateTurn(RobotField field, IGameTurn turn, EstimationParameters parameters)
         {
-            Console.WriteLine(string.Format(
-                "turn: {0} depth: {1}",
-                parameters.GeneralTurn.ToString(),
-                parameters.Depth));
+            //Console.WriteLine(string.Format("turn: {0} depth: {1}", parameters.GeneralTurn.ToString(), parameters.Depth));
 
             // Check the turn is correct
             if (!GameFieldUtils.TryMakeTurn(field.Origin, turn, out CoreField newCoreField))
@@ -101,14 +100,15 @@ namespace Robot
 
             if (parameters.Token.IsCancellationRequested)
             {
+                //Console.WriteLine("TaskCancellation true");
                 return Task.CompletedTask;
             }
 
             var tasks = new List<Task>();
-            foreach (var newTurn in newTurns)
+            foreach (var newTurn in newTurns) 
             {
-                //tasks.Add(Task.Run(() => EstimateTurn(newField, newTurn, newParameters), parameters.Token));
-                tasks.Add(EstimateTurn(newField, newTurn, newParameters));
+                tasks.Add(Task.Run(() => EstimateTurn(newField, newTurn, newParameters)));
+                //tasks.Add(EstimateTurn(newField, newTurn, newParameters));
             }
 
             return Task.WhenAll(tasks);

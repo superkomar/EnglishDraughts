@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 
 using Core.Enums;
 using Core.Extensions;
 using Core.Models;
 
 using Robot.Extensions;
-using Robot.Utils;
 
 namespace Robot.Models
 {

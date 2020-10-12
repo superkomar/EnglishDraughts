@@ -50,13 +50,15 @@ namespace Robot
                 var timerTask = Task.Run(async () => {
                     await Task.Delay(TurnTime);
                     cts.Cancel();
-                    Console.WriteLine("cts canceled");
-                    return _robot.GetTunr();
+                    //Console.WriteLine("cts canceled");
+                    //return _robot.GetTunr();
                 });
 
-                result = await await Task.WhenAny(
-                    _robot.MakeTurnAsync(gameField, cts.Token),
-                    timerTask);
+                result = await _robot.MakeTurnAsync(gameField, cts.Token);
+
+                //result = await await Task.WhenAny(
+                //    _robot.MakeTurnAsync(gameField, cts.Token),
+                //    timerTask);
             }
             catch(Exception ex)
             {
