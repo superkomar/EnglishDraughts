@@ -7,6 +7,7 @@ using Core.Models;
 using Core.Utils;
 
 using Wpf.Interfaces;
+using Wpf.Properties;
 
 namespace Wpf.ViewModels.CustomTypes
 {
@@ -57,7 +58,8 @@ namespace Wpf.ViewModels.CustomTypes
             if (!gameTurn.IsSimple && !gameTurn.IsLevelUp &&
                 GameFieldUtils.FindTurnsForCell(newField, gameTurn.Steps.Last(), TurnType.Jump).Any())
             {
-                _reporter?.ReportInfo($"{Side}: Keep jumping");
+                _reporter?.ReportInfo(
+                    $"{Side}: {Resources.WpfPlayer_JumpTurn_Continue}");
 
                 IsJumpsContinue = true;
 
@@ -85,9 +87,10 @@ namespace Wpf.ViewModels.CustomTypes
 
             IsJumpsContinue = false;
 
-            _reporter?.ReportInfo($"{Side}: " + (_requiredJumps.Any()
-                ? "Choose the cell for the required jump"
-                : "Choose the cell for the turn"));
+            _reporter?.ReportInfo(string.Format("{0}: {1}", Side,
+                _requiredJumps.Any()
+                ? Resources.WpfPlayer_JumpTurn_Start
+                : Resources.WpfPlayer_SimpleTurn));
         }
     }
 }

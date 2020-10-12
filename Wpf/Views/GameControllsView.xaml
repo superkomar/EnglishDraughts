@@ -5,6 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:System="clr-namespace:System;assembly=mscorlib"
       xmlns:enums="clr-namespace:Core.Enums;assembly=Core"
+      xmlns:resx="clr-namespace:Wpf.Properties"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800">
 
@@ -63,18 +64,18 @@
 
             <!--Firt Row-->
             <Button Grid.Row="0" Grid.Column="0"
-                    Content="Start"
+                    Content="{x:Static resx:Resources.Wpf_ButtonContent_Start}"
                     Command="{Binding StartCmd.Value, Mode=TwoWay}"
                     IsEnabled="{Binding StartCmd.IsEnabled, Mode=TwoWay}"/>
 
             <Button Grid.Row="0" Grid.Column="1"
-                    Content="Finish"
+                    Content="{x:Static resx:Resources.Wpf_ButtonContent_Finish}"
                     Command="{Binding FinishCmd.Value, Mode=TwoWay}"
                     IsEnabled="{Binding FinishCmd.IsEnabled, Mode=TwoWay}"/>
 
             <!--Second Row-->
             <TextBlock Grid.Row="1" Grid.Column="0"
-                       Text="Choose your side:"/>
+                       Text="{x:Static resx:Resources.Wpf_TextBlock_ChooseSide}"/>
 
             <ComboBox Grid.Row="1" Grid.Column="1"
                       ItemsSource="{Binding Source={StaticResource dataFromEnum}}"
@@ -83,7 +84,7 @@
 
             <!--Fourth Row-->
             <TextBlock Grid.Row="2" Grid.Column="0"
-                       Text="Robot Time (ms):"/>
+                       Text="{x:Static resx:Resources.Wpf_TextBlock_RobotTime}"/>
 
             <TextBox Grid.Row="2" Grid.Column="1"
                      VerticalAlignment="Center"
@@ -93,12 +94,12 @@
 
             <!--Firt Row-->
             <Button Grid.Row="3" Grid.Column="0"
-                    Content="Undo"
+                    Content="{x:Static resx:Resources.Wpf_ButtonContent_Undo}"
                     Command="{Binding UndoCmd.Value}"
                     IsEnabled="{Binding UndoCmd.IsEnabled}"/>
 
             <Button Grid.Row="3" Grid.Column="1"
-                    Content="Redo"
+                    Content="{x:Static resx:Resources.Wpf_ButtonContent_Redo}"
                     Command="{Binding RedoCmd.Value}"
                     IsEnabled="{Binding RedoCmd.IsEnabled}"/>
             

@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="clr-namespace:Wpf.Views"
+        xmlns:resx="clr-namespace:Wpf.Properties"
         mc:Ignorable="d"
         Title="English Draughts" Height="538" Width="800">
 
@@ -24,7 +25,7 @@
 
         <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right">
 
-            <GroupBox Header="GameStatus" DockPanel.Dock="Top">
+            <GroupBox Header="{x:Static resx:Resources.Wpf_Header_GameStatus}" DockPanel.Dock="Top">
                 <TextBlock
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"

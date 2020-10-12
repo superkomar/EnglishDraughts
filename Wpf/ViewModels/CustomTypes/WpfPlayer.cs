@@ -5,6 +5,7 @@ using Core.Interfaces;
 using Core.Models;
 
 using Wpf.Interfaces;
+using Wpf.Properties;
 
 namespace Wpf.ViewModels.CustomTypes
 {
@@ -26,8 +27,8 @@ namespace Wpf.ViewModels.CustomTypes
 
         public void FinishGame(PlayerSide winner)
         {
-            _resultMailbox?.Send(null);
-            _reporter?.ReportInfo($"Winner is {winner}");
+            _resultMailbox?.Send(default);
+            _reporter?.ReportInfo($"{Resources.WpfPlayer_WinnerIs} {winner}");
         }
 
         public void InitGame(PlayerSide side)

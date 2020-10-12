@@ -3,6 +3,7 @@
 using Core.Enums;
 
 using Wpf.Interfaces;
+using Wpf.Properties;
 using Wpf.ViewModels.CustomTypes;
 
 namespace Wpf.ViewModels
@@ -26,7 +27,7 @@ namespace Wpf.ViewModels
             RedoCmd = new ValueWithEnableToggle<ICommand>(new RelayCommand(RedoCmdExecute), isEnable: false);
 
             Side = new ValueWithEnableToggle<PlayerSide>(PlayerSide.White, isEnable: true);
-            RobotTime = new ValueWithEnableToggle<int>(Constants.DefaultRobotTimeMs, isEnable: false, nameof(RobotTime));
+            RobotTime = new ValueWithEnableToggle<int>(Settings.Default.DefaultRobotTimeMs, isEnable: false, nameof(RobotTime));
         }
 
         #region IGameControllsVM

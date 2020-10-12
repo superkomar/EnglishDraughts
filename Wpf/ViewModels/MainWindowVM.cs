@@ -9,21 +9,20 @@ using Core.Models;
 using Robot;
 
 using Wpf.Interfaces;
+using Wpf.Properties;
 using Wpf.ViewModels.CustomTypes;
 
 namespace Wpf.ViewModels
 {
     internal class MainWindowVM : NotifyPropertyChanged
     {
-        private const string StartStatusText = "Wait for the game to start";
-
         private readonly RobotLauncher _robotLauncher;
         private readonly WpfPlayer _wpfPlayer;
         private GameController _gameController;
         public MainWindowVM()
         {
             Reporter = new StatusReporter();
-            Reporter.ReportInfo(StartStatusText);
+            Reporter.ReportInfo(Resources.WpfPlalyer_StartStatus);
 
             _wpfPlayer = new WpfPlayer(VMLocator.GameFieldVM, VMLocator.GameControllsVM, Reporter);
             _robotLauncher = new RobotLauncher(VMLocator.GameControllsVM.RobotTime.Value);
