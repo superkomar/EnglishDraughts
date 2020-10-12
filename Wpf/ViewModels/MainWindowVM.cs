@@ -83,7 +83,7 @@ namespace Wpf.ViewModels
             var (Black, White) = GetPlayers();
 
             _gameController = new GameController(
-                Core.Constants.FieldDimension,
+                Settings.Default.DefaultFieldDimension,
                 blackPlayer: Black,
                 whitePlayer: White);
 

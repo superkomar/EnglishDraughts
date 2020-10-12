@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using Core;
 using Core.Enums;
 using Core.Interfaces;
 using Core.Models;
@@ -33,7 +34,7 @@ namespace Wpf.ViewModels
 
         public event EventHandler RedrawField;
 
-        public int Dimension { get; private set; } = Core.Constants.FieldDimension;
+        public int Dimension { get; private set; } = Constants.DefaultFieldDimension;
 
         public ICellHandler GetCellHandler(int posX, int posY) => GetCellHandler(posX * Dimension + posY);
 

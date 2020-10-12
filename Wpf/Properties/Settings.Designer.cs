@@ -34,5 +34,17 @@ namespace Wpf.Properties {
                 this["DefaultRobotTimeMs"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8")]
+        public int DefaultFieldDimension {
+            get {
+                return ((int)(this["DefaultFieldDimension"]));
+            }
+            set {
+                this["DefaultFieldDimension"] = value;
+            }
+        }
     }
 }
