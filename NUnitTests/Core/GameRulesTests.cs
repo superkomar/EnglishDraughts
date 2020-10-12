@@ -72,11 +72,11 @@ namespace NUnitTests.Core
         [Test]
         public void Test_IsValidCellIdx()
         {
-            Assert.IsTrue(GameRules.IsValidCellIdx(_gameField, 1));
-            Assert.IsTrue(GameRules.IsValidCellIdx(_gameField, 3));
+            Assert.IsTrue(_gameField.IsValidCellIdx(1));
+            Assert.IsTrue(_gameField.IsValidCellIdx(3));
 
-            Assert.IsFalse(GameRules.IsValidCellIdx(_gameField, -1));
-            Assert.IsFalse(GameRules.IsValidCellIdx(_gameField, _gameField.Dimension * _gameField.Dimension));
+            Assert.IsFalse(_gameField.IsValidCellIdx(-1));
+            Assert.IsFalse(_gameField.IsValidCellIdx(_gameField.Dimension * _gameField.Dimension));
         }
 
         [Test]

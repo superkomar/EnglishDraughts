@@ -59,39 +59,39 @@ namespace NUnitTests.Core
             Assert.Throws<ArgumentException>(() => ModelsCreator.CreateGameField(0));
 
             var field_1 = ModelsCreator.CreateGameField(1);
-            Assert.AreEqual(field_1.Field.Count, 1);
-            Assert.AreEqual(field_1.Field[0], CellState.Empty);
+            Assert.AreEqual(field_1.CellsCount, 1);
+            Assert.AreEqual(field_1[0], CellState.Empty);
 
             var field_2 = ModelsCreator.CreateGameField(2);
-            Assert.AreEqual(field_2.Field.Count, 4);
-            Assert.AreEqual(field_2.Field[0], CellState.Empty);
-            Assert.AreEqual(field_2.Field[1], CellState.Empty);
-            Assert.AreEqual(field_2.Field[2], CellState.Empty);
-            Assert.AreEqual(field_2.Field[3], CellState.Empty);
+            Assert.AreEqual(field_2.CellsCount, 4);
+            Assert.AreEqual(field_2[0], CellState.Empty);
+            Assert.AreEqual(field_2[1], CellState.Empty);
+            Assert.AreEqual(field_2[2], CellState.Empty);
+            Assert.AreEqual(field_2[3], CellState.Empty);
 
             var field_3 = ModelsCreator.CreateGameField(3);
-            Assert.AreEqual(field_3.Field.Count, 9);
-            Assert.AreEqual(field_3.Field[1], CellState.Empty);
-            Assert.AreEqual(field_3.Field[3], CellState.Empty);
-            Assert.AreEqual(field_3.Field[7], CellState.Empty);
+            Assert.AreEqual(field_3.CellsCount, 9);
+            Assert.AreEqual(field_3[1], CellState.Empty);
+            Assert.AreEqual(field_3[3], CellState.Empty);
+            Assert.AreEqual(field_3[7], CellState.Empty);
 
             var field_4 = ModelsCreator.CreateGameField(4);
-            Assert.AreEqual(field_4.Field.Count, 16);
-            Assert.AreEqual(field_4.Field[1],  CellState.BlackMen);
-            Assert.AreEqual(field_4.Field[4],  CellState.Empty);
-            Assert.AreEqual(field_4.Field[9],  CellState.Empty);
-            Assert.AreEqual(field_4.Field[12], CellState.WhiteMen);
+            Assert.AreEqual(field_4.CellsCount, 16);
+            Assert.AreEqual(field_4[1],  CellState.BlackMen);
+            Assert.AreEqual(field_4[4],  CellState.Empty);
+            Assert.AreEqual(field_4[9],  CellState.Empty);
+            Assert.AreEqual(field_4[12], CellState.WhiteMen);
 
             var field_8 = ModelsCreator.CreateGameField(8);
-            Assert.AreEqual(field_8.Field.Count, 64);
-            Assert.AreEqual(field_8.Field[1],  CellState.BlackMen);
-            Assert.AreEqual(field_8.Field[8],  CellState.BlackMen);
-            Assert.AreEqual(field_8.Field[17], CellState.BlackMen);
-            Assert.AreEqual(field_8.Field[24], CellState.Empty);
-            Assert.AreEqual(field_8.Field[33], CellState.Empty);
-            Assert.AreEqual(field_8.Field[40], CellState.WhiteMen);
-            Assert.AreEqual(field_8.Field[49], CellState.WhiteMen);
-            Assert.AreEqual(field_8.Field[56], CellState.WhiteMen);
+            Assert.AreEqual(field_8.CellsCount, 64);
+            Assert.AreEqual(field_8[1],  CellState.BlackMen);
+            Assert.AreEqual(field_8[8],  CellState.BlackMen);
+            Assert.AreEqual(field_8[17], CellState.BlackMen);
+            Assert.AreEqual(field_8[24], CellState.Empty);
+            Assert.AreEqual(field_8[33], CellState.Empty);
+            Assert.AreEqual(field_8[40], CellState.WhiteMen);
+            Assert.AreEqual(field_8[49], CellState.WhiteMen);
+            Assert.AreEqual(field_8[56], CellState.WhiteMen);
         }
 
         [Test]
