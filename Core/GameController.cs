@@ -53,7 +53,8 @@ namespace Core
 
             while (_isGameRunning)
             {
-                yield return await MakeTurnAsync();
+                yield return await MakeTurnAsync()
+                    .ConfigureAwait(continueOnCapturedContext: false);
             }
         }
 
@@ -98,7 +99,8 @@ namespace Core
             var (Player, Side) = _playersControl.GetNextPlayer();
 
             // Get turn
-            var newTurn = await Task.Run(() => Player.MakeTurn(_modelController.Field));
+            var newTurn = await Task.Run(() => Player.MakeTurn(_modelController.Field))
+                .ConfigureAwait(continueOnCapturedContext: false);
 
             // Check if game stoped
             if (FinalGameState != null) return FinalGameState.Value;

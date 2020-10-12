@@ -1,12 +1,13 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 using Core.Enums;
 
-namespace Core.Models
+namespace Core.Helpers
 {
-    class FieldCellCollection : IReadOnlyList<CellState>
+    internal class FieldCellCollection : IReadOnlyList<CellState>
     {
         private const int CellStateBitMask = 7;
         private const int CellStateBitSize = 3;
@@ -19,7 +20,7 @@ namespace Core.Models
             Dimension = dimension;
             Count = Dimension * Dimension;
 
-            var result = new int[(Count + 2 * (CellStateIntCount - 1)) / CellStateIntCount / 2];
+            var result = new int[(int)Math.Ceiling((double)Count / CellStateIntCount / 2)];
 
             foreach (var (state, idx) in field.Select((x, idx) => (x, idx)))
             {

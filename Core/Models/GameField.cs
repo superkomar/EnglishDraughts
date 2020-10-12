@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 
 using Core.Enums;
 using Core.Extensions;
+using Core.Helpers;
 
 [assembly: InternalsVisibleTo("NUnitTests")]
 namespace Core.Models
