@@ -11,7 +11,7 @@ namespace Core.Utils
 {
     using Direction = NeighborsFinder.DirectionType;
 
-    public static class TurnUtils
+    public static class GameTurnUtils
     {
         public static IGameTurn CreateCompositeTurn(IReadOnlyCollection<IGameTurn> turns)
         {
@@ -61,7 +61,7 @@ namespace Core.Utils
                 : CreateJumpTurn(field, playerSide, startIdx, endIdx);
 
         public static IEnumerable<IGameTurn> FindRequiredJumps(GameField field, PlayerSide side) =>
-            field.Field.SelectMany(
+            field.Cells.SelectMany(
                 (cell, idx) => cell.IsSameSide(side)
                 ? FindTurnsForCell(field, idx, TurnType.Jump)
                 : Enumerable.Empty<IGameTurn>());
@@ -80,7 +80,7 @@ namespace Core.Utils
         }
 
         public static IEnumerable<IGameTurn> FindTurnsForSide(GameField field, PlayerSide side) =>
-            field.Field.SelectMany(
+            field.Cells.SelectMany(
                 (cell, idx) => cell.IsSameSide(side)
                 ? FindTurnsForCell(field, idx)
                 : Enumerable.Empty<IGameTurn>());

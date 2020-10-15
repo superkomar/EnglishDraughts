@@ -90,7 +90,7 @@ namespace Robot
 
             foreach (var (turn, idx) in newTurns.Select((t, i) => (t, i)))
             {
-                FieldUtils.TryCreateField(oldField.Origin, turn, out GameField newField);
+                GameFieldUtils.TryCreateField(oldField.Origin, turn, out GameField newField);
                 var turnMetric = MetricsProcessor.CompareWithMetrics(oldField, new RobotField(newField), turn.Side);
 
                 if (turnMetric < minPriority)
@@ -114,7 +114,7 @@ namespace Robot
             }
 
             // Check the turn is correct
-            if (!FieldUtils.TryCreateField(oldField.Origin, turn, out GameField newCoreField))
+            if (!GameFieldUtils.TryCreateField(oldField.Origin, turn, out GameField newCoreField))
             { 
                 parameters.TargetTurn.ClarifyPriority(double.NegativeInfinity);
                 throw new ArgumentException($"Invalid turn: {turn}");

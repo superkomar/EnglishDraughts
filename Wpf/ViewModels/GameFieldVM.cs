@@ -28,12 +28,12 @@ namespace Wpf.ViewModels
             _turnsController = new TurnsConstructor();
             _selectionController = new SelectionController(_turnsController);
 
-            InitGameField(FieldUtils.CreateField(Dimension));
+            InitGameField(GameFieldUtils.CreateField(Dimension));
         }
 
         #region ICellHandlersController
 
-        public event EventHandler RedrawField;
+        public event EventHandler RedrawFieldEvent;
 
         public int Dimension { get; private set; } = Settings.Default.DefaultFieldDimension;
 
@@ -61,12 +61,12 @@ namespace Wpf.ViewModels
 
             UpdateGameField(gameField, isCreateNew: true);
 
-            RiseRedrawFieldEvent();
+            RaiseRedrawFieldEvent();
         }
 
         public void UpdateGameField(GameField gameField) => UpdateGameField(gameField, isCreateNew: false);
 
-        private void RiseRedrawFieldEvent() => RedrawField?.Invoke(this, EventArgs.Empty);
+        private void RaiseRedrawFieldEvent() => RedrawFieldEvent?.Invoke(this, EventArgs.Empty);
 
         private void UpdateGameField(GameField gameField, bool isCreateNew)
         {

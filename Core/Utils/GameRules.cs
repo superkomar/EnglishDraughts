@@ -23,7 +23,7 @@ namespace Core.Utils
         {
             var oppositeSide = side.ToOpposite();
             return !field.AreAnyPieces(oppositeSide)
-                || !TurnUtils.FindTurnsForSide(field, oppositeSide).Any();
+                || !GameTurnUtils.FindTurnsForSide(field, oppositeSide).Any();
         }
         
         public static bool IsValidTurnEnd(GameField field, int cellIdx) =>

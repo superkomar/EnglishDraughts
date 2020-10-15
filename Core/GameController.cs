@@ -126,7 +126,7 @@ namespace Core
         private bool TryUpdateField(IGameTurn newTurn)
         {
             if (newTurn == null ||
-                !FieldUtils.TryCreateField(_modelController.Field, newTurn, out GameField newGameField))
+                !GameFieldUtils.TryCreateField(_modelController.Field, newTurn, out GameField newGameField))
             {
                 return false;
             }

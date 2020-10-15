@@ -38,7 +38,7 @@ namespace Robot.Models
 
         public GameField Origin { get; }
 
-        public IReadOnlyList<CellState> Field => Origin.Field;
+        public IReadOnlyList<CellState> Field => Origin.Cells;
 
         public IReadOnlyList<int> BlackPices { get; }
 

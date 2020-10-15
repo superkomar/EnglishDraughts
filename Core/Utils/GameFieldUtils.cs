@@ -10,7 +10,7 @@ using Core.Properties;
 
 namespace Core.Utils
 {
-    public static class FieldUtils
+    public static class GameFieldUtils
     {
         public static GameField CreateField(int dimension)
         {
@@ -19,25 +19,25 @@ namespace Core.Utils
             return new GameField(ConstructInitialField(dimension), new NeighborsFinder(dimension), dimension);
         }
 
-        public static bool TryCreateField(GameField oldField, IGameTurn gameTurn, out GameField newField)
+        public static bool TryCreateField(GameField oldField, IGameTurn turn, out GameField newField)
         {
             newField = oldField;
 
-            if (gameTurn == null ||
-                gameTurn.IsSimple && TurnUtils.FindRequiredJumps(oldField, gameTurn.Side).Any())
+            if (turn == null ||
+                turn.IsSimple && GameTurnUtils.FindRequiredJumps(oldField, turn.Side).Any())
             {
                 return false;
             }
 
-            var newCells = new List<CellState>(oldField.Field);
-            var cellState = newCells[gameTurn.Steps.First()];
+            var newCells = new List<CellState>(oldField.Cells);
+            var cellState = newCells[turn.Steps.First()];
 
-            foreach (var turn in gameTurn.Steps.Take(gameTurn.Steps.Count - 1))
+            foreach (var step in turn.Steps.Take(turn.Steps.Count - 1))
             {
-                newCells[turn] = CellState.Empty;
+                newCells[step] = CellState.Empty;
             }
 
-            newCells[gameTurn.Steps.Last()] = gameTurn.IsLevelUp ? cellState.LevelUp() : cellState;
+            newCells[turn.Steps.Last()] = turn.IsLevelUp ? cellState.LevelUp() : cellState;
 
             newField = new GameField(newCells, oldField);
 

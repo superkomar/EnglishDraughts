@@ -43,7 +43,7 @@ namespace Wpf.ViewModels.CustomTypes
 
         public Result TryMakeTurn(int start, int end)
         {
-            var gameTurn = TurnUtils.CreateTurnByCells(_gameField, Side, start, end);
+            var gameTurn = GameTurnUtils.CreateTurnByCells(_gameField, Side, start, end);
             
             if (gameTurn == null || (gameTurn.IsSimple && _requiredJumps.Any()))
             {
@@ -52,11 +52,11 @@ namespace Wpf.ViewModels.CustomTypes
 
             _turns.Add(gameTurn);
 
-            FieldUtils.TryCreateField(_gameField, gameTurn, out GameField newField);
+            GameFieldUtils.TryCreateField(_gameField, gameTurn, out GameField newField);
 
             // Not the last jump
             if (!gameTurn.IsSimple && !gameTurn.IsLevelUp &&
-                TurnUtils.FindTurnsForCell(newField, gameTurn.Steps.Last(), TurnType.Jump).Any())
+                GameTurnUtils.FindTurnsForCell(newField, gameTurn.Steps.Last(), TurnType.Jump).Any())
             {
                 _reporter?.ReportStatus(
                     $"{Side}: {Resources.WpfPlayer_JumpTurn_Continue}");
@@ -68,7 +68,7 @@ namespace Wpf.ViewModels.CustomTypes
                 return Result.Continue;
             }
 
-            _sender?.Send(TurnUtils.CreateCompositeTurn(_turns));
+            _sender?.Send(GameTurnUtils.CreateCompositeTurn(_turns));
 
             return Result.Ok;
         }
@@ -83,7 +83,7 @@ namespace Wpf.ViewModels.CustomTypes
             _sender = sender;
 
             _turns = new List<IGameTurn>();
-            _requiredJumps = TurnUtils.FindRequiredJumps(_gameField, Side);
+            _requiredJumps = GameTurnUtils.FindRequiredJumps(_gameField, Side);
 
             DoJumpsContinue = false;
 

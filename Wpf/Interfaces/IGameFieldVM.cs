@@ -4,7 +4,7 @@ namespace Wpf.Interfaces
 {
     internal interface ICellHandlersController
     {
-        event EventHandler RedrawField;
+        event EventHandler RedrawFieldEvent;
 
         int Dimension { get; }
 

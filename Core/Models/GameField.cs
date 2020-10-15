@@ -42,11 +42,11 @@ namespace Core.Models
 
         public int Dimension => _cellCollection.Dimension;
 
-        public IReadOnlyList<CellState> Field => _cellCollection;
+        public IReadOnlyList<CellState> Cells => _cellCollection;
         
         public NeighborsFinder NeighborsFinder { get; }
 
-        public CellState this[int idx] => Field.ElementAtOrDefault(idx);
+        public CellState this[int idx] => Cells.ElementAtOrDefault(idx);
 
         public bool AreAnyPieces(PlayerSide side) =>
             side == PlayerSide.Black ? _areBlackPiecesPresent : _areWhitePiecesPresent;

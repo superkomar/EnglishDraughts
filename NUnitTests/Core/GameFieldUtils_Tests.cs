@@ -51,14 +51,14 @@ namespace NUnitTests.Core
 
             _customField = new GameField(cells, new NeighborsFinder(Dimension), Dimension);
             
-            _defaultField = FieldUtils.CreateField(8);
+            _defaultField = GameFieldUtils.CreateField(8);
         }
 
         [Test]
         public void GameFieldUtils_FindRequiredJumps()
         {
-            var jumpsBlack = TurnUtils.FindRequiredJumps(_customField, PlayerSide.Black).ToArray();
-            var jumpsWhite = TurnUtils.FindRequiredJumps(_customField, PlayerSide.White).ToArray();
+            var jumpsBlack = GameTurnUtils.FindRequiredJumps(_customField, PlayerSide.Black).ToArray();
+            var jumpsWhite = GameTurnUtils.FindRequiredJumps(_customField, PlayerSide.White).ToArray();
 
             Assert.AreEqual(jumpsBlack.Length, 3);
             Assert.AreEqual(jumpsWhite.Length, 5);
@@ -77,8 +77,8 @@ namespace NUnitTests.Core
         [Test]
         public void FindTurnsForCell_Test_DefaultField()
         {
-            var blackTurns = new List<IGameTurn>(TurnUtils.FindRequiredJumps(_defaultField, PlayerSide.Black).ToArray());
-            var whiteTurns = new List<IGameTurn>(TurnUtils.FindRequiredJumps(_defaultField, PlayerSide.White).ToArray());
+            var blackTurns = new List<IGameTurn>(GameTurnUtils.FindRequiredJumps(_defaultField, PlayerSide.Black).ToArray());
+            var whiteTurns = new List<IGameTurn>(GameTurnUtils.FindRequiredJumps(_defaultField, PlayerSide.White).ToArray());
 
             Assert.AreEqual(blackTurns.Count, 0);
             Assert.AreEqual(whiteTurns.Count, 0);
@@ -154,7 +154,7 @@ namespace NUnitTests.Core
 
                     if (field[cellIdx] == CellState.Empty) continue;
 
-                    var cellTurns = TurnUtils.FindTurnsForCell(field, cellIdx);
+                    var cellTurns = GameTurnUtils.FindTurnsForCell(field, cellIdx);
 
                     if (field[cellIdx].IsSameSide(PlayerSide.Black))
                     {

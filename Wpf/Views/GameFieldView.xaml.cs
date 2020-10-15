@@ -29,7 +29,7 @@ namespace Wpf.Views
 
         private void AttachHandlers()
         {
-            _cellHandlersController.RedrawField += OnRedrawFieldEvent;
+            _cellHandlersController.RedrawFieldEvent += OnRedrawFieldEvent;
         }
 
         private void OnRedrawFieldEvent(object sender, EventArgs e)
@@ -40,7 +40,7 @@ namespace Wpf.Views
 
         private void DetachHandlers()
         {
-            _cellHandlersController.RedrawField -= OnRedrawFieldEvent;
+            _cellHandlersController.RedrawFieldEvent -= OnRedrawFieldEvent;
         }
         
         private void InitGameField()

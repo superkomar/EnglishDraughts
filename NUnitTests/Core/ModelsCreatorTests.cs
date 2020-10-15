@@ -55,34 +55,34 @@ namespace NUnitTests.Core
         [Test]
         public void ModelsCreator_CreateNewGameField()
         {
-            Assert.Throws<ArgumentException>(() => FieldUtils.CreateField(-1));
-            Assert.Throws<ArgumentException>(() => FieldUtils.CreateField(0));
+            Assert.Throws<ArgumentException>(() => GameFieldUtils.CreateField(-1));
+            Assert.Throws<ArgumentException>(() => GameFieldUtils.CreateField(0));
 
-            var field_1 = FieldUtils.CreateField(1);
+            var field_1 = GameFieldUtils.CreateField(1);
             Assert.AreEqual(field_1.CellCount, 1);
             Assert.AreEqual(field_1[0], CellState.Empty);
 
-            var field_2 = FieldUtils.CreateField(2);
+            var field_2 = GameFieldUtils.CreateField(2);
             Assert.AreEqual(field_2.CellCount, 4);
             Assert.AreEqual(field_2[0], CellState.Empty);
             Assert.AreEqual(field_2[1], CellState.Empty);
             Assert.AreEqual(field_2[2], CellState.Empty);
             Assert.AreEqual(field_2[3], CellState.Empty);
 
-            var field_3 = FieldUtils.CreateField(3);
+            var field_3 = GameFieldUtils.CreateField(3);
             Assert.AreEqual(field_3.CellCount, 9);
             Assert.AreEqual(field_3[1], CellState.Empty);
             Assert.AreEqual(field_3[3], CellState.Empty);
             Assert.AreEqual(field_3[7], CellState.Empty);
 
-            var field_4 = FieldUtils.CreateField(4);
+            var field_4 = GameFieldUtils.CreateField(4);
             Assert.AreEqual(field_4.CellCount, 16);
             Assert.AreEqual(field_4[1],  CellState.BlackMan);
             Assert.AreEqual(field_4[4],  CellState.Empty);
             Assert.AreEqual(field_4[9],  CellState.Empty);
             Assert.AreEqual(field_4[12], CellState.WhiteMan);
 
-            var field_8 = FieldUtils.CreateField(8);
+            var field_8 = GameFieldUtils.CreateField(8);
             Assert.AreEqual(field_8.CellCount, 64);
             Assert.AreEqual(field_8[1],  CellState.BlackMan);
             Assert.AreEqual(field_8[8],  CellState.BlackMan);
@@ -100,12 +100,12 @@ namespace NUnitTests.Core
             // incorrect
             foreach (var playerSide in new[] { PlayerSide.Black, PlayerSide.White })
             {
-                Assert.AreEqual(TurnUtils.CreateTurnByCells(_gameField, playerSide,  1,  1), null);
-                Assert.AreEqual(TurnUtils.CreateTurnByCells(_gameField, playerSide, -1,  1), null);
-                Assert.AreEqual(TurnUtils.CreateTurnByCells(_gameField, playerSide,  1, -1), null);
-                Assert.AreEqual(TurnUtils.CreateTurnByCells(_gameField, playerSide,  1, -1), null);
-                Assert.AreEqual(TurnUtils.CreateTurnByCells(_gameField, playerSide,  40, 33), null);
-                Assert.AreEqual(TurnUtils.CreateTurnByCells(_gameField, playerSide,  33, 40), null);
+                Assert.AreEqual(GameTurnUtils.CreateTurnByCells(_gameField, playerSide,  1,  1), null);
+                Assert.AreEqual(GameTurnUtils.CreateTurnByCells(_gameField, playerSide, -1,  1), null);
+                Assert.AreEqual(GameTurnUtils.CreateTurnByCells(_gameField, playerSide,  1, -1), null);
+                Assert.AreEqual(GameTurnUtils.CreateTurnByCells(_gameField, playerSide,  1, -1), null);
+                Assert.AreEqual(GameTurnUtils.CreateTurnByCells(_gameField, playerSide,  40, 33), null);
+                Assert.AreEqual(GameTurnUtils.CreateTurnByCells(_gameField, playerSide,  33, 40), null);
             }
 
             // Black pieces
@@ -167,7 +167,7 @@ namespace NUnitTests.Core
 
         private void CreateSimpleTurns(GameField field, PlayerSide side, int start, int end, bool mustNull, bool isLevelUp = false)
         {
-            var srcTurn = TurnUtils.CreateTurnByCells(field, side, start, end);
+            var srcTurn = GameTurnUtils.CreateTurnByCells(field, side, start, end);
 
             if (mustNull) Assert.AreEqual(srcTurn, null);
             else CompareTurns(srcTurn, new GameTurn(side, isLevelUp, new[] { start, end }));

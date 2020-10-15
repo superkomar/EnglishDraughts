@@ -42,7 +42,7 @@ namespace Robot.Extensions
 
             void Processor(int cellIdx)
             {
-                var cellTurns = TurnUtils.FindTurnsForCell(gameField, cellIdx);
+                var cellTurns = GameTurnUtils.FindTurnsForCell(gameField, cellIdx);
 
                 foreach (var turn in cellTurns)
                 {
@@ -60,14 +60,14 @@ namespace Robot.Extensions
         {
             foreach (var jump in jumps)
             {
-                FieldUtils.TryCreateField(oldField, jump, out GameField newField);
-                var subJumps = GetCompositeJumps(newField, TurnUtils.FindTurnsForCell(newField, jump.Steps.Last(), TurnType.Jump));
+                GameFieldUtils.TryCreateField(oldField, jump, out GameField newField);
+                var subJumps = GetCompositeJumps(newField, GameTurnUtils.FindTurnsForCell(newField, jump.Steps.Last(), TurnType.Jump));
 
                 if (subJumps.Any() && !jump.IsLevelUp)
                 {
                     foreach (var subJump in subJumps)
                     {
-                        yield return TurnUtils.CreateCompositeTurn(new[] { jump, subJump });
+                        yield return GameTurnUtils.CreateCompositeTurn(new[] { jump, subJump });
                     }
                 }
                 else
