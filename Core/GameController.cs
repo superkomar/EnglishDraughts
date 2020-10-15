@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+using Core.Enums;
 using Core.Extensions;
 using Core.Helpers;
 using Core.Interfaces;
@@ -23,7 +24,6 @@ namespace Core
             if (whitePlayer == null || blackPlayer == null) throw new ArgumentNullException();
 
             _modelController = new ModelController(dimension);
-
             _playersControl = new PlayerStateMachine(blackPlayer, whitePlayer);
 
             _isGameRunning = _isHistoryRolling = false;
@@ -36,7 +36,7 @@ namespace Core
         public void Redo(int deep)
         {
             _modelController.Redo(deep);
-            HistoryRolling();
+            HistoryTraverser();
         }
 
         public async IAsyncEnumerable<GameState> StartGameAsync()
@@ -47,7 +47,7 @@ namespace Core
                 yield break;
             }
 
-            yield return new GameState(_modelController.Field, GameState.StateType.Start, _playersControl.CurPlayer.Side);
+            yield return new GameState(_modelController.Field, StateType.Start, _playersControl.CurPlayer.Side);
 
             _isGameRunning = true;
 
@@ -66,7 +66,7 @@ namespace Core
 
                 var winner = _playersControl.CurPlayer.Side.ToOpposite();
 
-                FinalGameState = new GameState(_modelController.Field, GameState.StateType.Finish, winner);
+                FinalGameState = new GameState(_modelController.Field, StateType.Finish, winner);
 
                 _playersControl.BlackPlayer.StopTurn();
                 _playersControl.WhitePlayer.StopTurn();
@@ -76,16 +76,16 @@ namespace Core
         public void Undo(int deep)
         {
             _modelController.Undo(deep);
-            HistoryRolling();
+            HistoryTraverser();
         }
 
         #endregion
 
-        private void HistoryRolling()
+        private void HistoryTraverser()
         {
             _isHistoryRolling = true;
             _playersControl.CurPlayer.Player.StopTurn();
-            _playersControl.ChangeStateForOneGet(PlayerStateMachine.MachineState.Repeat);
+            _playersControl.ChangeStateForNextGet(PlayerStateMachine.MachineState.Repeat);
         }
 
         private async Task<GameState> MakeTurnAsync()
@@ -112,12 +112,12 @@ namespace Core
                 var success = TryUpdateField(newTurn);
 
                 // Check end of game
-                if (!success || GameRules.IsPlayerWin(_modelController.Field, Side))
+                if (!success || GameRules.HasPlayerWon(_modelController.Field, Side))
                 {
                     _isGameRunning = false;
                     var winner = success ? Side : Side.ToOpposite();
 
-                    FinalGameState = new GameState(_modelController.Field, GameState.StateType.Finish, winner);
+                    FinalGameState = new GameState(_modelController.Field, StateType.Finish, winner);
 
                     return FinalGameState.Value;
                 }
@@ -125,13 +125,13 @@ namespace Core
 
             _isHistoryRolling = false;
 
-            return new GameState(_modelController.Field, GameState.StateType.Turn, Side);
+            return new GameState(_modelController.Field, StateType.Turn, Side);
         }
 
         private bool TryUpdateField(IGameTurn newTurn)
         {
             if (newTurn == null ||
-                !GameFieldUtils.TryMakeTurn(_modelController.Field, newTurn, out GameField newGameField))
+                !FieldUtils.TryCreateField(_modelController.Field, newTurn, out GameField newGameField))
             {
                 return false;
             }

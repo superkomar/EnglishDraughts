@@ -35,7 +35,7 @@ namespace Wpf.ViewModels.CustomTypes
 
             if (_lastSelectedCell == null)
             {
-                if (_turnController.CheckTurnStartCell(cellHandler.CellIdx) &&
+                if (_turnController.CheckTurnStart(cellHandler.CellIdx) &&
                     cellHandler.CellState.IsSameSide(_turnController.Side))
                 {
                     _lastSelectedCell = cellHandler;

@@ -12,7 +12,7 @@ namespace Wpf.Interfaces
         void Send(T value);
     }
 
-    public interface ISingleUseResultMailbox<T> : IResultReceiver<T>, IResultSender<T>
+    public interface ISingleUseResultChannel<T> : IResultReceiver<T>, IResultSender<T>
     {
         void Cancel();
     }

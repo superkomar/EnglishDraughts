@@ -35,17 +35,17 @@ namespace NUnitTests.Core
                 }
             }
 
-            field[1] = field[17] = field[56] = CellState.BlackMen;
+            field[1] = field[17] = field[56] = CellState.BlackMan;
             field[3] = field[19] = field[58] = CellState.BlackKing;
-            field[5] = field[21] = field[60] = CellState.WhiteMen;
+            field[5] = field[21] = field[60] = CellState.WhiteMan;
             field[7] = field[23] = field[62] = CellState.WhiteKing;
 
             field[49] = CellState.WhiteKing;
-            field[51] = CellState.WhiteMen;
+            field[51] = CellState.WhiteMan;
             field[53] = CellState.BlackKing;
-            field[55] = CellState.BlackMen;
+            field[55] = CellState.BlackMan;
 
-            _gameField = new GameField(field, new NeighborsHelper(Dimension), Dimension);
+            _gameField = new GameField(field, new NeighborsFinder(Dimension), Dimension);
         }
 
         [Test]

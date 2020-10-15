@@ -5,11 +5,11 @@ using Wpf.Interfaces;
 
 namespace Wpf.ViewModels.CustomTypes
 {
-    public class SingleUseResultMailbox<T> : ISingleUseResultMailbox<T>
+    public class SingleUseResultChannel<T> : ISingleUseResultChannel<T>
     {
         private readonly TaskCompletionSource<T> _taskCompletionSource;
 
-        public SingleUseResultMailbox()
+        public SingleUseResultChannel()
         {
             _taskCompletionSource = new TaskCompletionSource<T>(TaskCreationOptions.RunContinuationsAsynchronously);
         }

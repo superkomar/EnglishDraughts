@@ -25,15 +25,19 @@
 
         <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right">
 
-            <GroupBox Header="{x:Static resx:Resources.Wpf_Header_GameStatus}" DockPanel.Dock="Top">
+            <GroupBox DockPanel.Dock="Top"
+                      Header="{x:Static resx:Resources.Wpf_Header_GameStatus}">
+                
                 <TextBlock
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
-                    Text="{Binding Reporter.Info, Mode=OneWay}"
+                    Text="{Binding Reporter.Status, Mode=OneWay}"
                     Margin="5"/>
             </GroupBox>
 
-            <GroupBox Header="Controls" DockPanel.Dock="Top" Height="Auto">
+            <GroupBox DockPanel.Dock="Top" Height="Auto"
+                      Header="{x:Static resx:Resources.Wpf_Header_Controls}">
+                
                 <views:GameControllsView/>
             </GroupBox>
 

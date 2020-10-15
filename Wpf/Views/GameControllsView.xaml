@@ -65,13 +65,13 @@
             <!--Firt Row-->
             <Button Grid.Row="0" Grid.Column="0"
                     Content="{x:Static resx:Resources.Wpf_ButtonContent_Start}"
-                    Command="{Binding StartCmd.Value, Mode=TwoWay}"
-                    IsEnabled="{Binding StartCmd.IsEnabled, Mode=TwoWay}"/>
+                    Command="{Binding StartGameCmd.Value, Mode=TwoWay}"
+                    IsEnabled="{Binding StartGameCmd.IsEnabled, Mode=TwoWay}"/>
 
             <Button Grid.Row="0" Grid.Column="1"
                     Content="{x:Static resx:Resources.Wpf_ButtonContent_Finish}"
-                    Command="{Binding FinishCmd.Value, Mode=TwoWay}"
-                    IsEnabled="{Binding FinishCmd.IsEnabled, Mode=TwoWay}"/>
+                    Command="{Binding EndGameCmd.Value, Mode=TwoWay}"
+                    IsEnabled="{Binding EndGameCmd.IsEnabled, Mode=TwoWay}"/>
 
             <!--Second Row-->
             <TextBlock Grid.Row="1" Grid.Column="0"

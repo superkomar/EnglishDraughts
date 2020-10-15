@@ -9,11 +9,8 @@ namespace Core.Helpers
 
         public ModelController(int dimension)
         {
-            Dimension = dimension;
-            _history = new GameHistory<GameField>(ModelsCreator.CreateGameField(Dimension));
+            _history = new GameHistory<GameField>(FieldUtils.CreateField(dimension));
         }
-
-        public int Dimension { get; }
 
         public GameField Field => _history.Current;
         

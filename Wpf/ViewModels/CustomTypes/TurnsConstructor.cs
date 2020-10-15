@@ -14,7 +14,7 @@ namespace Wpf.ViewModels.CustomTypes
     internal class TurnsConstructor : ITurnsConstructor
     {
         private GameField _gameField;
-        private IStatusReporter _reporter;
+        private IReporter _reporter;
         private IEnumerable<IGameTurn> _requiredJumps;
         private IResultSender<IGameTurn> _sender;
         private List<IGameTurn> _turns;
@@ -28,22 +28,22 @@ namespace Wpf.ViewModels.CustomTypes
 
         #region ITurnsConstructor
 
-        public bool IsJumpsContinue { get; private set; }
+        public bool DoJumpsContinue { get; private set; }
         
         public PlayerSide Side { get; private set; }
         
-        public bool CheckTurnStartCell(int cellIdx) =>
+        public bool CheckTurnStart(int cellIdx) =>
             !_requiredJumps.Any() || _requiredJumps.FirstOrDefault(x => x.Start == cellIdx) != null;
 
         public void Clear()
         {
-            IsJumpsContinue = false;
+            DoJumpsContinue = false;
             _turns.Clear();
         }
 
         public Result TryMakeTurn(int start, int end)
         {
-            var gameTurn = ModelsCreator.CreateGameTurn(_gameField, Side, start, end);
+            var gameTurn = TurnUtils.CreateTurnByCells(_gameField, Side, start, end);
             
             if (gameTurn == null || (gameTurn.IsSimple && _requiredJumps.Any()))
             {
@@ -52,30 +52,30 @@ namespace Wpf.ViewModels.CustomTypes
 
             _turns.Add(gameTurn);
 
-            GameFieldUtils.TryMakeTurn(_gameField, gameTurn, out GameField newField);
+            FieldUtils.TryCreateField(_gameField, gameTurn, out GameField newField);
 
             // Not the last jump
             if (!gameTurn.IsSimple && !gameTurn.IsLevelUp &&
-                GameFieldUtils.FindTurnsForCell(newField, gameTurn.Steps.Last(), TurnType.Jump).Any())
+                TurnUtils.FindTurnsForCell(newField, gameTurn.Steps.Last(), TurnType.Jump).Any())
             {
-                _reporter?.ReportInfo(
+                _reporter?.ReportStatus(
                     $"{Side}: {Resources.WpfPlayer_JumpTurn_Continue}");
 
-                IsJumpsContinue = true;
+                DoJumpsContinue = true;
 
                 _gameField = newField;
 
                 return Result.Continue;
             }
 
-            _sender?.Send(ModelsCreator.CreateGameTurn(_turns));
+            _sender?.Send(TurnUtils.CreateCompositeTurn(_turns));
 
             return Result.Ok;
         }
 
         #endregion
 
-        public void UpdateState(GameField newField, PlayerSide side, IStatusReporter reporter, IResultSender<IGameTurn> sender)
+        public void UpdateState(GameField newField, PlayerSide side, IReporter reporter, IResultSender<IGameTurn> sender)
         {
             Side = side;
             _gameField = newField;
@@ -83,11 +83,11 @@ namespace Wpf.ViewModels.CustomTypes
             _sender = sender;
 
             _turns = new List<IGameTurn>();
-            _requiredJumps = GameFieldUtils.FindRequiredJumps(_gameField, Side);
+            _requiredJumps = TurnUtils.FindRequiredJumps(_gameField, Side);
 
-            IsJumpsContinue = false;
+            DoJumpsContinue = false;
 
-            _reporter?.ReportInfo(string.Format("{0}: {1}", Side,
+            _reporter?.ReportStatus(string.Format("{0}: {1}", Side,
                 _requiredJumps.Any()
                 ? Resources.WpfPlayer_JumpTurn_Start
                 : Resources.WpfPlayer_SimpleTurn));

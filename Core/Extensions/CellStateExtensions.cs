@@ -21,8 +21,8 @@ namespace Core.Extensions
         public static CellState LevelUp(this CellState state) =>
             state switch
             {
-                CellState.BlackMen => CellState.BlackKing,
-                CellState.WhiteMen => CellState.WhiteKing,
+                CellState.BlackMan => CellState.BlackKing,
+                CellState.WhiteMan => CellState.WhiteKing,
                 _ => state
             };
 
@@ -45,9 +45,9 @@ namespace Core.Extensions
         }
         
         private static bool IsBlackPiece(this CellState cell) =>
-            cell != CellState.Empty && (cell == CellState.BlackKing || cell == CellState.BlackMen);
+            cell != CellState.Empty && (cell == CellState.BlackKing || cell == CellState.BlackMan);
 
         private static bool IsWhitePiece(this CellState cell) =>
-                    cell != CellState.Empty && (cell == CellState.WhiteKing || cell == CellState.WhiteMen);
+            cell != CellState.Empty && (cell == CellState.WhiteKing || cell == CellState.WhiteMan);
     }
 }

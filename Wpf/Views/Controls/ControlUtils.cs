@@ -38,9 +38,9 @@ namespace Wpf.Views.Controls
         public static BitmapImage GetBitmapByType(CellState cellState) =>
             cellState switch
             {
-                CellState.BlackMen  => BlackMen,
+                CellState.BlackMan  => BlackMen,
                 CellState.BlackKing => BlackKing,
-                CellState.WhiteMen  => WhiteMen,
+                CellState.WhiteMan  => WhiteMen,
                 CellState.WhiteKing => WhiteKing,
                 _ => null,
             };

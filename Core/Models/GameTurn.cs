@@ -10,10 +10,9 @@ namespace Core.Models
     {
         internal GameTurn(PlayerSide playerSide, bool isLevelUp, IReadOnlyList<int> turns)
         {
+            Steps = turns;
             Side = playerSide;
             IsLevelUp = isLevelUp;
-
-            Steps = turns;
         }
 
         public bool IsSimple => Steps.Count == 2;

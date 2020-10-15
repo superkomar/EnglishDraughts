@@ -61,7 +61,7 @@ namespace Wpf.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Finish.
+        ///   Looks up a localized string similar to End Game.
         /// </summary>
         public static string Wpf_ButtonContent_Finish {
             get {
@@ -79,7 +79,7 @@ namespace Wpf.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Start.
+        ///   Looks up a localized string similar to Start Game.
         /// </summary>
         public static string Wpf_ButtonContent_Start {
             get {
@@ -97,6 +97,15 @@ namespace Wpf.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Controls.
+        /// </summary>
+        public static string Wpf_Header_Controls {
+            get {
+                return ResourceManager.GetString("Wpf_Header_Controls", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Game Status.
         /// </summary>
         public static string Wpf_Header_GameStatus {
@@ -106,7 +115,7 @@ namespace Wpf.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Choose your side:.
+        ///   Looks up a localized string similar to Choose your side.
         /// </summary>
         public static string Wpf_TextBlock_ChooseSide {
             get {
@@ -115,7 +124,7 @@ namespace Wpf.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Robot Time (ms):.
+        ///   Looks up a localized string similar to Robot Time (ms).
         /// </summary>
         public static string Wpf_TextBlock_RobotTime {
             get {

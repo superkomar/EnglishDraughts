@@ -9,6 +9,7 @@ using Core.Models;
 using Core.Utils;
 
 using Wpf.Interfaces;
+using Wpf.Properties;
 using Wpf.ViewModels.CustomTypes;
 using Wpf.ViewModels.Enums;
 
@@ -27,14 +28,14 @@ namespace Wpf.ViewModels
             _turnsController = new TurnsConstructor();
             _selectionController = new SelectionController(_turnsController);
 
-            InitGameField(ModelsCreator.CreateGameField(Dimension));
+            InitGameField(FieldUtils.CreateField(Dimension));
         }
 
         #region ICellHandlersController
 
         public event EventHandler RedrawField;
 
-        public int Dimension { get; private set; } = Constants.DefaultFieldDimension;
+        public int Dimension { get; private set; } = Settings.Default.DefaultFieldDimension;
 
         public ICellHandler GetCellHandler(int posX, int posY) => GetCellHandler(posX * Dimension + posY);
 
@@ -44,7 +45,7 @@ namespace Wpf.ViewModels
 
         #region IWpfFieldActivator
 
-        public void Start(GameField newField, PlayerSide side, IStatusReporter reporter, IResultSender<IGameTurn> resultSetter)
+        public void Start(GameField newField, PlayerSide side, IReporter reporter, IResultSender<IGameTurn> resultSetter)
         {
             _selectionController.IsSelectionAvaliable = true;
             _turnsController.UpdateState(newField, side, reporter, resultSetter);
@@ -60,12 +61,12 @@ namespace Wpf.ViewModels
 
             UpdateGameField(gameField, isCreateNew: true);
 
-            RaiseReadrawField();
+            RiseRedrawFieldEvent();
         }
 
         public void UpdateGameField(GameField gameField) => UpdateGameField(gameField, isCreateNew: false);
 
-        private void RaiseReadrawField() => RedrawField?.Invoke(this, EventArgs.Empty);
+        private void RiseRedrawFieldEvent() => RedrawField?.Invoke(this, EventArgs.Empty);
 
         private void UpdateGameField(GameField gameField, bool isCreateNew)
         {

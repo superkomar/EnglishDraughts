@@ -6,11 +6,11 @@ namespace Wpf.Interfaces
 {
     internal interface ITurnsConstructor
     {
-        bool IsJumpsContinue { get; }
+        bool DoJumpsContinue { get; }
 
         PlayerSide Side { get; }
 
-        bool CheckTurnStartCell(int cellIdx);
+        bool CheckTurnStart(int cellIdx);
 
         void Clear();
 

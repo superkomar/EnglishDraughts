@@ -8,20 +8,20 @@ using Wpf.ViewModels.CustomTypes;
 
 namespace Wpf.ViewModels
 {
-    internal class GameControllsVM : NotifyPropertyChanged, IGameControllsVM, IWpfControlsActivator
+    internal class GameControlsVM : NotifyPropertyChanged, IGameControlsVM, IWpfControlsActivator
     {
         public enum StateType
         {
             GameStart,
-            GameFinish,
+            GameEnd,
             WpfTurnStart,
             WpfTurnStop
         }
 
-        public GameControllsVM()
+        public GameControlsVM()
         {
-            StartCmd = new ValueWithEnableToggle<ICommand>(new RelayCommand(StartCmdExecute), isEnable: true);
-            FinishCmd = new ValueWithEnableToggle<ICommand>(new RelayCommand(FinishCmdExecute), isEnable: false);
+            StartGameCmd = new ValueWithEnableToggle<ICommand>(new RelayCommand(StartCmdExecute), isEnable: true);
+            EndGameCmd = new ValueWithEnableToggle<ICommand>(new RelayCommand(FinishCmdExecute), isEnable: false);
 
             UndoCmd = new ValueWithEnableToggle<ICommand>(new RelayCommand(UndoCmdExecute), isEnable: false);
             RedoCmd = new ValueWithEnableToggle<ICommand>(new RelayCommand(RedoCmdExecute), isEnable: false);
@@ -36,9 +36,9 @@ namespace Wpf.ViewModels
 
         public ValueWithEnableToggle<PlayerSide> Side { get; set; }
         
-        public ValueWithEnableToggle<ICommand> StartCmd { get; }
+        public ValueWithEnableToggle<ICommand> StartGameCmd { get; }
 
-        public ValueWithEnableToggle<ICommand> FinishCmd { get; }
+        public ValueWithEnableToggle<ICommand> EndGameCmd { get; }
 
         public ValueWithEnableToggle<ICommand> UndoCmd { get; }
 
@@ -59,7 +59,7 @@ namespace Wpf.ViewModels
             switch (state)
             {
                 case StateType.GameStart: UpdateControlStates(isGameStarted: true); break;
-                case StateType.GameFinish: UpdateControlStates(isGameStarted: false); break;
+                case StateType.GameEnd: UpdateControlStates(isGameStarted: false); break;
                 case StateType.WpfTurnStart: WpfTurnStart(isTurnStarting: true); break;
                 case StateType.WpfTurnStop: WpfTurnStart(isTurnStarting: false); break;
             }
@@ -67,9 +67,9 @@ namespace Wpf.ViewModels
 
         private void FinishCmdExecute(object obj)
         {
-            UpdateState(StateType.GameFinish);
+            UpdateState(StateType.GameEnd);
 
-            OnPropertyChanged(nameof(FinishCmd));
+            OnPropertyChanged(nameof(EndGameCmd));
         }
 
         private void RedoCmdExecute(object obj) => OnPropertyChanged(nameof(RedoCmd));
@@ -78,7 +78,7 @@ namespace Wpf.ViewModels
         {
             UpdateState(StateType.GameStart);
 
-            OnPropertyChanged(nameof(StartCmd));
+            OnPropertyChanged(nameof(StartGameCmd));
         }
 
         private void UndoCmdExecute(object obj) => OnPropertyChanged(nameof(UndoCmd));
@@ -86,11 +86,11 @@ namespace Wpf.ViewModels
         private void UpdateControlStates(bool isGameStarted)
         {
             Side.IsEnabled = !isGameStarted;
-            StartCmd.IsEnabled = !isGameStarted;
+            StartGameCmd.IsEnabled = !isGameStarted;
 
             UndoCmd.IsEnabled = isGameStarted;
             RedoCmd.IsEnabled = isGameStarted;
-            FinishCmd.IsEnabled = isGameStarted;
+            EndGameCmd.IsEnabled = isGameStarted;
         }
 
         private void WpfTurnStart(bool isTurnStarting)

@@ -36,62 +36,62 @@ namespace NUnitTests.Core
                 }
             }
 
-            field[1] = field[17] = field[49] = CellState.BlackMen;
+            field[1] = field[17] = field[49] = CellState.BlackMan;
             field[3] = field[19] = field[51] = CellState.BlackKing;
 
-            field[21] = field[53] = field[60] = CellState.WhiteMen;
+            field[21] = field[53] = field[60] = CellState.WhiteMan;
             field[23] = field[55] = field[62] = CellState.WhiteKing;
 
-            field[14] = CellState.WhiteMen;
+            field[14] = CellState.WhiteMan;
 
             field[24] = CellState.WhiteKing;
-            field[26] = CellState.WhiteMen;
+            field[26] = CellState.WhiteMan;
             field[28] = CellState.BlackKing;
-            field[30] = CellState.BlackMen;
+            field[30] = CellState.BlackMan;
 
-            _gameField = new GameField(field, new NeighborsHelper(Dimension), Dimension);
+            _gameField = new GameField(field, new NeighborsFinder(Dimension), Dimension);
         }
 
         [Test]
         public void ModelsCreator_CreateNewGameField()
         {
-            Assert.Throws<ArgumentException>(() => ModelsCreator.CreateGameField(-1));
-            Assert.Throws<ArgumentException>(() => ModelsCreator.CreateGameField(0));
+            Assert.Throws<ArgumentException>(() => FieldUtils.CreateField(-1));
+            Assert.Throws<ArgumentException>(() => FieldUtils.CreateField(0));
 
-            var field_1 = ModelsCreator.CreateGameField(1);
-            Assert.AreEqual(field_1.CellsCount, 1);
+            var field_1 = FieldUtils.CreateField(1);
+            Assert.AreEqual(field_1.CellCount, 1);
             Assert.AreEqual(field_1[0], CellState.Empty);
 
-            var field_2 = ModelsCreator.CreateGameField(2);
-            Assert.AreEqual(field_2.CellsCount, 4);
+            var field_2 = FieldUtils.CreateField(2);
+            Assert.AreEqual(field_2.CellCount, 4);
             Assert.AreEqual(field_2[0], CellState.Empty);
             Assert.AreEqual(field_2[1], CellState.Empty);
             Assert.AreEqual(field_2[2], CellState.Empty);
             Assert.AreEqual(field_2[3], CellState.Empty);
 
-            var field_3 = ModelsCreator.CreateGameField(3);
-            Assert.AreEqual(field_3.CellsCount, 9);
+            var field_3 = FieldUtils.CreateField(3);
+            Assert.AreEqual(field_3.CellCount, 9);
             Assert.AreEqual(field_3[1], CellState.Empty);
             Assert.AreEqual(field_3[3], CellState.Empty);
             Assert.AreEqual(field_3[7], CellState.Empty);
 
-            var field_4 = ModelsCreator.CreateGameField(4);
-            Assert.AreEqual(field_4.CellsCount, 16);
-            Assert.AreEqual(field_4[1],  CellState.BlackMen);
+            var field_4 = FieldUtils.CreateField(4);
+            Assert.AreEqual(field_4.CellCount, 16);
+            Assert.AreEqual(field_4[1],  CellState.BlackMan);
             Assert.AreEqual(field_4[4],  CellState.Empty);
             Assert.AreEqual(field_4[9],  CellState.Empty);
-            Assert.AreEqual(field_4[12], CellState.WhiteMen);
+            Assert.AreEqual(field_4[12], CellState.WhiteMan);
 
-            var field_8 = ModelsCreator.CreateGameField(8);
-            Assert.AreEqual(field_8.CellsCount, 64);
-            Assert.AreEqual(field_8[1],  CellState.BlackMen);
-            Assert.AreEqual(field_8[8],  CellState.BlackMen);
-            Assert.AreEqual(field_8[17], CellState.BlackMen);
+            var field_8 = FieldUtils.CreateField(8);
+            Assert.AreEqual(field_8.CellCount, 64);
+            Assert.AreEqual(field_8[1],  CellState.BlackMan);
+            Assert.AreEqual(field_8[8],  CellState.BlackMan);
+            Assert.AreEqual(field_8[17], CellState.BlackMan);
             Assert.AreEqual(field_8[24], CellState.Empty);
             Assert.AreEqual(field_8[33], CellState.Empty);
-            Assert.AreEqual(field_8[40], CellState.WhiteMen);
-            Assert.AreEqual(field_8[49], CellState.WhiteMen);
-            Assert.AreEqual(field_8[56], CellState.WhiteMen);
+            Assert.AreEqual(field_8[40], CellState.WhiteMan);
+            Assert.AreEqual(field_8[49], CellState.WhiteMan);
+            Assert.AreEqual(field_8[56], CellState.WhiteMan);
         }
 
         [Test]
@@ -100,12 +100,12 @@ namespace NUnitTests.Core
             // incorrect
             foreach (var playerSide in new[] { PlayerSide.Black, PlayerSide.White })
             {
-                Assert.AreEqual(ModelsCreator.CreateGameTurn(_gameField, playerSide,  1,  1), null);
-                Assert.AreEqual(ModelsCreator.CreateGameTurn(_gameField, playerSide, -1,  1), null);
-                Assert.AreEqual(ModelsCreator.CreateGameTurn(_gameField, playerSide,  1, -1), null);
-                Assert.AreEqual(ModelsCreator.CreateGameTurn(_gameField, playerSide,  1, -1), null);
-                Assert.AreEqual(ModelsCreator.CreateGameTurn(_gameField, playerSide,  40, 33), null);
-                Assert.AreEqual(ModelsCreator.CreateGameTurn(_gameField, playerSide,  33, 40), null);
+                Assert.AreEqual(TurnUtils.CreateTurnByCells(_gameField, playerSide,  1,  1), null);
+                Assert.AreEqual(TurnUtils.CreateTurnByCells(_gameField, playerSide, -1,  1), null);
+                Assert.AreEqual(TurnUtils.CreateTurnByCells(_gameField, playerSide,  1, -1), null);
+                Assert.AreEqual(TurnUtils.CreateTurnByCells(_gameField, playerSide,  1, -1), null);
+                Assert.AreEqual(TurnUtils.CreateTurnByCells(_gameField, playerSide,  40, 33), null);
+                Assert.AreEqual(TurnUtils.CreateTurnByCells(_gameField, playerSide,  33, 40), null);
             }
 
             // Black pieces
@@ -167,7 +167,7 @@ namespace NUnitTests.Core
 
         private void CreateSimpleTurns(GameField field, PlayerSide side, int start, int end, bool mustNull, bool isLevelUp = false)
         {
-            var srcTurn = ModelsCreator.CreateGameTurn(field, side, start, end);
+            var srcTurn = TurnUtils.CreateTurnByCells(field, side, start, end);
 
             if (mustNull) Assert.AreEqual(srcTurn, null);
             else CompareTurns(srcTurn, new GameTurn(side, isLevelUp, new[] { start, end }));

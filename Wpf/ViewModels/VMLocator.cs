@@ -6,9 +6,9 @@ namespace Wpf.ViewModels
     {
         public static ICellHandlersController CellHandlersController => GameFieldVM;
 
-        public static IGameControllsVM IGameControllsVM => GameControllsVM;
+        public static IGameControlsVM IGameControlsVM => GameControlsVM;
 
-        public static GameControllsVM GameControllsVM { get; } = new GameControllsVM();
+        public static GameControlsVM GameControlsVM { get; } = new GameControlsVM();
 
         public static GameFieldVM GameFieldVM { get; } = new GameFieldVM();
     }

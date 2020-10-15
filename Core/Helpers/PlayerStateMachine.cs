@@ -38,7 +38,7 @@ namespace Core.Helpers
         /// After that reset to the default value.
         /// </summary>
         /// <param name="state">New state</param>
-        public void ChangeStateForOneGet(MachineState state)
+        public void ChangeStateForNextGet(MachineState state)
         {
             _machineState = state;
         }

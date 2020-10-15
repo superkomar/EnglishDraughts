@@ -15,8 +15,8 @@ namespace NUnitTests.Core
         [TestCase(-1)]
         public void NeighborsFinderException(int dimention)
         {
-            Assert.Throws<ArgumentException>(() => new NeighborsHelper(dimention));
-            Assert.Throws<ArgumentException>(() => new NeighborsHelper(dimention));
+            Assert.Throws<ArgumentException>(() => new NeighborsFinder(dimention));
+            Assert.Throws<ArgumentException>(() => new NeighborsFinder(dimention));
         }
 
         [TestCase(2)]
@@ -25,7 +25,7 @@ namespace NUnitTests.Core
             // 0(-)|1(+)
             // 2(+)|3(-)
 
-            var finder = new NeighborsHelper(dimention);
+            var finder = new NeighborsFinder(dimention);
 
             // Zero row
             Assert.AreEqual(finder[0], new CellNeighbors(-1, -1, -1,  3));
@@ -43,7 +43,7 @@ namespace NUnitTests.Core
             // 3(+)|4(-)|5(+)
             // 6(-)|7(+)|8(-)
 
-            Assert.Throws<ArgumentException>(() => new NeighborsHelper(dimention));
+            Assert.Throws<ArgumentException>(() => new NeighborsFinder(dimention));
 
             //var finder = new NeighborsHelper(dimention);
 
@@ -70,7 +70,7 @@ namespace NUnitTests.Core
             // 48(-)|49(+)|50(-)|51(+)|52(-)|53(+)|54(-)|55(+)
             // 56(+)|57(-)|58(+)|59(-)|60(+)|61(-)|62(+)|63(-)
 
-            var finder = new NeighborsHelper(dimention);
+            var finder = new NeighborsFinder(dimention);
 
             // Zero row
             Assert.AreEqual(finder[0], new CellNeighbors(-1, -1, -1, 9));
@@ -105,24 +105,24 @@ namespace NUnitTests.Core
             // 48(-)|49(+)|50(-)|51(+)|52(-)|53(+)|54(-)|55(+)
             // 56(+)|57(-)|58(+)|59(-)|60(+)|61(-)|62(+)|63(-)
 
-            var finder = new NeighborsHelper(dimention);
+            var finder = new NeighborsFinder(dimention);
 
-            Assert.IsFalse(finder.IsNeighbors(8, 7));
-            Assert.IsFalse(finder.IsNeighbors(0, 0));
-            Assert.IsFalse(finder.IsNeighbors(24, 8));
-            Assert.IsFalse(finder.IsNeighbors(-1, 0));
-            Assert.IsFalse(finder.IsNeighbors(0, -1));
-            Assert.IsFalse(finder.IsNeighbors(-1, -1));
+            Assert.IsFalse(finder.AreNeighbors(8, 7));
+            Assert.IsFalse(finder.AreNeighbors(0, 0));
+            Assert.IsFalse(finder.AreNeighbors(24, 8));
+            Assert.IsFalse(finder.AreNeighbors(-1, 0));
+            Assert.IsFalse(finder.AreNeighbors(0, -1));
+            Assert.IsFalse(finder.AreNeighbors(-1, -1));
 
-            Assert.IsTrue(finder.IsNeighbors(35, 26));
-            Assert.IsTrue(finder.IsNeighbors(35, 28));
-            Assert.IsTrue(finder.IsNeighbors(35, 42));
-            Assert.IsTrue(finder.IsNeighbors(35, 44));
+            Assert.IsTrue(finder.AreNeighbors(35, 26));
+            Assert.IsTrue(finder.AreNeighbors(35, 28));
+            Assert.IsTrue(finder.AreNeighbors(35, 42));
+            Assert.IsTrue(finder.AreNeighbors(35, 44));
 
-            Assert.IsFalse(finder.IsNeighbors(35, 27));
-            Assert.IsFalse(finder.IsNeighbors(35, 34));
-            Assert.IsFalse(finder.IsNeighbors(35, 36));
-            Assert.IsFalse(finder.IsNeighbors(35, 43));
+            Assert.IsFalse(finder.AreNeighbors(35, 27));
+            Assert.IsFalse(finder.AreNeighbors(35, 34));
+            Assert.IsFalse(finder.AreNeighbors(35, 36));
+            Assert.IsFalse(finder.AreNeighbors(35, 43));
         }
 
         [TestCase(8)]
@@ -137,7 +137,7 @@ namespace NUnitTests.Core
             // 48(-)|49(+)|50(-)|51(+)|52(-)|53(+)|54(-)|55(+)
             // 56(+)|57(-)|58(+)|59(-)|60(+)|61(-)|62(+)|63(-)
 
-            var finder = new NeighborsHelper(dimention);
+            var finder = new NeighborsFinder(dimention);
 
             // default deep
             Assert.AreEqual(finder.GetLeftTopCell(26),  17);

@@ -39,26 +39,26 @@ namespace NUnitTests.Core
                 }
             }
 
-            cells[1] = cells[17] = cells[49] = cells[56] = CellState.BlackMen;
+            cells[1] = cells[17] = cells[49] = cells[56] = CellState.BlackMan;
             cells[3] = cells[19] = cells[51] = cells[58] = CellState.BlackKing;
-            cells[5] = cells[21] = cells[53] = cells[60] = CellState.WhiteMen;
+            cells[5] = cells[21] = cells[53] = cells[60] = CellState.WhiteMan;
             cells[7] = cells[23] = cells[55] = cells[62] = CellState.WhiteKing;
 
             cells[24] = CellState.WhiteKing;
-            cells[26] = CellState.WhiteMen;
+            cells[26] = CellState.WhiteMan;
             cells[28] = CellState.BlackKing;
-            cells[30] = CellState.BlackMen;
+            cells[30] = CellState.BlackMan;
 
-            _customField = new GameField(cells, new NeighborsHelper(Dimension), Dimension);
+            _customField = new GameField(cells, new NeighborsFinder(Dimension), Dimension);
             
-            _defaultField = ModelsCreator.CreateGameField(8);
+            _defaultField = FieldUtils.CreateField(8);
         }
 
         [Test]
         public void GameFieldUtils_FindRequiredJumps()
         {
-            var jumpsBlack = GameFieldUtils.FindRequiredJumps(_customField, PlayerSide.Black).ToArray();
-            var jumpsWhite = GameFieldUtils.FindRequiredJumps(_customField, PlayerSide.White).ToArray();
+            var jumpsBlack = TurnUtils.FindRequiredJumps(_customField, PlayerSide.Black).ToArray();
+            var jumpsWhite = TurnUtils.FindRequiredJumps(_customField, PlayerSide.White).ToArray();
 
             Assert.AreEqual(jumpsBlack.Length, 3);
             Assert.AreEqual(jumpsWhite.Length, 5);
@@ -77,8 +77,8 @@ namespace NUnitTests.Core
         [Test]
         public void FindTurnsForCell_Test_DefaultField()
         {
-            var blackTurns = new List<IGameTurn>(GameFieldUtils.FindRequiredJumps(_defaultField, PlayerSide.Black).ToArray());
-            var whiteTurns = new List<IGameTurn>(GameFieldUtils.FindRequiredJumps(_defaultField, PlayerSide.White).ToArray());
+            var blackTurns = new List<IGameTurn>(TurnUtils.FindRequiredJumps(_defaultField, PlayerSide.Black).ToArray());
+            var whiteTurns = new List<IGameTurn>(TurnUtils.FindRequiredJumps(_defaultField, PlayerSide.White).ToArray());
 
             Assert.AreEqual(blackTurns.Count, 0);
             Assert.AreEqual(whiteTurns.Count, 0);
@@ -154,7 +154,7 @@ namespace NUnitTests.Core
 
                     if (field[cellIdx] == CellState.Empty) continue;
 
-                    var cellTurns = GameFieldUtils.FindTurnsForCell(field, cellIdx);
+                    var cellTurns = TurnUtils.FindTurnsForCell(field, cellIdx);
 
                     if (field[cellIdx].IsSameSide(PlayerSide.Black))
                     {

@@ -2,7 +2,7 @@
 
 namespace Core.Models
 {
-    public class NeighborsHelper
+    public class NeighborsFinder
     {
         private readonly int _cellCount;
         private readonly int _dimension;
@@ -15,7 +15,7 @@ namespace Core.Models
             RightBot
         }
 
-        public NeighborsHelper(int dimension)
+        public NeighborsFinder(int dimension)
         {
             if (dimension <= 0) throw new ArgumentException(@"Dimension should be more than zero");
             //if (dimension % 2 != 0) throw new ArgumentException(@"Dimention must be multiple of two");
@@ -40,7 +40,7 @@ namespace Core.Models
 
         public int GetRightTopCell(int cellIdx, int deep = 1) => GetCellByDirection(cellIdx, deep, DirectionType.RightTop);
 
-        public bool IsNeighbors(int firstId, int secondId) => this[firstId].IsNeighbor(secondId);
+        public bool AreNeighbors(int firstId, int secondId) => this[firstId].IsNeighbor(secondId);
 
         internal int GetCellByDirection(int startIdx, int deep, DirectionType direction)
         {

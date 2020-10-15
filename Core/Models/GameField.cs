@@ -11,45 +11,46 @@ namespace Core.Models
 {
     public readonly struct GameField
     {
-        private readonly bool _areAnyBlackPieces;
-        private readonly bool _areAnyWhitePieces;
+        private readonly bool _areBlackPiecesPresent;
+        private readonly bool _areWhitePiecesPresent;
 
         private readonly FieldCellCollection _cellCollection;
 
-        internal GameField(IReadOnlyList<CellState> cells, NeighborsHelper neighborsHelper, int dimension)
+        internal GameField(IReadOnlyList<CellState> cells, NeighborsFinder neighborsHelper, int dimension)
         {
             _cellCollection = new FieldCellCollection(cells, dimension);
 
-            NeighborsHelper = neighborsHelper;
+            NeighborsFinder = neighborsHelper;
 
-            _areAnyBlackPieces = _cellCollection.Any(x => x.IsSameSide(PlayerSide.Black));
-            _areAnyWhitePieces = _cellCollection.Any(x => x.IsSameSide(PlayerSide.White));
-
+            _areBlackPiecesPresent = _cellCollection.Any(x => x.IsSameSide(PlayerSide.Black));
+            _areWhitePiecesPresent = _cellCollection.Any(x => x.IsSameSide(PlayerSide.White));
         }
 
         internal GameField(IReadOnlyList<CellState> cells, GameField other)
         {
             _cellCollection = new FieldCellCollection(cells, other.Dimension);
 
-            NeighborsHelper = other.NeighborsHelper;
+            NeighborsFinder = other.NeighborsFinder;
 
-            _areAnyBlackPieces = _cellCollection.Any(x => x.IsSameSide(PlayerSide.Black));
-            _areAnyWhitePieces = _cellCollection.Any(x => x.IsSameSide(PlayerSide.White));
+            _areBlackPiecesPresent = _cellCollection.Any(x => x.IsSameSide(PlayerSide.Black));
+            _areWhitePiecesPresent = _cellCollection.Any(x => x.IsSameSide(PlayerSide.White));
         }
 
-        public int CellsCount => _cellCollection.Count;
-        
+        public int GetRowIdx(int cellIdx) => cellIdx / Dimension;
+
+        public int CellCount => _cellCollection.Count;
+
         public int Dimension => _cellCollection.Dimension;
 
         public IReadOnlyList<CellState> Field => _cellCollection;
         
-        public NeighborsHelper NeighborsHelper { get; }
+        public NeighborsFinder NeighborsFinder { get; }
 
         public CellState this[int idx] => Field.ElementAtOrDefault(idx);
 
         public bool AreAnyPieces(PlayerSide side) =>
-            side == PlayerSide.Black ? _areAnyBlackPieces : _areAnyWhitePieces;
+            side == PlayerSide.Black ? _areBlackPiecesPresent : _areWhitePiecesPresent;
 
-        public bool IsValidCellIdx(int cellIdx) => cellIdx > 0 && cellIdx < CellsCount;
+        public bool IsValidCellIdx(int cellIdx) => cellIdx > 0 && cellIdx < CellCount;
     }
 }

@@ -13,12 +13,12 @@ namespace Wpf.ViewModels.CustomTypes
     {
         private readonly IWpfControlsActivator _controlsActivator;
         private readonly IWpfFieldActivator _fieldActivator;
-        private readonly IStatusReporter _reporter;
+        private readonly IReporter _reporter;
 
-        private SingleUseResultMailbox<IGameTurn> _resultMailbox;
+        private SingleUseResultChannel<IGameTurn> _resultChannel;
         private PlayerSide _side;
         
-        public WpfPlayer(IWpfFieldActivator fieldActivator, IWpfControlsActivator controlsActivator, IStatusReporter reporter)
+        public WpfPlayer(IWpfFieldActivator fieldActivator, IWpfControlsActivator controlsActivator, IReporter reporter)
         {
             _reporter = reporter;
             _fieldActivator = fieldActivator;
@@ -27,8 +27,8 @@ namespace Wpf.ViewModels.CustomTypes
 
         public void FinishGame(PlayerSide winner)
         {
-            _resultMailbox?.Send(default);
-            _reporter?.ReportInfo($"{Resources.WpfPlayer_WinnerIs} {winner}");
+            _resultChannel?.Send(default);
+            _reporter?.ReportStatus($"{Resources.WpfPlayer_WinnerIs} {winner}");
         }
 
         public void InitGame(PlayerSide side)
@@ -38,12 +38,12 @@ namespace Wpf.ViewModels.CustomTypes
 
         public Task<IGameTurn> MakeTurn(GameField gameField)
         {
-            _resultMailbox = new SingleUseResultMailbox<IGameTurn>();
+            _resultChannel = new SingleUseResultChannel<IGameTurn>();
 
-            _fieldActivator.Start(gameField, _side, _reporter, _resultMailbox);
+            _fieldActivator.Start(gameField, _side, _reporter, _resultChannel);
             _controlsActivator.StartTurn();
 
-            return _resultMailbox.ReceiveAsync().ContinueWith(result =>
+            return _resultChannel.ReceiveAsync().ContinueWith(result =>
             {
                 _fieldActivator.Stop();
                 _controlsActivator.StopTurn();
@@ -51,6 +51,6 @@ namespace Wpf.ViewModels.CustomTypes
             });
         }
         
-        public void StopTurn() => _resultMailbox?.Cancel();
+        public void StopTurn() => _resultChannel?.Cancel();
     }
 }

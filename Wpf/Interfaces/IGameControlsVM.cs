@@ -7,11 +7,11 @@ using Wpf.ViewModels.CustomTypes;
 
 namespace Wpf.Interfaces
 {
-    internal interface IGameControllsVM : INotifyPropertyChanged
+    internal interface IGameControlsVM : INotifyPropertyChanged
     {
-        ValueWithEnableToggle<ICommand> FinishCmd { get; }
+        ValueWithEnableToggle<ICommand> EndGameCmd { get; }
 
-        ValueWithEnableToggle<ICommand> StartCmd { get; }
+        ValueWithEnableToggle<ICommand> StartGameCmd { get; }
 
         ValueWithEnableToggle<ICommand> UndoCmd { get; }
 

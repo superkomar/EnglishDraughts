@@ -3,9 +3,9 @@
     public enum CellState
     {
         Empty,
-        WhiteMen,
+        WhiteMan,
         WhiteKing,
-        BlackMen,
+        BlackMan,
         BlackKing
     }
 }

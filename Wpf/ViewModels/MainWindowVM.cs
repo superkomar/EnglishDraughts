@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Core;
 using Core.Enums;
 using Core.Interfaces;
-using Core.Models;
 
 using Robot;
 
@@ -22,24 +21,24 @@ namespace Wpf.ViewModels
         public MainWindowVM()
         {
             Reporter = new StatusReporter();
-            Reporter.ReportInfo(Resources.WpfPlalyer_StartStatus);
+            Reporter.ReportStatus(Resources.WpfPlalyer_StartStatus);
 
-            _wpfPlayer = new WpfPlayer(VMLocator.GameFieldVM, VMLocator.GameControllsVM, Reporter);
-            _robotLauncher = new RobotLauncher(VMLocator.GameControllsVM.RobotTime.Value);
+            _wpfPlayer = new WpfPlayer(VMLocator.GameFieldVM, VMLocator.GameControlsVM, Reporter);
+            _robotLauncher = new RobotLauncher(VMLocator.GameControlsVM.RobotTime.Value, Reporter);
 
             AttachHandlers();
         }
 
-        public IStatusReporter Reporter { get; }
+        public IReporter Reporter { get; }
 
         private void AttachHandlers()
         {
-            VMLocator.GameControllsVM.PropertyChanged += OnControllsPropertyChanged;
-            VMLocator.GameControllsVM.RobotTime.PropertyChanged += OnControllsPropertyChanged;
+            VMLocator.GameControlsVM.PropertyChanged += OnControllsPropertyChanged;
+            VMLocator.GameControlsVM.RobotTime.PropertyChanged += OnControllsPropertyChanged;
         }
 
         private (IGamePlayer Black, IGamePlayer White) GetPlayers() =>
-            VMLocator.GameControllsVM.Side.Value switch
+            VMLocator.GameControlsVM.Side.Value switch
             {
                 PlayerSide.White => (_robotLauncher, _wpfPlayer),
                 PlayerSide.Black => (_wpfPlayer, _robotLauncher),
@@ -50,27 +49,27 @@ namespace Wpf.ViewModels
         {
             switch (e.PropertyName)
             {
-                case nameof(IGameControllsVM.StartCmd):
+                case nameof(IGameControlsVM.StartGameCmd):
                 {
                     await StartGameAsync();
                     break;
                 }
-                case nameof(IGameControllsVM.FinishCmd):
+                case nameof(IGameControlsVM.EndGameCmd):
                 {
                     _gameController?.StopGame();
                     break;
                 }
-                case nameof(IGameControllsVM.RobotTime):
+                case nameof(IGameControlsVM.RobotTime):
                 {
-                    _robotLauncher.TurnTime = VMLocator.GameControllsVM.RobotTime.Value;
+                    _robotLauncher.TurnTime = VMLocator.GameControlsVM.RobotTime.Value;
                     break;
                 }
-                case nameof(IGameControllsVM.UndoCmd):
+                case nameof(IGameControlsVM.UndoCmd):
                 {
                     _gameController?.Undo(deep: 2);
                     break;
                 }
-                case nameof(IGameControllsVM.RedoCmd):
+                case nameof(IGameControlsVM.RedoCmd):
                 {
                     _gameController?.Redo(deep: 2);
                     break;
@@ -91,7 +90,7 @@ namespace Wpf.ViewModels
             {
                 switch (state.State)
                 {
-                    case GameState.StateType.Start:
+                    case StateType.Start:
                     {
                         VMLocator.GameFieldVM.InitGameField(state.Field);
 
@@ -99,7 +98,7 @@ namespace Wpf.ViewModels
                         White.InitGame(PlayerSide.White);
                         break;
                     }
-                    case GameState.StateType.Finish:
+                    case StateType.Finish:
                     {
                         VMLocator.GameFieldVM.UpdateGameField(state.Field);
 
@@ -107,7 +106,7 @@ namespace Wpf.ViewModels
                         White.FinishGame(state.Side);
                         break;
                     }
-                    case GameState.StateType.Turn:
+                    case StateType.Turn:
                     default:
                     {
                         VMLocator.GameFieldVM.UpdateGameField(state.Field);
@@ -116,7 +115,7 @@ namespace Wpf.ViewModels
                 }
             }
 
-            VMLocator.GameControllsVM.UpdateState(GameControllsVM.StateType.GameFinish);
+            VMLocator.GameControlsVM.UpdateState(GameControlsVM.StateType.GameEnd);
         }
     }
 }

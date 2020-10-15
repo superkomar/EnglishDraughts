@@ -17,7 +17,7 @@ namespace Wpf.Views
         {
             InitializeComponent();
 
-            DataContext = VMLocator.GameControllsVM;
+            DataContext = VMLocator.IGameControlsVM;
         }
 
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
