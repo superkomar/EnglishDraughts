@@ -8,9 +8,9 @@ using Robot.Extensions;
 
 namespace Robot.Models
 {
-    internal readonly struct FieldWrapper
+    internal readonly struct RobotField
     {
-        public FieldWrapper(GameField gameField)
+        public RobotField(GameField gameField)
         {
             Origin = gameField;
 
@@ -49,8 +49,6 @@ namespace Robot.Models
 
         public int PiecesCount(PlayerSide side) => PiecesBySide(side).Count;
 
-        public static implicit operator GameField(FieldWrapper fieldWrapper) => fieldWrapper.Origin;
-        
-        public static explicit operator FieldWrapper(GameField field) => new FieldWrapper(field);
+        public static implicit operator GameField(RobotField fieldWrapper) => fieldWrapper.Origin;
     }
 }

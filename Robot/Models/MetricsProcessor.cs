@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using Core.Enums;
 using Core.Extensions;
+using Robot.Properties;
 
 namespace Robot.Models
 {
@@ -10,53 +11,69 @@ namespace Robot.Models
     {
         double MetricCost { get; }
 
-        int Compare(FieldWrapper oldField, FieldWrapper newField, PlayerSide side);
+        int Compare(RobotField oldField, RobotField newField, PlayerSide side);
     }
 
     internal class OwnPiecesCountMetric : ICompareByMetric
     {
-        public double MetricCost => Constants.OwnPiecesCountMetricCost;
+        public double MetricCost => Settings.Default.OwnPiecesCountMetricCost;
 
-        public int Compare(FieldWrapper oldField, FieldWrapper newField, PlayerSide side) =>
-            newField.PiecesCount(side).CompareTo(oldField.PiecesCount(side));
+        public int Compare(RobotField oldField, RobotField newField, PlayerSide side) =>
+            oldField.PiecesCount(side) - newField.PiecesCount(side);
     }
 
     internal class EnemyPiecesCountMetric : ICompareByMetric
     {
-        public double MetricCost => Constants.EnemyPiecesCountMetricCost;
+        public double MetricCost => Settings.Default.EnemyPiecesCountMetricCost;
 
-        public int Compare(FieldWrapper oldField, FieldWrapper newField, PlayerSide side)
+        public int Compare(RobotField oldField, RobotField newField, PlayerSide side)
         {
             var oppositeSide = side.ToOpposite();
-            return oldField.PiecesCount(oppositeSide).CompareTo(newField.PiecesCount(oppositeSide));
+            return oldField.PiecesCount(oppositeSide) - newField.PiecesCount(oppositeSide);
         }
     }
 
     internal class InvasionMetric : ICompareByMetric // Occupation
     {
-        public double MetricCost => Constants.InvasionMetricCost;
+        public double MetricCost => Settings.Default.InvasionMetricCost;
 
-        public int Compare(FieldWrapper oldField, FieldWrapper newField, PlayerSide side)
+        public int Compare(RobotField oldField, RobotField newField, PlayerSide side)
         {
             int result = 0;
 
-            var shift = side == PlayerSide.Black ? oldField.Dimension - 1 : 0;
+            var shift = side == PlayerSide.White ? oldField.Dimension - 1 : 0;
 
             for (var i = 0; i < oldField.Dimension; i++)
             {
                 var lineIdx = Math.Abs(i - shift);
 
-                result =
-                    GetPiecesOnLine(newField, side, lineIdx).CompareTo(
-                    GetPiecesOnLine(oldField, side, lineIdx));
+                result = GetPiecesOnLine(newField, side, lineIdx)
+                    .CompareTo(GetPiecesOnLine(oldField, side, lineIdx));
 
                 if (result != 0) break;
+            }
+
+            if (side == PlayerSide.Black)
+            {
+                for (var i = 0; i < oldField.Dimension; i++)
+                {
+                    result = GetPiecesOnLine(newField, side, i)
+                        .CompareTo(GetPiecesOnLine(oldField, side, i));
+                }
+            }
+            else
+            {
+                for (var i = oldField.Dimension - 1; i < 0; i--)
+                {
+                    result = GetPiecesOnLine(newField, side, i)
+                        .CompareTo(GetPiecesOnLine(oldField, side, i));
+                }
             }
 
             return result;
         }
 
-        private int GetPiecesOnLine(FieldWrapper field, PlayerSide side, int lineIdx)
+        private int GetPiecesOnLine(RobotField field, PlayerSide side, int lineIdx)
         {
             var result = 0;
 
@@ -81,10 +98,10 @@ namespace Robot.Models
             new List<ICompareByMetric> {
                 new OwnPiecesCountMetric(),
                 new EnemyPiecesCountMetric(),
-                new InvasionMetric()
+                //new InvasionMetric()
             };
 
-        public static double CompareByMetrics(FieldWrapper oldField, FieldWrapper newField, PlayerSide side)
+        public static double CompareWithMetrics(RobotField oldField, RobotField newField, PlayerSide side)
         {
             double result = 0.0;
 

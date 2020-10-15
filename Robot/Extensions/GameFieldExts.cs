@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 using Core.Enums;
@@ -28,7 +27,7 @@ namespace Robot.Extensions
             }
         }
 
-        public static void ProcessCellsBySide(this FieldWrapper gameField, PlayerSide side, Action<int> processor)
+        public static void ProcessCellsBySide(this RobotField gameField, PlayerSide side, Action<int> processor)
         {
             foreach (var cellIdx in gameField.PiecesBySide(side))
             {
@@ -36,14 +35,14 @@ namespace Robot.Extensions
             }
         }
 
-        public static IEnumerable<IGameTurn> GetTurnsBySide(this FieldWrapper gameField, PlayerSide side)
+        public static IEnumerable<IGameTurn> GetTurnsBySide(this RobotField gameField, PlayerSide side)
         {
             var simpleMoves = new List<IGameTurn>();
             var requiredJumps = new List<IGameTurn>();
 
             void Processor(int cellIdx)
             {
-                var cellTurns = GameFieldUtils.FindTurnsForCell(gameField, cellIdx);
+                var cellTurns = TurnUtils.FindTurnsForCell(gameField, cellIdx);
 
                 foreach (var turn in cellTurns)
                 {
@@ -54,21 +53,21 @@ namespace Robot.Extensions
 
             gameField.ProcessCellsBySide(side, Processor);
 
-            return requiredJumps.Any() ? GetLongJumps(gameField.Origin, requiredJumps) : simpleMoves;
+            return requiredJumps.Any() ? GetCompositeJumps(gameField.Origin, requiredJumps) : simpleMoves;
         }
 
-        private static IEnumerable<IGameTurn> GetLongJumps(GameField oldField, IEnumerable<IGameTurn> jumps)
+        private static IEnumerable<IGameTurn> GetCompositeJumps(GameField oldField, IEnumerable<IGameTurn> jumps)
         {
             foreach (var jump in jumps)
             {
-                GameFieldUtils.TryMakeTurn(oldField, jump, out GameField newField);
-                var subJumps = GetLongJumps(newField, GameFieldUtils.FindTurnsForCell(newField, jump.Steps.Last(), TurnType.Jump));
+                FieldUtils.TryCreateField(oldField, jump, out GameField newField);
+                var subJumps = GetCompositeJumps(newField, TurnUtils.FindTurnsForCell(newField, jump.Steps.Last(), TurnType.Jump));
 
                 if (subJumps.Any() && !jump.IsLevelUp)
                 {
                     foreach (var subJump in subJumps)
                     {
-                        yield return ModelsCreator.CreateGameTurn(new[] { jump, subJump });
+                        yield return TurnUtils.CreateCompositeTurn(new[] { jump, subJump });
                     }
                 }
                 else

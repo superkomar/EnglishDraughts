@@ -12,10 +12,14 @@ namespace Robot
 {
     public class RobotLauncher : IGamePlayer
     {
+        private readonly IReporter _reporter;
         private readonly IRobotPlayer _robot;
 
-        public RobotLauncher(int turnTime)
+        private CancellationTokenSource _tokenSource;
+
+        public RobotLauncher(int turnTime, IReporter reporter)
         {
+            _reporter = reporter;
             _robot = new RobotPlayer();
 
             TurnTime = turnTime;
@@ -28,41 +32,40 @@ namespace Robot
         }
 
         public void FinishGame(PlayerSide winner)
-        {
-        }
+        { }
 
         public void InitGame(PlayerSide side)
         {
-            _robot.Init(side);
+            _robot.Init(_reporter, side);
         }
-
+        
         public async Task<IGameTurn> MakeTurn(GameField gameField)
         {
             using var cts = new CancellationTokenSource();
 
             IGameTurn result;
 
-            Console.WriteLine("============================");
-            Console.WriteLine($"Robot Time: {TurnTime}");
+            _reporter?.ReportStatus("Robot is searchin a turn");
+
+            _reporter?.ReportInfo($"=== Robot Time: {TurnTime}");
 
             try
             {
                 var timerTask = Task.Run(async () => {
                     await Task.Delay(TurnTime);
+                    
                     cts.Cancel();
-                    //Console.WriteLine("cts canceled");
-                    //return _robot.GetTunr();
+
+                    return _robot.GetTunr();
                 });
 
-                result = await _robot.MakeTurnAsync(gameField, cts.Token);
-
-                //result = await await Task.WhenAny(
-                //    _robot.MakeTurnAsync(gameField, cts.Token),
-                //    timerTask);
+                result = await await Task.WhenAny(
+                    _robot.MakeTurnAsync(gameField, cts.Token),
+                    timerTask);
             }
             catch(Exception ex)
             {
-                Console.WriteLine(ex);
+                _reporter?.ReportError(ex.ToString());
                 result = default;
             }
 
@@ -71,7 +74,7 @@ namespace Robot
 
         public void StopTurn()
         {
-            
+            _tokenSource?.Cancel();
         }
     }
 }

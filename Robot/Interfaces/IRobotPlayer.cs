@@ -11,7 +11,7 @@ namespace Robot.Interfaces
     {
         int TurnTime { get; set; }
 
-        void Init(PlayerSide side);
+        void Init(IReporter reporter, PlayerSide side);
 
         /// <summary>
         /// Call if time is up.

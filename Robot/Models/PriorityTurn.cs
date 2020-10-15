@@ -39,16 +39,11 @@ namespace Robot.Models
 
         public IReadOnlyList<int> Steps => _turn.Steps;
 
-        public void ClarifyPriority(double newValue, int level, bool isOpposite)
+        public void ClarifyPriority(double additionalValue)
         {
             lock (_locker)
             {
-                if (newValue == double.NegativeInfinity)
-                {
-                    Priority = newValue;
-                }
-
-                Priority += newValue * level * (isOpposite ? -1 : 1);
+                Priority += additionalValue;
             }
         }
 
