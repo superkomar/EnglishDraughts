@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Core.Enums;
@@ -18,6 +19,7 @@ namespace Core
 
         private bool _isGameRunning;
         private bool _isHistoryRolling;
+        private CancellationTokenSource _tokenSource;
 
         public GameController(int dimension, IGamePlayer blackPlayer, IGamePlayer whitePlayer)
         {
@@ -33,21 +35,12 @@ namespace Core
 
         public GameState? FinalGameState { get; private set; }
 
-        public void Redo(int deep)
-        {
-            _modelController.Redo(deep);
-            HistoryTraverser();
-        }
-
         public async IAsyncEnumerable<GameState> StartGameAsync()
         {
-            if (FinalGameState != null)
-            {
-                yield return FinalGameState.Value;
-                yield break;
-            }
+            _playersControl.BlackPlayer.InitGame(PlayerSide.Black);
+            _playersControl.WhitePlayer.InitGame(PlayerSide.White);
 
-            yield return new GameState(_modelController.Field, StateType.Start, _playersControl.CurPlayer.Side);
+             yield return new GameState(_modelController.Field, StateType.Start, _playersControl.CurPlayer.Side);
 
             _isGameRunning = true;
 
@@ -58,19 +51,12 @@ namespace Core
             }
         }
 
-        public void StopGame()
+        public void FinishGame() => FinishGame(_playersControl.CurPlayer.Side.ToOpposite());
+
+        public void Redo(int deep)
         {
-            if (_isHistoryRolling || FinalGameState == null)
-            {
-                _isGameRunning = false;
-
-                var winner = _playersControl.CurPlayer.Side.ToOpposite();
-
-                FinalGameState = new GameState(_modelController.Field, StateType.Finish, winner);
-
-                _playersControl.BlackPlayer.StopTurn();
-                _playersControl.WhitePlayer.StopTurn();
-            }
+            _modelController.Redo(deep);
+            HistoryTraverser();
         }
 
         public void Undo(int deep)
@@ -84,7 +70,7 @@ namespace Core
         private void HistoryTraverser()
         {
             _isHistoryRolling = true;
-            _playersControl.CurPlayer.Player.StopTurn();
+            _tokenSource?.Cancel();
             _playersControl.ChangeStateForNextGet(PlayerStateMachine.MachineState.Repeat);
         }
 
@@ -92,14 +78,16 @@ namespace Core
         {
             if (!_isGameRunning)
             {
-                if (FinalGameState == null) StopGame();
+                if (FinalGameState == null) FinishGame();
                 return FinalGameState.Value;
             }
+
+            _tokenSource = new CancellationTokenSource();
 
             var (Player, Side) = _playersControl.GetNextPlayer();
 
             // Get turn
-            var newTurn = await Task.Run(() => Player.MakeTurn(_modelController.Field))
+            var newTurn = await Task.Run(() => Player.MakeTurn(_modelController.Field, _tokenSource.Token))
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             // Check if game stoped
@@ -114,11 +102,7 @@ namespace Core
                 // Check end of game
                 if (!success || GameRules.HasPlayerWon(_modelController.Field, Side))
                 {
-                    _isGameRunning = false;
-                    var winner = success ? Side : Side.ToOpposite();
-
-                    FinalGameState = new GameState(_modelController.Field, StateType.Finish, winner);
-
+                    FinishGame(success ? Side : Side.ToOpposite());
                     return FinalGameState.Value;
                 }
             }
@@ -126,6 +110,17 @@ namespace Core
             _isHistoryRolling = false;
 
             return new GameState(_modelController.Field, StateType.Turn, Side);
+        }
+
+        private void FinishGame(PlayerSide winner)
+        {
+            _isGameRunning = false;
+            FinalGameState = new GameState(_modelController.Field, StateType.Finish, winner);
+
+            _tokenSource?.Cancel();
+
+            _playersControl.BlackPlayer.FinishGame(winner);
+            _playersControl.WhitePlayer.FinishGame(winner);
         }
 
         private bool TryUpdateField(IGameTurn newTurn)

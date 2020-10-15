@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 using Core.Enums;
 using Core.Models;
@@ -11,8 +12,6 @@ namespace Core.Interfaces
 
         void InitGame(PlayerSide side);
 
-        Task<IGameTurn> MakeTurn(GameField gameField);
-
-        void StopTurn();
+        Task<IGameTurn> MakeTurn(GameField gameField, CancellationToken token);
     }
 }

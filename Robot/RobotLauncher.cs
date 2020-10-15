@@ -1,4 +1,6 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.Reflection.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -7,6 +9,8 @@ using Core.Interfaces;
 using Core.Models;
 
 using Robot.Interfaces;
+using Robot.Models;
+using Robot.Properties;
 
 namespace Robot
 {
@@ -14,8 +18,6 @@ namespace Robot
     {
         private readonly IReporter _reporter;
         private readonly IRobotPlayer _robot;
-
-        private CancellationTokenSource _tokenSource;
 
         public RobotLauncher(int turnTime, IReporter reporter)
         {
@@ -39,29 +41,35 @@ namespace Robot
             _robot.Init(_reporter, side);
         }
         
-        public async Task<IGameTurn> MakeTurn(GameField gameField)
+        public async Task<IGameTurn> MakeTurn(GameField gameField, CancellationToken token)
         {
-            using var cts = new CancellationTokenSource();
-
             IGameTurn result;
 
-            _reporter?.ReportStatus("Robot is searchin a turn");
+            _reporter?.ReportStatus(Resources.RobotCalculationStatus);
 
-            _reporter?.ReportInfo($"=== Robot Time: {TurnTime}");
+            _reporter?.ReportInfo($"Robot Time: {TurnTime}");
 
             try
             {
-                var timerTask = Task.Run(async () => {
+                var cancellationTask = new TaskCompletionSource<IGameTurn>();
+                token.Register(() => cancellationTask.TrySetResult(default));
+
+                using var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(token);
+
+                var timerTask = Task.Run(async () =>
+                {
                     await Task.Delay(TurnTime);
-                    
-                    cts.Cancel();
+
+                    tokenSource.Cancel();
 
                     return _robot.GetTunr();
                 });
 
                 result = await await Task.WhenAny(
-                    _robot.MakeTurnAsync(gameField, cts.Token),
-                    timerTask);
+                    _robot.MakeTurnAsync(gameField, tokenSource.Token),
+                    cancellationTask.Task,
+                    timerTask)
+                    .ConfigureAwait(continueOnCapturedContext: false);
             }
             catch(Exception ex)
             {
@@ -69,12 +77,9 @@ namespace Robot
                 result = default;
             }
 
-            return result;
-        }
+            _reporter?.ReportInfo($"Result: {(PriorityTurn)result}");
 
-        public void StopTurn()
-        {
-            _tokenSource?.Cancel();
+            return result;
         }
     }
 }

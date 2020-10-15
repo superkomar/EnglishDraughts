@@ -9,7 +9,7 @@ namespace Wpf.Interfaces
 {
     internal interface IGameControlsVM : INotifyPropertyChanged
     {
-        ValueWithEnableToggle<ICommand> EndGameCmd { get; }
+        ValueWithEnableToggle<ICommand> FinishGameCmd { get; }
 
         ValueWithEnableToggle<ICommand> StartGameCmd { get; }
 

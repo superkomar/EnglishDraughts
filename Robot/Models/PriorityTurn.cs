@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 
 using Core.Enums;
 using Core.Interfaces;
@@ -8,17 +9,17 @@ namespace Robot.Models
 {
     internal class PriorityTurn : IGameTurn
     {
-        private readonly object _locker = new object();
-
         private readonly IGameTurn _turn;
 
         public PriorityTurn(IGameTurn turn)
         {
             _turn = turn;
-            Priority = 0.0;
+            _priority = 0.0;
         }
 
-        public double Priority { get; private set; }
+        private double _priority;
+
+        public double Priority => _priority;
 
         public bool IsLevelUp => _turn.IsLevelUp;
 
@@ -41,11 +42,15 @@ namespace Robot.Models
 
         public void ClarifyPriority(double additionalValue)
         {
-            lock (_locker)
+            double localPriority;
+            do
             {
-                Priority += additionalValue;
-            }
+                localPriority = _priority;
+            } while (!CompareAndSwap(ref _priority, localPriority + additionalValue, localPriority));
         }
+
+        private static bool CompareAndSwap(ref double dst, double newValue, double oldValue) =>
+            Interlocked.CompareExchange(ref dst, newValue, oldValue) == oldValue;
 
         public static explicit operator PriorityTurn(GameTurn turn) => new PriorityTurn(turn);
     }

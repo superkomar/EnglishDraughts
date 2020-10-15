@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 using Core.Enums;
 using Core.Interfaces;
@@ -36,9 +37,11 @@ namespace Wpf.ViewModels.CustomTypes
             _side = side;
         }
 
-        public Task<IGameTurn> MakeTurn(GameField gameField)
+        public Task<IGameTurn> MakeTurn(GameField gameField, CancellationToken token)
         {
             _resultChannel = new SingleUseResultChannel<IGameTurn>();
+
+            token.Register(() => _resultChannel?.Cancel());
 
             _fieldActivator.Start(gameField, _side, _reporter, _resultChannel);
             _controlsActivator.StartTurn();
@@ -50,7 +53,5 @@ namespace Wpf.ViewModels.CustomTypes
                 return result.Result;
             });
         }
-        
-        public void StopTurn() => _resultChannel?.Cancel();
     }
 }

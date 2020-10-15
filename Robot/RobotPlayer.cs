@@ -19,6 +19,8 @@ namespace Robot
 {
     public class RobotPlayer : IRobotPlayer
     {
+        private static readonly int MinAwaitTimeMs = 50;
+
         private PlayerSide _playerSide;
         private List<PriorityTurn> _priorityTurns;
         private IReporter _reporter;
@@ -44,7 +46,7 @@ namespace Robot
                 //_reporter?.ReportInfo(string.Format("Priority turn: {0}", turn.ToString()));
             }
 
-            _reporter?.ReportInfo(string.Format("Final Result: {0}", result.ToString()));
+            //_reporter?.ReportInfo(string.Format("Final Result: {0}", result.ToString()));
 
             return result;
         }
@@ -64,7 +66,7 @@ namespace Robot
 
             if (_priorityTurns.Count == 1)
             {
-                await Task.Delay(TurnTime / 2);
+                await Task.Delay(MinAwaitTimeMs);
                 return _priorityTurns.First();
             }
 
@@ -76,7 +78,7 @@ namespace Robot
                     EstimateTurn(robotField, turn, new EstimationParameters(turn, 1, token))));
             }
 
-            await Task.WhenAll(tasks);
+            await Task.WhenAll(tasks).ConfigureAwait(continueOnCapturedContext: false);
                 
             return GetTunr();
         }
@@ -105,6 +107,11 @@ namespace Robot
         {
             //_reporter.ReportInfo(string.Format("turn: {0} depth: {1,2} side: {2}",
             //    parameters.TargetTurn.ToString(), parameters.Depth, turn.Side));
+
+            if (parameters.Token.IsCancellationRequested)
+            {
+                return Task.CompletedTask;
+            }
 
             // Check the turn is correct
             if (!FieldUtils.TryCreateField(oldField.Origin, turn, out GameField newCoreField))

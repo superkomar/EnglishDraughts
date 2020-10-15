@@ -70,8 +70,8 @@
 
             <Button Grid.Row="0" Grid.Column="1"
                     Content="{x:Static resx:Resources.Wpf_ButtonContent_Finish}"
-                    Command="{Binding EndGameCmd.Value, Mode=TwoWay}"
-                    IsEnabled="{Binding EndGameCmd.IsEnabled, Mode=TwoWay}"/>
+                    Command="{Binding FinishGameCmd.Value, Mode=TwoWay}"
+                    IsEnabled="{Binding FinishGameCmd.IsEnabled, Mode=TwoWay}"/>
 
             <!--Second Row-->
             <TextBlock Grid.Row="1" Grid.Column="0"

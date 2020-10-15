@@ -21,7 +21,7 @@ namespace Wpf.ViewModels
         public GameControlsVM()
         {
             StartGameCmd = new ValueWithEnableToggle<ICommand>(new RelayCommand(StartCmdExecute), isEnable: true);
-            EndGameCmd = new ValueWithEnableToggle<ICommand>(new RelayCommand(FinishCmdExecute), isEnable: false);
+            FinishGameCmd = new ValueWithEnableToggle<ICommand>(new RelayCommand(FinishCmdExecute), isEnable: false);
 
             UndoCmd = new ValueWithEnableToggle<ICommand>(new RelayCommand(UndoCmdExecute), isEnable: false);
             RedoCmd = new ValueWithEnableToggle<ICommand>(new RelayCommand(RedoCmdExecute), isEnable: false);
@@ -38,7 +38,7 @@ namespace Wpf.ViewModels
         
         public ValueWithEnableToggle<ICommand> StartGameCmd { get; }
 
-        public ValueWithEnableToggle<ICommand> EndGameCmd { get; }
+        public ValueWithEnableToggle<ICommand> FinishGameCmd { get; }
 
         public ValueWithEnableToggle<ICommand> UndoCmd { get; }
 
@@ -69,7 +69,7 @@ namespace Wpf.ViewModels
         {
             UpdateState(StateType.GameEnd);
 
-            OnPropertyChanged(nameof(EndGameCmd));
+            OnPropertyChanged(nameof(FinishGameCmd));
         }
 
         private void RedoCmdExecute(object obj) => OnPropertyChanged(nameof(RedoCmd));
@@ -90,7 +90,7 @@ namespace Wpf.ViewModels
 
             UndoCmd.IsEnabled = isGameStarted;
             RedoCmd.IsEnabled = isGameStarted;
-            EndGameCmd.IsEnabled = isGameStarted;
+            FinishGameCmd.IsEnabled = isGameStarted;
         }
 
         private void WpfTurnStart(bool isTurnStarting)

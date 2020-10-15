@@ -18,6 +18,7 @@ namespace Wpf.ViewModels
         private readonly RobotLauncher _robotLauncher;
         private readonly WpfPlayer _wpfPlayer;
         private GameController _gameController;
+        
         public MainWindowVM()
         {
             Reporter = new StatusReporter();
@@ -54,9 +55,9 @@ namespace Wpf.ViewModels
                     await StartGameAsync();
                     break;
                 }
-                case nameof(IGameControlsVM.EndGameCmd):
+                case nameof(IGameControlsVM.FinishGameCmd):
                 {
-                    _gameController?.StopGame();
+                    _gameController?.FinishGame();
                     break;
                 }
                 case nameof(IGameControlsVM.RobotTime):
@@ -92,25 +93,16 @@ namespace Wpf.ViewModels
                 {
                     case StateType.Start:
                     {
-                        VMLocator.GameFieldVM.InitGameField(state.Field);
-
-                        Black.InitGame(PlayerSide.Black);
-                        White.InitGame(PlayerSide.White);
-                        break;
+                        VMLocator.GameFieldVM.InitGameField(state.Field); break;
                     }
                     case StateType.Finish:
                     {
-                        VMLocator.GameFieldVM.UpdateGameField(state.Field);
-
-                        Black.FinishGame(state.Side);
-                        White.FinishGame(state.Side);
-                        break;
+                        VMLocator.GameFieldVM.UpdateGameField(state.Field); break;
                     }
                     case StateType.Turn:
                     default:
                     {
-                        VMLocator.GameFieldVM.UpdateGameField(state.Field);
-                        break;
+                        VMLocator.GameFieldVM.UpdateGameField(state.Field); break;
                     }
                 }
             }
