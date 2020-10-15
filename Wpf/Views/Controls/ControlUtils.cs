@@ -15,10 +15,10 @@ namespace Wpf.Views.Controls
         public static readonly BitmapImage BlackCell = ConstructBitmap(new Uri("pack://application:,,,/Wpf;component/Images/BlackCell.png"));
         public static readonly BitmapImage WhiteCell = ConstructBitmap(new Uri("pack://application:,,,/Wpf;component/Images/WhiteCell.png"));
 
-        public static readonly BitmapImage BlackMen = ConstructBitmap(new Uri("pack://application:,,,/Wpf;component/Images/BlackMen.png"));
+        public static readonly BitmapImage BlackMan = ConstructBitmap(new Uri("pack://application:,,,/Wpf;component/Images/BlackMan.png"));
         public static readonly BitmapImage BlackKing = ConstructBitmap(new Uri("pack://application:,,,/Wpf;component/Images/BlackKing.png"));
 
-        public static readonly BitmapImage WhiteMen = ConstructBitmap(new Uri("pack://application:,,,/Wpf;component/Images/WhiteMen.png"));
+        public static readonly BitmapImage WhiteMan = ConstructBitmap(new Uri("pack://application:,,,/Wpf;component/Images/WhiteMan.png"));
         public static readonly BitmapImage WhiteKing = ConstructBitmap(new Uri("pack://application:,,,/Wpf;component/Images/WhiteKing.png"));
 
         public static Image ConstructImage(CellColor cell) =>
@@ -38,9 +38,9 @@ namespace Wpf.Views.Controls
         public static BitmapImage GetBitmapByType(CellState cellState) =>
             cellState switch
             {
-                CellState.BlackMan  => BlackMen,
+                CellState.BlackMan  => BlackMan,
                 CellState.BlackKing => BlackKing,
-                CellState.WhiteMan  => WhiteMen,
+                CellState.WhiteMan  => WhiteMan,
                 CellState.WhiteKing => WhiteKing,
                 _ => null,
             };

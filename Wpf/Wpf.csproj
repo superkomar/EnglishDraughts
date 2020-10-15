@@ -9,12 +9,12 @@
   <ItemGroup>
     <None Remove="Images\BlackCell.png" />
     <None Remove="Images\BlackKing.png" />
-    <None Remove="Images\BlackMen.png" />
+    <None Remove="Images\BlackMan.png" />
     <None Remove="Images\CellWhite.png" />
     <None Remove="Images\Empty.png" />
     <None Remove="Images\WhiteCell.png" />
     <None Remove="Images\WhiteKing.png" />
-    <None Remove="Images\WhiteMen.png" />
+    <None Remove="Images\WhiteMan.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,12 +25,12 @@
   <ItemGroup>
     <Resource Include="Images\BlackCell.png" />
     <Resource Include="Images\BlackKing.png" />
-    <Resource Include="Images\BlackMen.png" />
+    <Resource Include="Images\BlackMan.png" />
     <Resource Include="Images\CellWhite.png" />
     <Resource Include="Images\Empty.png" />
     <Resource Include="Images\WhiteCell.png" />
     <Resource Include="Images\WhiteKing.png" />
-    <Resource Include="Images\WhiteMen.png" />
+    <Resource Include="Images\WhiteMan.png" />
   </ItemGroup>
 
   <ItemGroup>
