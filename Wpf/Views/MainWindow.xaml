@@ -26,11 +26,14 @@
         <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right">
 
             <GroupBox DockPanel.Dock="Top"
+                      Width="230"
                       Header="{x:Static resx:Resources.Wpf_Header_GameStatus}">
                 
                 <TextBlock
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
+                    TextWrapping="Wrap"
+                    Height="35"
                     Text="{Binding Reporter.Status, Mode=OneWay}"
                     Margin="5"/>
             </GroupBox>
