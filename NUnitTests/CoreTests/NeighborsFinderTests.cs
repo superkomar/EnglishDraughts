@@ -4,9 +4,10 @@ using Core.Models;
 
 using NUnit.Framework;
 
-namespace NUnitTests.Core
+namespace NUnitTests.CoreTests
 {
-    public class NeighborsHelperTests
+    [TestFixture]
+    public class NeighborsFinderTests
     {
 
         [TestCase(0)]
