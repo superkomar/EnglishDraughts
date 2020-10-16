@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Core.Enums;
-using Core.Interfaces;
 using Core.Models;
 using Core.Utils;
 
@@ -35,10 +34,10 @@ namespace Robot.Extensions
             }
         }
 
-        public static IEnumerable<IGameTurn> GetTurnsBySide(this RobotField gameField, PlayerSide side)
+        public static IEnumerable<GameTurn> GetTurnsBySide(this RobotField gameField, PlayerSide side)
         {
-            var simpleMoves = new List<IGameTurn>();
-            var requiredJumps = new List<IGameTurn>();
+            var simpleMoves = new List<GameTurn>();
+            var requiredJumps = new List<GameTurn>();
 
             void Processor(int cellIdx)
             {
@@ -56,7 +55,7 @@ namespace Robot.Extensions
             return requiredJumps.Any() ? GetCompositeJumps(gameField.Origin, requiredJumps) : simpleMoves;
         }
 
-        private static IEnumerable<IGameTurn> GetCompositeJumps(GameField oldField, IEnumerable<IGameTurn> jumps)
+        private static IEnumerable<GameTurn> GetCompositeJumps(GameField oldField, IEnumerable<GameTurn> jumps)
         {
             foreach (var jump in jumps)
             {
@@ -67,7 +66,7 @@ namespace Robot.Extensions
                 {
                     foreach (var subJump in subJumps)
                     {
-                        yield return GameTurnUtils.CreateCompositeTurn(new[] { jump, subJump });
+                        yield return GameTurnUtils.CreateCompositeJump(new[] { jump, subJump });
                     }
                 }
                 else

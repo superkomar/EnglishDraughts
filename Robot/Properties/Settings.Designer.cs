@@ -61,7 +61,7 @@ namespace Robot.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        [global::System.Configuration.DefaultSettingValueAttribute("1000")]
         public double VictoryCost {
             get {
                 return ((double)(this["VictoryCost"]));
@@ -73,7 +73,7 @@ namespace Robot.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("-100")]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1000")]
         public double LosingCost {
             get {
                 return ((double)(this["LosingCost"]));

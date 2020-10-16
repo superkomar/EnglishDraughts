@@ -27,7 +27,7 @@ namespace Robot
         
         public int TurnTime { get; set; }
 
-        public IGameTurn GetTunr()
+        public GameTurn GetTunr()
         {
             if (_priorityTurns == null || !_priorityTurns.Any())
             {
@@ -48,7 +48,7 @@ namespace Robot
 
             //_reporter?.ReportInfo(string.Format("Final Result: {0}", result.ToString()));
 
-            return result;
+            return result.Origin;
         }
 
         public void Init(IReporter reporter, PlayerSide side)
@@ -57,7 +57,7 @@ namespace Robot
             _playerSide = side;
         }
 
-        public async Task<IGameTurn> MakeTurnAsync(GameField gameField, CancellationToken token)
+        public async Task<GameTurn> MakeTurnAsync(GameField gameField, CancellationToken token)
         {
             var robotField = new RobotField(gameField);
             var turns = robotField.GetTurnsBySide(_playerSide);
@@ -83,7 +83,7 @@ namespace Robot
             return GetTunr();
         }
 
-        private static IEnumerable<IGameTurn> FindWorstTurn(RobotField oldField, IEnumerable<IGameTurn> newTurns)
+        private static IEnumerable<GameTurn> FindWorstTurn(RobotField oldField, IEnumerable<GameTurn> newTurns)
         {
             var index = -1;
             var minPriority = double.PositiveInfinity;
@@ -103,7 +103,7 @@ namespace Robot
             return newTurns.Any() ? new[] { newTurns.ElementAt(index) } : newTurns;
         }
 
-        private Task EstimateTurn(RobotField oldField, IGameTurn turn, EstimationParameters parameters)
+        private Task EstimateTurn(RobotField oldField, GameTurn turn, EstimationParameters parameters)
         {
             //_reporter.ReportInfo(string.Format("turn: {0} depth: {1,2} side: {2}",
             //    parameters.TargetTurn.ToString(), parameters.Depth, turn.Side));
@@ -125,7 +125,7 @@ namespace Robot
             var isOppositeTurn = _playerSide != turn.Side;
 
             var newTurns = newField.GetTurnsBySide(turn.Side.ToOpposite());
-            if (isOppositeTurn) newTurns = FindWorstTurn(oldField, newTurns);
+            //if (isOppositeTurn) newTurns = FindWorstTurn(oldField, newTurns);
 
             var isGameEnded = false;
             var additionalValue = 0.0;

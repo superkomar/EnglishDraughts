@@ -23,7 +23,7 @@ namespace Core.Utils
         {
             var oppositeSide = side.ToOpposite();
             return !field.AreAnyPieces(oppositeSide)
-                || !GameTurnUtils.FindTurnsForSide(field, oppositeSide).Any();
+                || !AnyTurnsPossible(field, oppositeSide);
         }
         
         public static bool IsValidTurnEnd(GameField field, int cellIdx) =>
@@ -31,6 +31,12 @@ namespace Core.Utils
         
         public static bool IsValidTurnStart(GameField field, int cellIdx) =>
             field.IsValidCellIdx(cellIdx) && field[cellIdx] != CellState.Empty;
+
+        private static bool AnyTurnsPossible(GameField field, PlayerSide side) =>
+            field.Cells.SelectMany((cell, idx) => cell.IsSameSide(side)
+                ? GameTurnUtils.FindTurnsForCell(field, idx)
+                : Enumerable.Empty<GameTurn>())
+            .Any();
 
         private static bool IsValidMoveDirection(GameField field, int start, int end) =>
             field[start].IsKing()

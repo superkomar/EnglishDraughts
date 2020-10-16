@@ -12,10 +12,10 @@
       <Value Profile="(Default)">1</Value>
     </Setting>
     <Setting Name="VictoryCost" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">100</Value>
+      <Value Profile="(Default)">1000</Value>
     </Setting>
     <Setting Name="LosingCost" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">-100</Value>
+      <Value Profile="(Default)">-1000</Value>
     </Setting>
   </Settings>
 </SettingsFile>

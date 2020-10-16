@@ -45,7 +45,7 @@ namespace Wpf.ViewModels
 
         #region IWpfFieldActivator
 
-        public void Start(GameField newField, PlayerSide side, IReporter reporter, IResultSender<IGameTurn> resultSetter)
+        public void Start(GameField newField, PlayerSide side, IReporter reporter, IResultSender<GameTurn> resultSetter)
         {
             _selectionController.IsSelectionAvaliable = true;
             _turnsController.UpdateState(newField, side, reporter, resultSetter);

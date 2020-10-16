@@ -13,11 +13,11 @@ namespace Wpf.ViewModels.CustomTypes
 {
     internal class TurnsConstructor : ITurnsConstructor
     {
-        private GameField _gameField;
+        private GameField _curField;
         private IReporter _reporter;
-        private IEnumerable<IGameTurn> _requiredJumps;
-        private IResultSender<IGameTurn> _sender;
-        private List<IGameTurn> _turns;
+        private IEnumerable<GameTurn> _requiredJumps;
+        private IResultSender<GameTurn> _sender;
+        private List<GameTurn> _turns;
 
         public enum Result
         {
@@ -43,7 +43,7 @@ namespace Wpf.ViewModels.CustomTypes
 
         public Result TryMakeTurn(int start, int end)
         {
-            var gameTurn = GameTurnUtils.CreateTurnByCells(_gameField, Side, start, end);
+            var gameTurn = GameTurnUtils.CreateTurnByTwoCells(_curField, Side, start, end);
             
             if (gameTurn == null || (gameTurn.IsSimple && _requiredJumps.Any()))
             {
@@ -52,7 +52,7 @@ namespace Wpf.ViewModels.CustomTypes
 
             _turns.Add(gameTurn);
 
-            GameFieldUtils.TryCreateField(_gameField, gameTurn, out GameField newField);
+            GameFieldUtils.TryCreateField(_curField, gameTurn, out GameField newField);
 
             // Not the last jump
             if (!gameTurn.IsSimple && !gameTurn.IsLevelUp &&
@@ -63,27 +63,27 @@ namespace Wpf.ViewModels.CustomTypes
 
                 DoJumpsContinue = true;
 
-                _gameField = newField;
+                _curField = newField;
 
                 return Result.Continue;
             }
 
-            _sender?.Send(GameTurnUtils.CreateCompositeTurn(_turns));
+            _sender?.Send(GameTurnUtils.CreateCompositeJump(_turns));
 
             return Result.Ok;
         }
 
         #endregion
 
-        public void UpdateState(GameField newField, PlayerSide side, IReporter reporter, IResultSender<IGameTurn> sender)
+        public void UpdateState(GameField newField, PlayerSide side, IReporter reporter, IResultSender<GameTurn> sender)
         {
             Side = side;
-            _gameField = newField;
+            _curField = newField;
             _reporter = reporter;
             _sender = sender;
 
-            _turns = new List<IGameTurn>();
-            _requiredJumps = GameTurnUtils.FindRequiredJumps(_gameField, Side);
+            _turns = new List<GameTurn>();
+            _requiredJumps = GameTurnUtils.FindRequiredJumps(_curField, Side);
 
             DoJumpsContinue = false;
 

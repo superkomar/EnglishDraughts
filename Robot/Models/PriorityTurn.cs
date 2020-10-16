@@ -1,44 +1,24 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 
-using Core.Enums;
-using Core.Interfaces;
 using Core.Models;
 
 namespace Robot.Models
 {
-    internal class PriorityTurn : IGameTurn
+    internal class PriorityTurn
     {
-        private readonly IGameTurn _turn;
-
-        public PriorityTurn(IGameTurn turn)
+        private double _priority;
+        
+        public PriorityTurn(GameTurn turn)
         {
-            _turn = turn;
+            Origin = turn;
             _priority = 0.0;
         }
-
-        private double _priority;
-
+        
+        public GameTurn Origin { get; }
+        
         public double Priority => _priority;
 
-        public bool IsLevelUp => _turn.IsLevelUp;
-
-        public bool IsSimple => _turn.IsSimple;
-
-        public PlayerSide Side => _turn.Side;
-
-        public int Start => _turn.Start;
-
-        public override string ToString()
-        {
-            var steps = IsSimple
-                ? $"{_turn.Steps[0]} - {_turn.Steps[1]}"
-                : $"{_turn.Steps[0]} - {_turn.Steps[1]} - {_turn.Steps[2]}";
-
-            return $"{steps}; pr: {Priority:0.###};";
-        }
-
-        public IReadOnlyList<int> Steps => _turn.Steps;
+        public static implicit operator GameTurn(PriorityTurn turn) => turn.Origin;
 
         public void ClarifyPriority(double additionalValue)
         {
@@ -49,9 +29,9 @@ namespace Robot.Models
             } while (!CompareAndSwap(ref _priority, localPriority + additionalValue, localPriority));
         }
 
+        public override string ToString() => $"{Origin}; pr: {Priority:0.###};";
+        
         private static bool CompareAndSwap(ref double dst, double newValue, double oldValue) =>
             Interlocked.CompareExchange(ref dst, newValue, oldValue) == oldValue;
-
-        public static explicit operator PriorityTurn(GameTurn turn) => new PriorityTurn(turn);
     }
 }

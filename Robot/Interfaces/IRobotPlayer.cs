@@ -17,8 +17,8 @@ namespace Robot.Interfaces
         /// Call if time is up.
         /// </summary>
         /// <returns>Best founded turn or default</returns>
-        IGameTurn GetTunr();
+        GameTurn GetTunr();
 
-        Task<IGameTurn> MakeTurnAsync(GameField gameField, CancellationToken token);
+        Task<GameTurn> MakeTurnAsync(GameField gameField, CancellationToken token);
     }
 }

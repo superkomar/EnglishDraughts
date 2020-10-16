@@ -123,7 +123,7 @@ namespace Core
             _playersControl.WhitePlayer.FinishGame(winner);
         }
 
-        private bool TryUpdateField(IGameTurn newTurn)
+        private bool TryUpdateField(GameTurn newTurn)
         {
             if (newTurn == null ||
                 !GameFieldUtils.TryCreateField(_modelController.Field, newTurn, out GameField newGameField))

@@ -12,6 +12,6 @@ namespace Core.Interfaces
 
         void InitGame(PlayerSide side);
 
-        Task<IGameTurn> MakeTurn(GameField gameField, CancellationToken token);
+        Task<GameTurn> MakeTurn(GameField gameField, CancellationToken token);
     }
 }

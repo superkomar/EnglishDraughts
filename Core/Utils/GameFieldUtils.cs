@@ -4,7 +4,6 @@ using System.Linq;
 
 using Core.Enums;
 using Core.Extensions;
-using Core.Interfaces;
 using Core.Models;
 using Core.Properties;
 
@@ -12,14 +11,14 @@ namespace Core.Utils
 {
     public static class GameFieldUtils
     {
-        public static GameField CreateField(int dimension)
+        public static GameField CreateField(int dimension = 8)
         {
             if (dimension <= 0) throw new ArgumentException(Resources.ArgumentException_Dimension);
 
             return new GameField(ConstructInitialField(dimension), new NeighborsFinder(dimension), dimension);
         }
 
-        public static bool TryCreateField(GameField oldField, IGameTurn turn, out GameField newField)
+        public static bool TryCreateField(GameField oldField, GameTurn turn, out GameField newField)
         {
             newField = oldField;
 
@@ -32,7 +31,7 @@ namespace Core.Utils
             var newCells = new List<CellState>(oldField.Cells);
             var cellState = newCells[turn.Steps.First()];
 
-            foreach (var step in turn.Steps.Take(turn.Steps.Count - 1))
+            foreach (var step in turn.Steps)
             {
                 newCells[step] = CellState.Empty;
             }

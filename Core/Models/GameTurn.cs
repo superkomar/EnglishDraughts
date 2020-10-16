@@ -1,16 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 using Core.Enums;
-using Core.Interfaces;
 
+[assembly: InternalsVisibleTo("NUnitTests")]
 namespace Core.Models
 {
-    public class GameTurn : IGameTurn
+    public sealed class GameTurn
     {
-        internal GameTurn(PlayerSide playerSide, bool isLevelUp, IReadOnlyList<int> turns)
+        internal GameTurn(PlayerSide playerSide, bool isLevelUp, IReadOnlyList<int> steps)
         {
-            Steps = turns;
+            Steps = steps;
             Side = playerSide;
             IsLevelUp = isLevelUp;
         }
@@ -24,5 +25,7 @@ namespace Core.Models
         public PlayerSide Side { get; }
 
         public int Start => Steps.First();
+
+        public override string ToString() => $"[{string.Join(" - ", Steps)}]";
     }
 }

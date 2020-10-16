@@ -39,9 +39,9 @@ namespace Robot
             _robot.Init(_reporter, side);
         }
         
-        public async Task<IGameTurn> MakeTurn(GameField gameField, CancellationToken token)
+        public async Task<GameTurn> MakeTurn(GameField gameField, CancellationToken token)
         {
-            IGameTurn result;
+            GameTurn result;
 
             _reporter?.ReportStatus(Resources.RobotCalculationStatus);
 
@@ -49,7 +49,7 @@ namespace Robot
 
             try
             {
-                var cancellationTask = new TaskCompletionSource<IGameTurn>();
+                var cancellationTask = new TaskCompletionSource<GameTurn>();
                 token.Register(() => cancellationTask.TrySetResult(default));
 
                 using var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(token);
@@ -75,7 +75,7 @@ namespace Robot
                 result = default;
             }
 
-            _reporter?.ReportInfo($"Result: {(PriorityTurn)result}");
+            _reporter?.ReportInfo($"Result: {result}");
 
             return result;
         }

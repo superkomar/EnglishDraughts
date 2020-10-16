@@ -16,7 +16,7 @@ namespace Wpf.ViewModels.CustomTypes
         private readonly IWpfFieldActivator _fieldActivator;
         private readonly IReporter _reporter;
 
-        private SingleUseResultChannel<IGameTurn> _resultChannel;
+        private SingleUseResultChannel<GameTurn> _resultChannel;
         private PlayerSide _side;
         
         public WpfPlayer(IWpfFieldActivator fieldActivator, IWpfControlsActivator controlsActivator, IReporter reporter)
@@ -37,9 +37,9 @@ namespace Wpf.ViewModels.CustomTypes
             _side = side;
         }
 
-        public Task<IGameTurn> MakeTurn(GameField gameField, CancellationToken token)
+        public Task<GameTurn> MakeTurn(GameField gameField, CancellationToken token)
         {
-            _resultChannel = new SingleUseResultChannel<IGameTurn>();
+            _resultChannel = new SingleUseResultChannel<GameTurn>();
 
             token.Register(() => _resultChannel?.Cancel());
 
