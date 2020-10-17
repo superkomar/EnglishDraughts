@@ -1,19 +1,27 @@
-# EnglishDraughts
+# English Draughts
+ 
+C# implementation of [English Draughts](https://en.wikipedia.org/wiki/English_draughts) for playing against AI.    
 
-Игра английские шашки.
-
-- программа должна быть написана на C#
-- GUI приложения должно быть написано с использованием WPF или Avalonia и только стандартных контролов
-- реализовать проверку хода пользователя на соответствие правилам
-- для расчета хода, робот должен использовать все имеющиеся ядра процессора
-- время, отведенное на обдумывание хода роботом ограничено, и может быть изменено пользователем в свой ход; если время закончилось, робот должен сделать ход, выбрав лучший из тех, что успел рассчитать
-- пользователь может выбрать сторону, за которую будет играть
-- пользователь может делать undo/redo ходов на любую глубину в свой ход
-
-Оцениваются:
-- дизайн и качество кода
-- быстродействие и потребление памяти
-- отсутствие багов, оттестированость
-
-Не оцениваются:
-- дизайн графического интерфейса пользователя
+<img src="https://i.imgur.com/gRCk0km.png">
+ 
+### Player
+ 
+- Chooses side (Black/White) before starting the game.
+- Configures AI turn time limit during their turn.
+- May use unlimited depth Undo/Redo functionality.
+ 
+### AI 
+ 
+- Computes its turn parallelly.    
+- Uses all available time for choosing the best turn.
+ 
+### Project structure
+ 
+- Core - Game models and controllers.  
+- Robot - An AI implementation.
+- NUnitTests - Tests using NUnit framework.                             
+- WPF - GUI.               
+ 
+### Based on
+ 
+.Net Core 3.1, Windows Presentation Foundation (WPF).
