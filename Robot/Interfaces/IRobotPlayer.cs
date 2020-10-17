@@ -10,14 +10,12 @@ namespace Robot.Interfaces
     {
         int TurnTime { get; set; }
 
-        void Init(PlayerSide side);
-
         /// <summary>
         /// Call if time is up.
         /// </summary>
-        /// <returns>Best founded turn or default</returns>
+        /// <returns> Get a better turn or default</returns>
         GameTurn GetTunr();
 
-        Task<GameTurn> MakeTurnAsync(GameField gameField, CancellationToken token);
+        Task<GameTurn> MakeTurnAsync(GameField gameField, PlayerSide side, CancellationToken token);
     }
 }

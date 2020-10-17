@@ -9,6 +9,7 @@ using Core.Models;
 using NLog;
 
 using Robot.Interfaces;
+using Robot.Models;
 using Robot.Properties;
 
 namespace Robot
@@ -19,6 +20,8 @@ namespace Robot
 
         private readonly IStatusReporter _statusReporter;
         private readonly IRobotPlayer _robot;
+
+        private PlayerSide _playerSide;
 
         public RobotLauncher(int turnTime, IStatusReporter statusReporter)
         {
@@ -37,10 +40,7 @@ namespace Robot
         public void FinishGame(PlayerSide winner)
         { }
 
-        public void InitGame(PlayerSide side)
-        {
-            _robot.Init(side);
-        }
+        public void InitGame(PlayerSide side) => _playerSide = side;
         
         public async Task<GameTurn> MakeTurn(GameField gameField, CancellationToken token)
         {
@@ -65,7 +65,7 @@ namespace Robot
                 });
 
                 result = await await Task.WhenAny(
-                    _robot.MakeTurnAsync(gameField, tokenSource.Token),
+                    _robot.MakeTurnAsync(gameField, _playerSide, tokenSource.Token),
                     cancellationTask.Task,
                     timerTask)
                     .ConfigureAwait(continueOnCapturedContext: false);

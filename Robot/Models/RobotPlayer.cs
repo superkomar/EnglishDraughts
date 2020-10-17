@@ -13,16 +13,15 @@ using NLog;
 
 using Robot.Extensions;
 using Robot.Interfaces;
-using Robot.Models;
 using Robot.Properties;
+using Robot.Utils;
 
-namespace Robot
+namespace Robot.Models
 {
-    public class RobotPlayer : IRobotPlayer
+    internal class RobotPlayer : IRobotPlayer
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        private PlayerSide _playerSide;
         private List<PriorityTurn> _priorityTurns;
         
         public int TurnTime { get; set; }
@@ -51,15 +50,10 @@ namespace Robot
             return result.Origin;
         }
 
-        public void Init(PlayerSide side)
+        public async Task<GameTurn> MakeTurnAsync(GameField gameField, PlayerSide side, CancellationToken token)
         {
-            _playerSide = side;
-        }
-
-        public async Task<GameTurn> MakeTurnAsync(GameField gameField, CancellationToken token)
-        {
-            var robotField = new RobotField(gameField);
-            var turns = robotField.GetTurnsBySide(_playerSide);
+            var robotField = new CachedField(gameField);
+            var turns = robotField.GetTurnsBySide(side);
 
             _priorityTurns = turns.Select(x => new PriorityTurn(x)).ToList();
 
@@ -82,27 +76,7 @@ namespace Robot
             return GetTunr();
         }
 
-        private static IEnumerable<GameTurn> FindWorstTurn(RobotField oldField, IEnumerable<GameTurn> newTurns)
-        {
-            var index = -1;
-            var minPriority = double.PositiveInfinity;
-
-            foreach (var (turn, idx) in newTurns.Select((t, i) => (t, i)))
-            {
-                GameFieldUtils.TryCreateField(oldField.Origin, turn, out GameField newField);
-                var turnMetric = MetricsProcessor.CompareWithMetrics(oldField, new RobotField(newField), turn.Side);
-
-                if (turnMetric < minPriority)
-                {
-                    minPriority = turnMetric;
-                    index = idx;
-                }
-            }
-
-            return newTurns.Any() ? new[] { newTurns.ElementAt(index) } : newTurns;
-        }
-
-        private Task EstimateTurn(RobotField oldField, GameTurn turn, EstimationParameters parameters)
+        private Task EstimateTurn(CachedField oldField, GameTurn turn, EstimationParameters parameters)
         {
             if (parameters.Token.IsCancellationRequested)
             {
@@ -117,18 +91,18 @@ namespace Robot
                 throw new ArgumentException($"Invalid turn: {turn}");
             }
 
-            var newField = new RobotField(newCoreField);
+            var newField = new CachedField(newCoreField);
 
-            var isOppositeTurn = _playerSide != turn.Side;
+            var isOppositeTurn = parameters.TargetTurn.Side != turn.Side;
 
             var newTurns = newField.GetTurnsBySide(turn.Side.ToOpposite());
 
             var isGameEnded = false;
-            var additionalValue = 0.0;
+            var curTurnPriority = 0.0;
 
             if (newTurns.Any())
             {
-                additionalValue =
+                curTurnPriority =
                     MetricsProcessor.CompareWithMetrics(oldField, newField, turn.Side)
                     * (isOppositeTurn ? -1 : 1)
                     * (1 / (double) parameters.Depth);
@@ -136,13 +110,13 @@ namespace Robot
             else
             {
                 isGameEnded = true;
-                additionalValue = (1 / parameters.Depth) *
-                    (GameRules.HasPlayerWon(newField, _playerSide)
+                curTurnPriority = (1 / parameters.Depth) *
+                    (GameRules.HasPlayerWon(newField, parameters.TargetTurn.Side)
                     ? Settings.Default.VictoryCost
                     : Settings.Default.LosingCost);
             }
 
-            parameters.TargetTurn.ClarifyPriority(additionalValue);
+            parameters.TargetTurn.ClarifyPriority(curTurnPriority);
 
             if (parameters.Token.IsCancellationRequested || isGameEnded)
             {
@@ -158,30 +132,6 @@ namespace Robot
             }
 
             return Task.WhenAll(tasks);
-        }
-        
-        private readonly struct EstimationParameters
-        {
-            public EstimationParameters(PriorityTurn generanTurn, int depth, CancellationToken token)
-            {
-                Depth = depth;
-                Token = token;
-                TargetTurn = generanTurn;
-            }
-
-            public EstimationParameters(EstimationParameters other, int level)
-            {
-                Depth = level;
-
-                Token = other.Token;
-                TargetTurn = other.TargetTurn;
-            }
-
-            public int Depth { get; }
-            
-            public PriorityTurn TargetTurn { get; }
-            
-            public CancellationToken Token { get; }
         }
     }
 }

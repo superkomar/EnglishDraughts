@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 
+using Core.Enums;
 using Core.Models;
 
 namespace Robot.Models
@@ -18,7 +19,7 @@ namespace Robot.Models
         
         public double Priority => _priority;
 
-        public static implicit operator GameTurn(PriorityTurn turn) => turn.Origin;
+        public PlayerSide Side => Origin.Side;
 
         public void ClarifyPriority(double additionalValue)
         {
@@ -33,5 +34,7 @@ namespace Robot.Models
         
         private static bool CompareAndSwap(ref double dst, double newValue, double oldValue) =>
             Interlocked.CompareExchange(ref dst, newValue, oldValue) == oldValue;
+
+        public static implicit operator GameTurn(PriorityTurn turn) => turn.Origin;
     }
 }

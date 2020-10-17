@@ -26,7 +26,7 @@ namespace Robot.Extensions
             }
         }
 
-        public static void ProcessCellsBySide(this RobotField gameField, PlayerSide side, Action<int> processor)
+        public static void ProcessCellsBySide(this CachedField gameField, PlayerSide side, Action<int> processor)
         {
             foreach (var cellIdx in gameField.PiecesBySide(side))
             {
@@ -34,7 +34,7 @@ namespace Robot.Extensions
             }
         }
 
-        public static IEnumerable<GameTurn> GetTurnsBySide(this RobotField gameField, PlayerSide side)
+        public static IEnumerable<GameTurn> GetTurnsBySide(this CachedField gameField, PlayerSide side)
         {
             var simpleMoves = new List<GameTurn>();
             var requiredJumps = new List<GameTurn>();
