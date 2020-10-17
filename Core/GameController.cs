@@ -96,7 +96,7 @@ namespace Core
             var newTurn = await Task.Run(() => Player.MakeTurn(_modelController.Field, _tokenSource.Token))
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            Logger.Info($"{Side}: {newTurn}");
+            Logger.Info(newTurn);
 
             // Check if game stoped
             if (FinalGameState != null) return FinalGameState.Value;
