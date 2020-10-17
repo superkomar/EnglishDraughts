@@ -63,15 +63,9 @@ namespace Robot.Models
                 return _priorityTurns.First();
             }
 
-            var tasks = new List<Task>();
-
-            foreach (var turn in _priorityTurns)
-            {
-                tasks.Add(Task.Run(() =>
-                    EstimateTurn(robotField, turn, new EstimationParameters(turn, 1, token))));
-            }
-
-            await Task.WhenAll(tasks).ConfigureAwait(continueOnCapturedContext: false);
+            await Task.WhenAll(_priorityTurns
+                .Select(turn => Task.Run(() => EstimateTurn(robotField, turn, new EstimationParameters(turn, 1, token)))))
+                .ConfigureAwait(continueOnCapturedContext: false);
                 
             return GetTunr();
         }
@@ -126,12 +120,8 @@ namespace Robot.Models
             var tasks = new List<Task>();
             var newParameters = new EstimationParameters(parameters, parameters.Depth + 1);
 
-            foreach (var newTurn in newTurns) 
-            {
-                tasks.Add(Task.Run(() => EstimateTurn(newField, newTurn, newParameters)));
-            }
-
-            return Task.WhenAll(tasks);
+            return Task.WhenAll(newTurns
+                .Select(turn =>Task.Run(() => EstimateTurn(newField, turn, newParameters))));
         }
     }
 }
