@@ -120,6 +120,9 @@
   <data name="Error_EmptySteps" xml:space="preserve">
     <value>Turn should be constructed by valid steps</value>
   </data>
+  <data name="Error_GameFieldCtor" xml:space="preserve">
+    <value>GameField should be constructed by valid cells and dimension</value>
+  </data>
   <data name="Error_InvalidDimension" xml:space="preserve">
     <value>Dimension should be more than zero</value>
   </data>

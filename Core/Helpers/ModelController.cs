@@ -1,5 +1,4 @@
 ﻿using Core.Models;
-using Core.Utils;
 
 namespace Core.Helpers
 {
@@ -9,7 +8,7 @@ namespace Core.Helpers
 
         public ModelController(int dimension)
         {
-            _history = new GameHistory<GameField>(GameFieldUtils.CreateField(dimension));
+            _history = new GameHistory<GameField>(new GameField(dimension));
         }
 
         public GameField Field => _history.Current;

@@ -28,7 +28,7 @@ namespace Wpf.ViewModels
             _turnsController = new TurnsConstructor();
             _selectionController = new SelectionController(_turnsController);
 
-            InitGameField(GameFieldUtils.CreateField(Dimension));
+            InitGameField(new GameField(Dimension));
         }
 
         #region ICellHandlersController

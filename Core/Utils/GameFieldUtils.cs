@@ -1,49 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 using Core.Enums;
 using Core.Extensions;
 using Core.Models;
-using Core.Properties;
 
 namespace Core.Utils
 {
     public static class GameFieldUtils
     {
-        public static GameField CreateField(int dimension = 8)
-        {
-            if (dimension <= 0) throw new ArgumentException(Resources.ArgumentException_Dimension);
-
-            return new GameField(ConstructInitialField(dimension), new NeighborsFinder(dimension), dimension);
-        }
-
-        public static bool TryCreateField(GameField oldField, GameTurn turn, out GameField newField)
-        {
-            newField = oldField;
-
-            if (turn == null ||
-                turn.IsSimple && GameTurnUtils.FindRequiredJumps(oldField, turn.Side).Any())
-            {
-                return false;
-            }
-
-            var newCells = new List<CellState>(oldField.Cells);
-            var cellState = newCells[turn.Steps.First()];
-
-            foreach (var step in turn.Steps)
-            {
-                newCells[step] = CellState.Empty;
-            }
-
-            newCells[turn.Steps.Last()] = turn.IsLevelUp ? cellState.LevelUp() : cellState;
-
-            newField = new GameField(newCells, oldField);
-
-            return true;
-        }
-
-        private static IReadOnlyList<CellState> ConstructInitialField(int dimension)
+        public static IReadOnlyList<CellState> ConstructInitialField(int dimension)
         {
             int rowCountWithPieces = dimension / 2 - 1;
 
@@ -75,6 +41,31 @@ namespace Core.Utils
             }
 
             return initField;
+        }
+
+        public static bool TryCreateField(GameField oldField, GameTurn turn, out GameField newField)
+        {
+            newField = oldField;
+
+            if (turn == null ||
+                turn.IsSimple && GameTurnUtils.FindRequiredJumps(oldField, turn.Side).Any())
+            {
+                return false;
+            }
+
+            var newCells = new List<CellState>(oldField.Cells);
+            var cellState = newCells[turn.Steps.First()];
+
+            foreach (var step in turn.Steps)
+            {
+                newCells[step] = CellState.Empty;
+            }
+
+            newCells[turn.Steps.Last()] = turn.IsLevelUp ? cellState.LevelUp() : cellState;
+
+            newField = new GameField(newCells, oldField.Dimension);
+
+            return true;
         }
     }
 }

@@ -70,6 +70,15 @@ namespace Core.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to GameField should be constructed by valid cells and dimension.
+        /// </summary>
+        internal static string Error_GameFieldCtor {
+            get {
+                return ResourceManager.GetString("Error_GameFieldCtor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Dimension should be more than zero.
         /// </summary>
         internal static string Error_InvalidDimension {

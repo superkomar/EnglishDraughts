@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
 using Core.Enums;
 using Core.Extensions;
 using Core.Helpers;
+using Core.Properties;
+using Core.Utils;
 
 [assembly: InternalsVisibleTo("NUnitTests")]
 namespace Core.Models
@@ -16,25 +19,23 @@ namespace Core.Models
 
         private readonly FieldCellCollection _cellCollection;
 
-        internal GameField(IReadOnlyList<CellState> cells, NeighborsFinder neighborsHelper, int dimension)
+        internal GameField(IReadOnlyList<CellState> cells, int dimension)
         {
+            if (dimension <= 0 || cells == null || !cells.Any())
+            {
+                throw new ArgumentException(Resources.Error_GameFieldCtor);
+            }
+
+            NeighborsFinder = new NeighborsFinder(dimension);
             _cellCollection = new FieldCellCollection(cells, dimension);
 
-            NeighborsFinder = neighborsHelper;
-
             _areBlackPiecesPresent = _cellCollection.Any(x => x.IsSameSide(PlayerSide.Black));
             _areWhitePiecesPresent = _cellCollection.Any(x => x.IsSameSide(PlayerSide.White));
         }
 
-        internal GameField(IReadOnlyList<CellState> cells, GameField other)
-        {
-            _cellCollection = new FieldCellCollection(cells, other.Dimension);
-
-            NeighborsFinder = other.NeighborsFinder;
-
-            _areBlackPiecesPresent = _cellCollection.Any(x => x.IsSameSide(PlayerSide.Black));
-            _areWhitePiecesPresent = _cellCollection.Any(x => x.IsSameSide(PlayerSide.White));
-        }
+        public GameField(int dimension)
+            : this(GameFieldUtils.ConstructInitialField(dimension), dimension)
+        { }
 
         public int GetRowIdx(int cellIdx) => cellIdx / Dimension;
 

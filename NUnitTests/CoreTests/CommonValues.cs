@@ -3,7 +3,6 @@ using System.Linq;
 
 using Core.Enums;
 using Core.Models;
-using Core.Utils;
 
 namespace NUnitTests.CoreTests
 {
@@ -13,17 +12,9 @@ namespace NUnitTests.CoreTests
         {
             var dimension = 8;
 
-            DefaultField = GameFieldUtils.CreateField(dimension);
-
-            ShortJumpsField = new GameField(
-                GenerateFieldWithJumps(dimension, false),
-                new NeighborsFinder(dimension),
-                dimension);
-
-            LongJumpsField = new GameField(
-                GenerateFieldWithJumps(dimension, true),
-                new NeighborsFinder(dimension),
-                dimension);
+            DefaultField = new GameField(dimension);
+            ShortJumpsField = new GameField(GenerateFieldWithJumps(dimension, false), dimension);
+            LongJumpsField = new GameField(GenerateFieldWithJumps(dimension, true), dimension);
         }
 
         public static GameField DefaultField { get; }

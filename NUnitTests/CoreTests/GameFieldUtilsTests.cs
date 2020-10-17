@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 
 using Core.Enums;
-using Core.Interfaces;
 using Core.Models;
 using Core.Utils;
 
@@ -18,34 +17,34 @@ namespace NUnitTests.CoreTests
         [Test]
         public void CreateField()
         {
-            Assert.Throws<ArgumentException>(() => GameFieldUtils.CreateField(-1));
-            Assert.Throws<ArgumentException>(() => GameFieldUtils.CreateField(0));
+            Assert.Throws<ArgumentException>(() => new GameField(-1));
+            Assert.Throws<ArgumentException>(() => new GameField(0));
 
-            var field_1 = GameFieldUtils.CreateField(1);
+            var field_1 = new GameField(1);
             Assert.AreEqual(field_1.CellCount, 1);
             Assert.AreEqual(field_1[0], CellState.Empty);
 
-            var field_2 = GameFieldUtils.CreateField(2);
+            var field_2 = new GameField(2);
             Assert.AreEqual(field_2.CellCount, 4);
             Assert.AreEqual(field_2[0], CellState.Empty);
             Assert.AreEqual(field_2[1], CellState.Empty);
             Assert.AreEqual(field_2[2], CellState.Empty);
             Assert.AreEqual(field_2[3], CellState.Empty);
 
-            var field_3 = GameFieldUtils.CreateField(3);
+            var field_3 = new GameField(3);
             Assert.AreEqual(field_3.CellCount, 9);
             Assert.AreEqual(field_3[1], CellState.Empty);
             Assert.AreEqual(field_3[3], CellState.Empty);
             Assert.AreEqual(field_3[7], CellState.Empty);
 
-            var field_4 = GameFieldUtils.CreateField(4);
+            var field_4 = new GameField(4);
             Assert.AreEqual(field_4.CellCount, 16);
             Assert.AreEqual(field_4[1], CellState.BlackMan);
             Assert.AreEqual(field_4[4], CellState.Empty);
             Assert.AreEqual(field_4[9], CellState.Empty);
             Assert.AreEqual(field_4[12], CellState.WhiteMan);
 
-            var field_8 = GameFieldUtils.CreateField(8);
+            var field_8 = new GameField(8);
             Assert.AreEqual(field_8.CellCount, 64);
             Assert.AreEqual(field_8[1], CellState.BlackMan);
             Assert.AreEqual(field_8[8], CellState.BlackMan);
