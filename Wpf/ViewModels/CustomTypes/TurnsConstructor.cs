@@ -14,7 +14,7 @@ namespace Wpf.ViewModels.CustomTypes
     internal class TurnsConstructor : ITurnsConstructor
     {
         private GameField _curField;
-        private IReporter _reporter;
+        private IStatusReporter _statusReporter;
         private IEnumerable<GameTurn> _requiredJumps;
         private IResultSender<GameTurn> _sender;
         private List<GameTurn> _turns;
@@ -58,8 +58,7 @@ namespace Wpf.ViewModels.CustomTypes
             if (!gameTurn.IsSimple && !gameTurn.IsLevelUp &&
                 GameTurnUtils.FindTurnsForCell(newField, gameTurn.Steps.Last(), TurnType.Jump).Any())
             {
-                _reporter?.ReportStatus(
-                    $"{Side}: {Resources.WpfPlayer_JumpTurn_Continue}");
+                _statusReporter.Status = $"{Side}: {Resources.WpfPlayer_JumpTurn_Continue}";
 
                 DoJumpsContinue = true;
 
@@ -75,11 +74,11 @@ namespace Wpf.ViewModels.CustomTypes
 
         #endregion
 
-        public void UpdateState(GameField newField, PlayerSide side, IReporter reporter, IResultSender<GameTurn> sender)
+        public void UpdateState(GameField newField, PlayerSide side, IStatusReporter statusReporter, IResultSender<GameTurn> sender)
         {
             Side = side;
             _curField = newField;
-            _reporter = reporter;
+            _statusReporter = statusReporter;
             _sender = sender;
 
             _turns = new List<GameTurn>();
@@ -87,10 +86,9 @@ namespace Wpf.ViewModels.CustomTypes
 
             DoJumpsContinue = false;
 
-            _reporter?.ReportStatus(string.Format("{0}: {1}", Side,
-                _requiredJumps.Any()
+            _statusReporter.Status = string.Format("{0}: {1}", Side, _requiredJumps.Any()
                 ? Resources.WpfPlayer_JumpTurn_Start
-                : Resources.WpfPlayer_SimpleTurn));
+                : Resources.WpfPlayer_SimpleTurn);
         }
     }
 }

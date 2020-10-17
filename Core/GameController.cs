@@ -8,12 +8,17 @@ using Core.Extensions;
 using Core.Helpers;
 using Core.Interfaces;
 using Core.Models;
+using Core.Properties;
 using Core.Utils;
+
+using NLog;
 
 namespace Core
 {
     public class GameController
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         private readonly ModelController _modelController;
         private readonly PlayerStateMachine _playersControl;
 
@@ -23,7 +28,10 @@ namespace Core
 
         public GameController(int dimension, IGamePlayer blackPlayer, IGamePlayer whitePlayer)
         {
-            if (whitePlayer == null || blackPlayer == null) throw new ArgumentNullException();
+            if (whitePlayer == null || blackPlayer == null)
+            {
+                throw new ArgumentNullException(Resources.Error_NullPlayers);
+            }
 
             _modelController = new ModelController(dimension);
             _playersControl = new PlayerStateMachine(blackPlayer, whitePlayer);
@@ -37,6 +45,8 @@ namespace Core
 
         public async IAsyncEnumerable<GameState> StartGameAsync()
         {
+            Logger.Info(Resources.Info_GameStart);
+
             _playersControl.BlackPlayer.InitGame(PlayerSide.Black);
             _playersControl.WhitePlayer.InitGame(PlayerSide.White);
 
@@ -69,6 +79,8 @@ namespace Core
 
         private void HistoryTraverser()
         {
+            Logger.Info(Resources.Info_HistoryRoll);
+
             _isHistoryRolling = true;
             _tokenSource?.Cancel();
             _playersControl.ChangeStateForNextGet(PlayerStateMachine.MachineState.Repeat);
@@ -76,12 +88,6 @@ namespace Core
 
         private async Task<GameState> MakeTurnAsync()
         {
-            if (!_isGameRunning)
-            {
-                if (FinalGameState == null) FinishGame();
-                return FinalGameState.Value;
-            }
-
             _tokenSource = new CancellationTokenSource();
 
             var (Player, Side) = _playersControl.GetNextPlayer();
@@ -89,6 +95,8 @@ namespace Core
             // Get turn
             var newTurn = await Task.Run(() => Player.MakeTurn(_modelController.Field, _tokenSource.Token))
                 .ConfigureAwait(continueOnCapturedContext: false);
+
+            Logger.Info($"{Side}: {newTurn}");
 
             // Check if game stoped
             if (FinalGameState != null) return FinalGameState.Value;
@@ -114,6 +122,8 @@ namespace Core
 
         private void FinishGame(PlayerSide winner)
         {
+            Logger.Info(Resources.Info_GameEnd);
+
             _isGameRunning = false;
             FinalGameState = new GameState(_modelController.Field, StateType.Finish, winner);
 

@@ -82,5 +82,17 @@ namespace Robot.Properties {
                 this["LosingCost"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("50")]
+        public int MinAwaitTimeMs {
+            get {
+                return ((int)(this["MinAwaitTimeMs"]));
+            }
+            set {
+                this["MinAwaitTimeMs"] = value;
+            }
+        }
     }
 }

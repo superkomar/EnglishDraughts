@@ -1,5 +1,7 @@
 ﻿using System;
 
+using Core.Properties;
+
 namespace Core.Models
 {
     public class NeighborsFinder
@@ -15,10 +17,12 @@ namespace Core.Models
             RightBot
         }
 
-        public NeighborsFinder(int dimension)
+        internal NeighborsFinder(int dimension)
         {
-            if (dimension <= 0) throw new ArgumentException(@"Dimension should be more than zero");
-            //if (dimension % 2 != 0) throw new ArgumentException(@"Dimention must be multiple of two");
+            if (dimension <= 0 )
+            { 
+                throw new ArgumentException(Resources.Error_InvalidDimension);
+            }
 
             _dimension = dimension;
             _cellCount = _dimension * _dimension;

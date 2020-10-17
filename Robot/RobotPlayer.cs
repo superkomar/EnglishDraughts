@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 using Core.Enums;
 using Core.Extensions;
-using Core.Interfaces;
 using Core.Models;
 using Core.Utils;
+
+using NLog;
 
 using Robot.Extensions;
 using Robot.Interfaces;
@@ -19,11 +20,10 @@ namespace Robot
 {
     public class RobotPlayer : IRobotPlayer
     {
-        private static readonly int MinAwaitTimeMs = 50;
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         private PlayerSide _playerSide;
         private List<PriorityTurn> _priorityTurns;
-        private IReporter _reporter;
         
         public int TurnTime { get; set; }
 
@@ -43,17 +43,16 @@ namespace Robot
                     result = turn;
                 }
 
-                //_reporter?.ReportInfo(string.Format("Priority turn: {0}", turn.ToString()));
+                Logger.Debug("Priority turn: {0}", turn.ToString());
             }
 
-            //_reporter?.ReportInfo(string.Format("Final Result: {0}", result.ToString()));
+            Logger.Debug("Final Result: {0}", result.ToString());
 
             return result.Origin;
         }
 
-        public void Init(IReporter reporter, PlayerSide side)
+        public void Init(PlayerSide side)
         {
-            _reporter = reporter;
             _playerSide = side;
         }
 
@@ -66,7 +65,7 @@ namespace Robot
 
             if (_priorityTurns.Count == 1)
             {
-                await Task.Delay(MinAwaitTimeMs);
+                await Task.Delay(Settings.Default.MinAwaitTimeMs);
                 return _priorityTurns.First();
             }
 
@@ -105,9 +104,6 @@ namespace Robot
 
         private Task EstimateTurn(RobotField oldField, GameTurn turn, EstimationParameters parameters)
         {
-            //_reporter.ReportInfo(string.Format("turn: {0} depth: {1,2} side: {2}",
-            //    parameters.TargetTurn.ToString(), parameters.Depth, turn.Side));
-
             if (parameters.Token.IsCancellationRequested)
             {
                 return Task.CompletedTask;
@@ -116,6 +112,7 @@ namespace Robot
             // Check the turn is correct
             if (!GameFieldUtils.TryCreateField(oldField.Origin, turn, out GameField newCoreField))
             { 
+                Logger.Error("Invalid turn: {0}", turn);
                 parameters.TargetTurn.ClarifyPriority(double.NegativeInfinity);
                 throw new ArgumentException($"Invalid turn: {turn}");
             }
@@ -125,7 +122,6 @@ namespace Robot
             var isOppositeTurn = _playerSide != turn.Side;
 
             var newTurns = newField.GetTurnsBySide(turn.Side.ToOpposite());
-            //if (isOppositeTurn) newTurns = FindWorstTurn(oldField, newTurns);
 
             var isGameEnded = false;
             var additionalValue = 0.0;

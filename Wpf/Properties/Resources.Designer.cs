@@ -61,6 +61,24 @@ namespace Wpf.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Geame finished.
+        /// </summary>
+        public static string Log_GameFinish {
+            get {
+                return ResourceManager.GetString("Log_GameFinish", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game started.
+        /// </summary>
+        public static string Log_GameStart {
+            get {
+                return ResourceManager.GetString("Log_GameStart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to End Game.
         /// </summary>
         public static string Wpf_ButtonContent_Finish {

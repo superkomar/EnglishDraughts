@@ -1,9 +1,12 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Threading.Tasks;
 
 using Core;
 using Core.Enums;
 using Core.Interfaces;
+
+using NLog;
 
 using Robot;
 
@@ -15,14 +18,15 @@ namespace Wpf.ViewModels
 {
     internal class MainWindowVM : NotifyPropertyChanged
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         private readonly RobotLauncher _robotLauncher;
         private readonly WpfPlayer _wpfPlayer;
         private GameController _gameController;
         
         public MainWindowVM()
         {
-            Reporter = new StatusReporter();
-            Reporter.ReportStatus(Resources.WpfPlalyer_StartStatus);
+            Reporter = new StatusReporter(Resources.WpfPlalyer_StartStatus);
 
             _wpfPlayer = new WpfPlayer(VMLocator.GameFieldVM, VMLocator.GameControlsVM, Reporter);
             _robotLauncher = new RobotLauncher(VMLocator.GameControlsVM.RobotTime.Value, Reporter);
@@ -30,7 +34,7 @@ namespace Wpf.ViewModels
             AttachHandlers();
         }
 
-        public IReporter Reporter { get; }
+        public IStatusReporter Reporter { get; }
 
         private void AttachHandlers()
         {
@@ -43,7 +47,7 @@ namespace Wpf.ViewModels
             {
                 PlayerSide.White => (_robotLauncher, _wpfPlayer),
                 PlayerSide.Black => (_wpfPlayer, _robotLauncher),
-                _ => throw new System.NotImplementedException(),
+                _ => throw new NotImplementedException(),
             };
 
         private async void OnControllsPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -80,34 +84,45 @@ namespace Wpf.ViewModels
 
         private async Task StartGameAsync()
         {
-            var (Black, White) = GetPlayers();
-
-            _gameController = new GameController(
-                Settings.Default.DefaultFieldDimension,
-                blackPlayer: Black,
-                whitePlayer: White);
-
-            await foreach (var state in _gameController.StartGameAsync())
+            try
             {
-                switch (state.State)
+                var (Black, White) = GetPlayers();
+
+                _gameController = new GameController(
+                    Settings.Default.DefaultFieldDimension,
+                    blackPlayer: Black,
+                    whitePlayer: White);
+
+                await foreach (var state in _gameController.StartGameAsync())
                 {
-                    case StateType.Start:
+                    switch (state.State)
                     {
-                        VMLocator.GameFieldVM.InitGameField(state.Field); break;
-                    }
-                    case StateType.Finish:
-                    {
-                        VMLocator.GameFieldVM.UpdateGameField(state.Field); break;
-                    }
-                    case StateType.Turn:
-                    default:
-                    {
-                        VMLocator.GameFieldVM.UpdateGameField(state.Field); break;
+                        case StateType.Start:
+                        {
+                            VMLocator.GameFieldVM.InitGameField(state.Field);
+                            Logger.Info(Resources.Log_GameStart);
+                            break;
+                        }
+                        case StateType.Finish:
+                        {
+                            VMLocator.GameFieldVM.UpdateGameField(state.Field);
+                            Logger.Info(Resources.Log_GameFinish);
+                            break;
+                        }
+                        case StateType.Turn:
+                        default:
+                        {
+                            VMLocator.GameFieldVM.UpdateGameField(state.Field); break;
+                        }
                     }
                 }
-            }
 
-            VMLocator.GameControlsVM.UpdateState(GameControlsVM.StateType.GameEnd);
+                VMLocator.GameControlsVM.UpdateState(GameControlsVM.StateType.GameEnd);
+            }
+            catch(Exception ex)
+            {
+                Logger.Error(ex);
+            }
         }
     }
 }

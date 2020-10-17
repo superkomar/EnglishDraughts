@@ -61,11 +61,56 @@ namespace Core.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error: dimension must be more then 0.
+        ///   Looks up a localized string similar to Turn should be constructed by valid steps.
         /// </summary>
-        internal static string ArgumentException_Dimension {
+        internal static string Error_EmptySteps {
             get {
-                return ResourceManager.GetString("ArgumentException_Dimension", resourceCulture);
+                return ResourceManager.GetString("Error_EmptySteps", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dimension should be more than zero.
+        /// </summary>
+        internal static string Error_InvalidDimension {
+            get {
+                return ResourceManager.GetString("Error_InvalidDimension", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No players should be null.
+        /// </summary>
+        internal static string Error_NullPlayers {
+            get {
+                return ResourceManager.GetString("Error_NullPlayers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game ended.
+        /// </summary>
+        internal static string Info_GameEnd {
+            get {
+                return ResourceManager.GetString("Info_GameEnd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game started.
+        /// </summary>
+        internal static string Info_GameStart {
+            get {
+                return ResourceManager.GetString("Info_GameStart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to History rolled.
+        /// </summary>
+        internal static string Info_HistoryRoll {
+            get {
+                return ResourceManager.GetString("Info_HistoryRoll", resourceCulture);
             }
         }
     }

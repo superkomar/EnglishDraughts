@@ -6,20 +6,23 @@ using Core.Enums;
 using Core.Interfaces;
 using Core.Models;
 
+using NLog;
+
 using Robot.Interfaces;
-using Robot.Models;
 using Robot.Properties;
 
 namespace Robot
 {
     public class RobotLauncher : IGamePlayer
     {
-        private readonly IReporter _reporter;
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
+        private readonly IStatusReporter _statusReporter;
         private readonly IRobotPlayer _robot;
 
-        public RobotLauncher(int turnTime, IReporter reporter)
+        public RobotLauncher(int turnTime, IStatusReporter statusReporter)
         {
-            _reporter = reporter;
+            _statusReporter = statusReporter;
             _robot = new RobotPlayer();
 
             TurnTime = turnTime;
@@ -36,16 +39,14 @@ namespace Robot
 
         public void InitGame(PlayerSide side)
         {
-            _robot.Init(_reporter, side);
+            _robot.Init(side);
         }
         
         public async Task<GameTurn> MakeTurn(GameField gameField, CancellationToken token)
         {
             GameTurn result;
 
-            _reporter?.ReportStatus(Resources.RobotCalculationStatus);
-
-            _reporter?.ReportInfo($"Robot Time: {TurnTime}");
+            _statusReporter.Status = Resources.RobotCalculationStatus;
 
             try
             {
@@ -71,11 +72,10 @@ namespace Robot
             }
             catch(Exception ex)
             {
-                _reporter?.ReportError(ex.ToString());
+                Logger.Error(ex);
+
                 result = default;
             }
-
-            _reporter?.ReportInfo($"Result: {result}");
 
             return result;
         }

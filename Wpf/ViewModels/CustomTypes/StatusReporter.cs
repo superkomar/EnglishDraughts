@@ -1,38 +1,28 @@
-﻿using System;
-using System.IO;
-
+﻿
 using Core.Interfaces;
 
 namespace Wpf.ViewModels.CustomTypes
 {
-    public class StatusReporter : NotifyPropertyChanged, IReporter
+    public class StatusReporter : NotifyPropertyChanged, IStatusReporter
     {
-        private readonly TextWriter _errorWriter;
-        private readonly TextWriter _infoWriter;
+        private string _status;
 
-        public StatusReporter()
+        public StatusReporter(string startStatus = "")
         {
-            _errorWriter = Console.Error;
-            _infoWriter = Console.Out;
+            Status = startStatus;
+        }
+        
+        public string Status
+        {
+            get => _status;
+            set => OnStatusChanged(value);
         }
 
-        public string Status { get; private set; }
-
-        public void ReportError(string newError)
-        {
-            _errorWriter.WriteLine("!!! Error !!! " + newError);
-        }
-
-        public void ReportInfo(string newInfo)
-        {
-            _infoWriter.WriteLine("Info: " + newInfo);
-        }
-
-        public void ReportStatus(string newStatus)
+        private void OnStatusChanged(string newStatus)
         {
             if (Status == newStatus) return;
 
-            Status = newStatus;
+            _status = newStatus;
             OnPropertyChanged(nameof(Status));
         }
     }
