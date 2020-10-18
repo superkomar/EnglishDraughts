@@ -9,9 +9,9 @@ namespace Core.Helpers
 {
     internal class FieldCellCollection : IReadOnlyList<CellState>
     {
-        private const int CellStateBitMask = 7;
-        private const int CellStateBitSize = 3;
-        private const int CellStateIntCount = 10;
+        private static readonly int CellStateBitSize  = (int)Math.Ceiling(Math.Log2(Enum.GetValues(typeof(CellState)).Length));
+        private static readonly int CellStateIntCount = sizeof(int) * 8 / CellStateBitSize;
+        private static readonly int CellStateBitMask  = (1 << CellStateBitSize) - 1;
 
         private readonly int[] _field;
 
